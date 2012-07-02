@@ -28,7 +28,7 @@
 #define LISTEN UART2toXbee38400
 // #define LISTEN UART0toUSB38400
 
-short derp;
+// short derp;
 
 // extern int do_gait;// = 1;
 
@@ -53,9 +53,9 @@ short derp;
 
 // extern TICK_COUNT speedPhaseFix(TICK_COUNT, TICK_COUNT, TICK_COUNT);
 
-// extern void doLegKinematics(uint16_t, uint16_t*, uint16_t*, uint16_t*, short, \
-		// float, float, float, float, int16_t, float, short);
-
+/*extern void doLegKinematics(uint16_t, uint16_t*, uint16_t*, uint16_t*, short, \
+ 			float, float, float, float, int16_t, float, short);
+*/
 // extern uint8_t calc_foot_h(int16_t, uint16_t, float, int16_t, float, float);
 
 //Servo position variables; defaulting these to centered...
@@ -204,10 +204,10 @@ short derp;
 #define PAN_CENTER 511 + 153 
 #define TILT_CENTER 511 + 95
 
-extern int d_tilt;
-extern int d_pan;
-extern int tilt_pos; // where tilt servo ought to be
-extern int pan_pos;  // where pan servo ought to be
+int d_tilt;
+int d_pan;
+int tilt_pos; // where tilt servo ought to be
+int pan_pos;  // where pan servo ought to be
 
 // // 4*52 -> 60 degrees?
 // extern uint16_t servo51Min;
@@ -236,20 +236,68 @@ extern int pan_pos;  // where pan servo ought to be
 // extern TICK_COUNT guns_firing_duration;
 // extern TICK_COUNT spdChngOffset;
 
-extern short turnright;
-extern short turnleft;
-extern short gunbutton;
-extern short panicbutton;
-extern short infobutton;
-extern short agitbutton;
+short turnright;
+short turnleft;
+short gunbutton;
+short panicbutton;
+short infobutton;
+short agitbutton;
 
 // extern uint16_t loopLengthList[];
 
 // extern int16_t ang_dir;
-extern short walk;
-extern short turn;
-extern short light;
-extern short kneeling;
-extern short flopCnt;
-extern short panic;
+short walk;
+short turn;
+short light;
+short kneeling;
+short flopCnt;
+short panic;
 // extern TICK_COUNT agitate;
+
+int pan_add;
+int tilt_add;
+
+/////////////
+// From Webbotlib: libdefs.h
+// MIN/MAX/ABS macros
+#define MIN(a,b)			(((a)<(b))?(a):(b))
+#define MAX(a,b)			(((a)>(b))?(a):(b))
+#define ABS(x)				(((x)>0)?(x):(-(x)))
+
+// Clamp a value to be in a given range
+#define CLAMP(val, min, max) MAX(MIN(val,max),min)
+
+///////////////
+// The former contents of Commander.h
+//#ifndef Commander_h
+//#define Commander_h
+//
+//#define LISTEN UART2toXbee38400
+
+/* bitmasks for buttons array */
+#define BUT_R1      0x01
+#define BUT_R2      0x02
+#define BUT_R3      0x04
+#define BUT_L4      0x08
+#define BUT_L5      0x10
+#define BUT_L6      0x20
+#define BUT_RT      0x40
+#define BUT_LT      0x80
+
+int CmdrReadMsgs();
+void UseSouthPaw();
+
+// variables used for reading messages
+unsigned char vals[7];  // temporary values, moved after we confirm checksum_cmdr
+int index_cmdr;              // -1 = waiting for new packet
+int checksum_cmdr;
+unsigned char southpaw; 
+
+int walkV;
+int walkH;
+int lookV;
+int lookH;
+int walkSPD;
+float walkDIR;
+
+//#endif
