@@ -34,6 +34,9 @@
 
 // #include "Commander.h"
 
+#include "dynamixel.h"
+#include "ax.h"
+
 
 /** Parameters ****************************************************************/
 #define SERIAL_MODE_AUTO        0
@@ -42,6 +45,7 @@
 #define SERIAL_MODE_USB_UART    3
 int32 CODE param_serial_mode = SERIAL_MODE_AUTO;
 
+// This is the baud rate used by UART
 int32 CODE param_baud_rate = 9600;
 
 int32 CODE param_nDTR_pin = 10;
@@ -318,10 +322,11 @@ void uartToRadioService()
         radioComTxSendByte(uart1RxReceiveByte());
     }
 
-    while(radioComRxAvailable() && uart1TxAvailable())
-    {
-        uart1TxSendByte(radioComRxReceiveByte());
-    }
+    CmdrReadMsgs()
+//    while(radioComRxAvailable() && uart1TxAvailable())
+//    {
+//        uart1TxSendByte(radioComRxReceiveByte());
+//    }
 
     // Control Signals.
     ioTxSignals(radioComRxControlSignals());
@@ -356,24 +361,27 @@ void usbToUartService()
  *  format = 0xFF RIGHT_H RIGHT_V LEFT_H LEFT_V BUTTONS EXT checksum_cmdr */
 int CmdrReadMsgs(){
 	//while(LISTEN.available() > 0){
-	while(uart1RxAvailable() == zFALSE){
+	while(radioComRxAvailableailable() == zFALSE){
 		if(index_cmdr == -1){         // looking for new packet
-			if(uart1RxReceiveByte() == 0xff){ //read until packet start
+			if(radioComRxReceiveByte() == 0xff){ //read until packet start
 				index_cmdr = 0;
 				checksum_cmdr = 0;
 			}
 		}else if(index_cmdr == 0){
-			vals[index_cmdr] = (unsigned char) uart1RxReceiveByte();
+			vals[index_cmdr] = (unsigned char) radioComRxReceiveByte();
 			if(vals[index_cmdr] != 0xff){            
 				checksum_cmdr += (int) vals[index_cmdr];
 				index_cmdr++;
 			}
 		}else{
-			vals[index_cmdr] = (unsigned char) uart1RxReceiveByte(); //loops will sequentially read bytes and store them here
+			vals[index_cmdr] = (unsigned char) radioComRxReceiveByte(); 
+			//loops will sequentially read bytes and store them here
+
 			checksum_cmdr += (int) vals[index_cmdr];
 			index_cmdr++;
 			
-			// DEBUG: if all packets go through, shoudl see x2 through x7 when Commander input is being received.
+			// DEBUG: if all packets go through, shoudl see x2 through 
+			// 	x7 when Commander input is being received.
 			// rprintf("x%u ",index_cmdr);
 			
 			if(index_cmdr == 7){ // packet complete
@@ -527,9 +535,9 @@ void main()
 
         switch(currentSerialMode)
         {
-        case SERIAL_MODE_USB_RADIO:  usbToRadioService();  break;
+	//case SERIAL_MODE_USB_RADIO:  usbToRadioService();  break;
         case SERIAL_MODE_UART_RADIO: uartToRadioService(); break;
-        case SERIAL_MODE_USB_UART:   usbToUartService();   break;
+        //case SERIAL_MODE_USB_UART:   usbToUartService();   break;
         }
     }
 }
