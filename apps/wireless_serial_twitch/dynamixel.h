@@ -2,7 +2,7 @@
 #ifndef _DYNAMIXEL_H_
 #define _DYNAMIXEL_H_
 
-#include <avr/io.h>
+// #include <avr/io.h>
 
 #define DYNAMIXEL_BAUDRATE 1000000
 
@@ -32,10 +32,12 @@
 #define DYNAMIXEL_TX_FAIL     4
 #define DYNAMIXEL_TX_TIMEOUT  5
 
+#include <wixel.h>
+
 void dynamixel_init(void);
 void dynamixel_settx(void);
 void dynamixel_setrx(void);
-void dynamixel_write(uint8 c);
+extern void dynamixel_write(uint8 c);
 
 uint8 dynamixel_calculatechecksum(volatile uint8* packet);
 uint8 dynamixel_writepacket(volatile uint8* packet, uint8 legnth);

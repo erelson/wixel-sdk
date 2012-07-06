@@ -11,6 +11,8 @@
 ///%c Expects a 'char', 'signed char', 'int8_t', 'int16_t', 'int'
 ///%f Expects a 'float' or 'double'
 
+#include <wixel.h>
+
 // defines for turning various bits of output on/off
 #define PRINT_IR_RANGE 0
 #define PRINT_DEBUG_COMMANDER 1
