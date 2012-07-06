@@ -34,7 +34,7 @@
 
 // #include "Commander.h"
 
-#include "dynamixel.h"
+// #include "dynamixel.h"
 #include "ax.h"
 
 
@@ -322,7 +322,7 @@ void uartToRadioService()
         radioComTxSendByte(uart1RxReceiveByte());
     }
 
-    CmdrReadMsgs()
+    CmdrReadMsgs();
 //    while(radioComRxAvailable() && uart1TxAvailable())
 //    {
 //        uart1TxSendByte(radioComRxReceiveByte());
@@ -361,7 +361,7 @@ void usbToUartService()
  *  format = 0xFF RIGHT_H RIGHT_V LEFT_H LEFT_V BUTTONS EXT checksum_cmdr */
 int CmdrReadMsgs(){
 	//while(LISTEN.available() > 0){
-	while(radioComRxAvailableailable() == zFALSE){
+	while(radioComRxAvailable() == zFALSE){
 		if(index_cmdr == -1){         // looking for new packet
 			if(radioComRxReceiveByte() == 0xff){ //read until packet start
 				index_cmdr = 0;
