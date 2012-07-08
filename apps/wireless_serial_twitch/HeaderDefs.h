@@ -206,10 +206,10 @@
 #define PAN_CENTER 511 + 153 
 #define TILT_CENTER 511 + 95
 
-int d_tilt;
-int d_pan;
-int tilt_pos; // where tilt servo ought to be
-int pan_pos;  // where pan servo ought to be
+uint8 d_tilt;
+uint8 d_pan;
+uint8 tilt_pos; // where tilt servo ought to be
+uint8 pan_pos;  // where pan servo ought to be
 
 // // 4*52 -> 60 degrees?
 // extern uint16_t servo51Min;
@@ -256,8 +256,8 @@ short flopCnt;
 short panic;
 // extern TICK_COUNT agitate;
 
-int pan_add;
-int tilt_add;
+uint8 pan_add;
+uint8 tilt_add;
 
 /////////////
 // From Webbotlib: libdefs.h
