@@ -16,7 +16,8 @@
 #define DYNAMIXEL_PARAMETER    5
 
 #define DYNAMIXEL_BROADCAST_ID  254
-#define DYNAMIXEL_PACKET_SIZE   128
+#define DYNAMIXEL_PACKET_SIZE   128 //Same size for both RX and TX buffer...
+                                    //???
 
 #define DYNAMIXEL_PING        1
 #define DYNAMIXEL_READ        2
