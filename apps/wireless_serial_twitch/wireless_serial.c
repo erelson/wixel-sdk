@@ -34,7 +34,7 @@
 
 // #include "Commander.h"
 
-// #include "dynamixel.h"
+#include "dynamixel.h"
 #include "ax.h"
 
 
@@ -46,7 +46,8 @@
 int32 CODE param_serial_mode = SERIAL_MODE_AUTO;
 
 // This is the baud rate used by UART
-int32 CODE param_baud_rate = 9600;
+// Note: Wixel maximum UART sbaud rate is 1.5 Mbaud.
+int32 CODE param_baud_rate = DYNAMIXEL_BAUDRATE;
 
 int32 CODE param_nDTR_pin = 10;
 int32 CODE param_nRTS_pin = 11;
@@ -266,6 +267,7 @@ void errorService()
 }
 
 void updateSerialMode()
+//Switches between USB/UART/radio pairings
 {
     if ((uint8)param_serial_mode > 0 && (uint8)param_serial_mode <= 3)
     {
@@ -290,29 +292,29 @@ void updateSerialMode()
     }
 }
 
-void usbToRadioService()
-{
-    uint8 signals;
+// void usbToRadioService()
+// {
+    // uint8 signals;
 
-    // Data
-    while(usbComRxAvailable() && radioComTxAvailable())
-    {
-        radioComTxSendByte(usbComRxReceiveByte());
-    }
+    // // Data
+    // while(usbComRxAvailable() && radioComTxAvailable())
+    // {
+        // radioComTxSendByte(usbComRxReceiveByte());
+    // }
 
-    while(radioComRxAvailable() && usbComTxAvailable())
-    {
-        usbComTxSendByte(radioComRxReceiveByte());
-    }
+    // while(radioComRxAvailable() && usbComTxAvailable())
+    // {
+        // usbComTxSendByte(radioComRxReceiveByte());
+    // }
 
-    // Control Signals
+    // // Control Signals
 
-    radioComTxControlSignals(usbComRxControlSignals() & 3);
+    // radioComTxControlSignals(usbComRxControlSignals() & 3);
 
-    // Need to switch bits 0 and 1 so that DTR pairs up with DSR.
-    signals = radioComRxControlSignals();
-    usbComTxControlSignals( ((signals & 1) ? 2 : 0) | ((signals & 2) ? 1 : 0));
-}
+    // // Need to switch bits 0 and 1 so that DTR pairs up with DSR.
+    // signals = radioComRxControlSignals();
+    // usbComTxControlSignals( ((signals & 1) ? 2 : 0) | ((signals & 2) ? 1 : 0));
+// }
 
 void uartToRadioService()
 {
@@ -321,9 +323,10 @@ void uartToRadioService()
     {
         radioComTxSendByte(uart1RxReceiveByte());
     }
-
-    CmdrReadMsgs();
-//    while(radioComRxAvailable() && uart1TxAvailable())
+	
+	//Read radio's buffer
+    CmdrReadMsgs(); //In this case, CmdrReadMsgs() does the reading.
+	//    while(radioComRxAvailable() && uart1TxAvailable())
 //    {
 //        uart1TxSendByte(radioComRxReceiveByte());
 //    }
@@ -333,29 +336,29 @@ void uartToRadioService()
     radioComTxControlSignals(ioRxSignals());
 }
 
-void usbToUartService()
-{
-    uint8 signals;
+// void usbToUartService()
+// {
+    // uint8 signals;
 
-    // Data
-    while(usbComRxAvailable() && uart1TxAvailable())
-    {
-        uart1TxSendByte(usbComRxReceiveByte());
-    }
+    // // Data
+    // while(usbComRxAvailable() && uart1TxAvailable())
+    // {
+        // uart1TxSendByte(usbComRxReceiveByte());
+    // }
 
-    while(uart1RxAvailable() && usbComTxAvailable())
-    {
-        usbComTxSendByte(uart1RxReceiveByte());
-    }
+    // while(uart1RxAvailable() && usbComTxAvailable())
+    // {
+        // usbComTxSendByte(uart1RxReceiveByte());
+    // }
 
-    ioTxSignals(usbComRxControlSignals());
+    // ioTxSignals(usbComRxControlSignals());
 
-    // Need to switch bits 0 and 1 so that DTR pairs up with DSR.
-    signals = ioRxSignals();
-    usbComTxControlSignals( ((signals & 1) ? 2 : 0) | ((signals & 2) ? 1 : 0));
+    // // Need to switch bits 0 and 1 so that DTR pairs up with DSR.
+    // signals = ioRxSignals();
+    // usbComTxControlSignals( ((signals & 1) ? 2 : 0) | ((signals & 2) ? 1 : 0));
 
-    // TODO: report framing, parity, and overrun errors to the USB host here
-}
+    // // TODO: report framing, parity, and overrun errors to the USB host here
+// }
 
 /* process messages coming from Commander 
  *  format = 0xFF RIGHT_H RIGHT_V LEFT_H LEFT_V BUTTONS EXT checksum_cmdr */
@@ -505,7 +508,6 @@ void main()
     ioTxSignals(0);
 
     usbInit();
-
     uart1Init();
     uart1SetBaudRate(param_baud_rate);
 
