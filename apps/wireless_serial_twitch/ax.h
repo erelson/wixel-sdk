@@ -2,6 +2,9 @@
 #ifndef _AX_H_
 #define _AX_H_
 
+#include <wixel.h>
+#include "dynamixel.h"
+
 #define AX_MIN_VALUE     0
 #define AX_MAX_VALUE     1023
 #define AX_CENTER_VALUE  512
@@ -36,8 +39,8 @@
 #define AX_CCW_COMPLIANCE_MARGIN   27
 #define AX_CW_COMPLIANCE_SLOPE     28
 #define AX_CCW_COMPLIANCE_SLOPE    29
-#define AX_GOAL_POSITION_L         30
-#define AX_GOAL_POSITION_H         31
+#define AX_GOAL_POSITION_L         30   //Webbotlib uses this one in setGoalPosition()
+#define AX_GOAL_POSITION_H         31   // L=low, H=high
 #define AX_GOAL_SPEED_L            32
 #define AX_GOAL_SPEED_H            33
 #define AX_TORQUE_LIMIT_L          34
@@ -56,6 +59,8 @@
 #define AX_PUNCH_L                 48
 #define AX_PUNCH_H                 49
 
+/// The below lines are adapted from AX12.h in Webbotlib. Check out Clive Webster's work at http://webbot.org.uk/
 
+#define ax12SetGOAL_POSITION(servo,val) 	dynamixel_writeword(servo,AX_GOAL_SPEED_L,CLAMP(val,0,1023))	
 
 #endif
