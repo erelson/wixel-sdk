@@ -43,7 +43,8 @@
 #define SERIAL_MODE_USB_RADIO   1
 #define SERIAL_MODE_UART_RADIO  2
 #define SERIAL_MODE_USB_UART    3
-int32 CODE param_serial_mode = SERIAL_MODE_AUTO;
+// int32 CODE param_serial_mode = SERIAL_MODE_AUTO;
+int32 CODE param_serial_mode = SERIAL_MODE_UART_RADIO;
 
 // This is the baud rate used by UART
 // Note: Wixel maximum UART sbaud rate is 1.5 Mbaud.
@@ -269,27 +270,28 @@ void errorService()
 void updateSerialMode()
 //Switches between USB/UART/radio pairings
 {
-    if ((uint8)param_serial_mode > 0 && (uint8)param_serial_mode <= 3)
-    {
-        currentSerialMode = (uint8)param_serial_mode;
-        return;
-    }
+    // if ((uint8)param_serial_mode > 0 && (uint8)param_serial_mode <= 3)
+    // {
+        // currentSerialMode = (uint8)param_serial_mode;
+        // return;
+    // }
 
-    if (usbPowerPresent())
-    {
-        if (vinPowerPresent())
-        {
-            currentSerialMode = SERIAL_MODE_USB_UART;
-        }
-        else
-        {
-            currentSerialMode = SERIAL_MODE_USB_RADIO;
-        }
-    }
-    else
-    {
-        currentSerialMode = SERIAL_MODE_UART_RADIO;
-    }
+    // if (usbPowerPresent())
+    // {
+        // if (vinPowerPresent())
+        // {
+            // currentSerialMode = SERIAL_MODE_USB_UART;
+        // }
+        // else
+        // {
+            // currentSerialMode = SERIAL_MODE_USB_RADIO;
+        // }
+    // }
+    // else
+    // {
+        // currentSerialMode = SERIAL_MODE_UART_RADIO;
+    // }
+	currentSerialMode = SERIAL_MODE_UART_RADIO;
 }
 
 // void usbToRadioService()
@@ -359,6 +361,27 @@ void uartToRadioService()
 
     // // TODO: report framing, parity, and overrun errors to the USB host here
 // }
+
+/*
+*	Interpolate between two signed numbers
+*	value - the current value to be used
+*   minVal - the minimum that 'value' can be
+*   maxVal - the maximum that 'value' can be
+*   minRtn - the return value if 'value = minVal'
+*   maxRtn - the return value if 'value = maxVal'
+*   return a value in the range minRtn to maxRtn
+*/
+int16 interpolate(int16 value, int16 minVal, int16 maxVal, int16 minRtn, int16 maxRtn){
+	register int32  lRtnRange;
+	register int32 lValRange;
+	register int32 lRelVal;
+
+	lRtnRange = maxRtn - minRtn;
+	lValRange = maxVal - minVal;
+	lRelVal = value - minVal;
+	lRtnRange =  minRtn + ( lRtnRange * lRelVal / lValRange );
+	return (int16)lRtnRange;
+}
 
 /* process messages coming from Commander 
  *  format = 0xFF RIGHT_H RIGHT_V LEFT_H LEFT_V BUTTONS EXT checksum_cmdr */
@@ -503,6 +526,9 @@ void UseSouthPaw(){
 void main()
 {
     systemInit();
+	
+	//Among other things, allocates byte arrays for sending commands.
+	dynamixel_init();
 
     setDigitalOutput(param_arduino_DTR_pin, LOW);
     ioTxSignals(0);
@@ -516,6 +542,9 @@ void main()
         radioComRxEnforceOrdering = 1;
         radioComInit();
     }
+	
+	// Initial setting of serial mode
+	updateSerialMode();
 
     // Set up P1_5 to be the radio's TX debug signal.
     P1DIR |= (1<<5);
@@ -523,6 +552,10 @@ void main()
 
     while(1)
     {
+		uint32 ms;
+		uint16 now;
+		uint16 speed;
+		
         updateSerialMode();
         boardService();
         updateLeds();
@@ -533,13 +566,24 @@ void main()
             radioComTxService();
         }
 
+		//Unneeded?
         usbComService();
 
-        switch(currentSerialMode)
-        {
-	//case SERIAL_MODE_USB_RADIO:  usbToRadioService();  break;
-        case SERIAL_MODE_UART_RADIO: uartToRadioService(); break;
-        //case SERIAL_MODE_USB_UART:   usbToUartService();   break;
-        }
+        // switch(currentSerialMode)
+        // {
+	// //case SERIAL_MODE_USB_RADIO:  usbToRadioService();  break;
+        // case SERIAL_MODE_UART_RADIO: uartToRadioService(); break;
+        // //case SERIAL_MODE_USB_UART:   usbToUartService();   break;
+        // }
+		ms = getMs();		// Get current time in ms
+		now = ms % (uint32)10000; 	// 10 sec for a full swing
+		if(now >= (uint16)5000){				// Goes from 0ms...5000ms
+			now = (uint16)10000 - now;			// then 5000ms...0ms
+		}
+		speed = interpolate(now, 0, 5000, 100, 900);
+		
+		ax12SetGOAL_POSITION(32, speed);
+	
+		delayMs(30);
     }
 }
