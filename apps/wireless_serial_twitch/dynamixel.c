@@ -83,7 +83,7 @@ void dynamixel_setrx(void)
 	// Based on: #define LED_RED(v)          {((v) ? (P2DIR |= 0x02) : (P2DIR &= ~0x02));}
 	//which says: if v, then PSDIR |= 0x02; else PSDIR &= ~0x02
 	//               note |= means binary or... if a bit is already high, it stays high. only bit 2 is toggled.
-	P1DIR &= 0x02; //Disable pin P2_1
+	P1DIR &= ~0x02; //Disable pin P2_1
 	
 	//  // These were commented out in the original code.
 	// //UCSR0B &= ~(1 << TXEN0);
@@ -103,10 +103,13 @@ void dynamixel_write(uint8 c)
 	
 	//Derived from uartToRadioService() in wireless_serial.c
 	// Should accomplish what the original AVR-specific code above did.
-    while(uart1TxAvailable())
-    {
-        uart1TxSendByte(c);
-    }
+    // while(uart1TxAvailable())
+    // {
+        // uart1TxSendByte(c);
+    // }
+	
+	//But I didn't like the above... so
+	uart1TxSendByte(c);
 }
 
 uint8 dynamixel_calculatechecksum(volatile uint8* packet)
@@ -179,10 +182,10 @@ uint8 dynamixel_txrx(volatile uint8* txpacket, volatile uint8* rxpacket)
 	{	
 		// and if TX packet was a read request
 		if(txpacket[DYNAMIXEL_INSTRUCTION] == DYNAMIXEL_READ)
-			//Read 
+			//Read back whatever the servos says in return...
 			rxlength = txpacket[DYNAMIXEL_PARAMETER + 1] + 6;
 		else
-			rxlength = 6; // Default answer packet length?
+			rxlength = 6; // Default answer packet length? for DYNAMIXEL_WRITE?
 			
 		return dynamixel_readpacket(rxpacket, rxlength);			
 	}
@@ -264,7 +267,7 @@ uint8 dynamixel_readtable(uint8 id, uint8 start_address, uint8 end_address, uint
 
 /// TRANSMIT STUFF
 uint8 dynamixel_writebyte(uint8 id, uint8 address, uint8 value)
-{	
+{	//Call this method to setup writing a 8bit value
 	dynamixel_txpacket[DYNAMIXEL_ID]          = (uint8) id;
 	dynamixel_txpacket[DYNAMIXEL_LENGTH]      = (uint8) 4;
 	dynamixel_txpacket[DYNAMIXEL_INSTRUCTION] = (uint8) DYNAMIXEL_WRITE;
@@ -275,7 +278,7 @@ uint8 dynamixel_writebyte(uint8 id, uint8 address, uint8 value)
 }
 
 uint8 dynamixel_writeword(uint8 id, uint8 address, uint16 value)
-{	
+{	//Call this method to setup writing a 16bit value
 	dynamixel_txpacket[DYNAMIXEL_ID]          = (uint8) id;
 	dynamixel_txpacket[DYNAMIXEL_LENGTH]      = (uint8) 5;
 	dynamixel_txpacket[DYNAMIXEL_INSTRUCTION] = (uint8) DYNAMIXEL_WRITE;
@@ -287,13 +290,13 @@ uint8 dynamixel_writeword(uint8 id, uint8 address, uint16 value)
 }
 
 uint8 dynamixel_syncwrite(uint8 address, uint8 length, uint8 number, uint8* param)
-{		
+{	//Call this method to ????
 	uint8 i;
 	
 	dynamixel_txpacket[DYNAMIXEL_ID]          = (uint8) DYNAMIXEL_BROADCAST_ID;
 	dynamixel_txpacket[DYNAMIXEL_INSTRUCTION] = (uint8) DYNAMIXEL_SYNC_WRITE;
 	dynamixel_txpacket[DYNAMIXEL_PARAMETER]   = (uint8) address;
-	dynamixel_txpacket[DYNAMIXEL_PARAMETER+1] = (uint8) length;
+	dynamixel_txpacket[DYNAMIXEL_PARAMETER+1] = (uint8) length; // The length of the packet where its value is “Number of parameters (N) +2”
 	dynamixel_txpacket[DYNAMIXEL_LENGTH]      = (uint8) ((length + 1) * number + 4);
 
 	for(i = 0; i < ((length + 1) * number); i++){
