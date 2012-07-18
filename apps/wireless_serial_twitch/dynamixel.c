@@ -58,7 +58,8 @@ void dynamixel_settx(void)
 	// // Set UART direction pins
 	// PORTD |= (1 << PD2);
 	// PORTD &= ~(1 << PD3);
-	P1DIR |= 0x02; //Enable pin P2_1
+	P1DIR &= ~0x02; //Disable pin P1_1
+	P1DIR |= 0x20; //Enable pin P1_5
 	
 	//  // These were commented out in the original code.
 	// //UCSR0B |= (1 << TXEN0);
@@ -83,7 +84,9 @@ void dynamixel_setrx(void)
 	// Based on: #define LED_RED(v)          {((v) ? (P2DIR |= 0x02) : (P2DIR &= ~0x02));}
 	//which says: if v, then PSDIR |= 0x02; else PSDIR &= ~0x02
 	//               note |= means binary or... if a bit is already high, it stays high. only bit 2 is toggled.
-	P1DIR &= ~0x02; //Disable pin P2_1
+	
+	P1DIR &= ~0x20; //Disable pin P1_5
+	P1DIR |= 0x02; //Enable pin P1_1
 	
 	//  // These were commented out in the original code.
 	// //UCSR0B &= ~(1 << TXEN0);
