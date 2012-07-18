@@ -547,9 +547,11 @@ void main()
 	updateSerialMode();
 
     // Set up P1_5 to be the radio's TX debug signal.
-    P1DIR |= (1<<5);
-    IOCFG0 = 0b011011; // P1_5 = PA_PD (TX mode)
+    // P1DIR |= (1<<5);
+    // IOCFG0 = 0b011011; // P1_5 = PA_PD (TX mode)
 
+	// P1DIR |= 0x20; //Enable pin P1_5
+	
     while(1)
     {
 		uint32 ms;
@@ -582,7 +584,7 @@ void main()
 		}
 		speed = interpolate(now, 0, 5000, 100, 900);
 		
-		ax12SetGOAL_POSITION(32, speed);
+		ax12SetGOAL_POSITION(52, speed);
 	
 		delayMs(30);
     }
