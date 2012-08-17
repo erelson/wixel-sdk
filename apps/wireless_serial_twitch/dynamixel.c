@@ -58,6 +58,8 @@ void dynamixel_settx(void)
 	// // Set UART direction pins
 	// PORTD |= (1 << PD2);
 	// PORTD &= ~(1 << PD3);
+	
+	delayMicroseconds(10);
 	P1DIR &= ~0x02; //Disable pin P1_1
 	P1DIR |= 0x20; //Enable pin P1_5
 	
@@ -75,7 +77,7 @@ void dynamixel_setrx(void)
 	// // Not apparent what the SDCC equivalent is.
 	
 	// _delay_us(1);
-	delayMicroseconds(1);
+	delayMicroseconds(10);
 	
 	// // Set UART direction pins
 	// PORTD &= ~(1 << PD2);

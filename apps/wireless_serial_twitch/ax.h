@@ -61,6 +61,6 @@
 
 /// The below lines are adapted from AX12.h in Webbotlib. Check out Clive Webster's work at http://webbot.org.uk/
 
-#define ax12SetGOAL_POSITION(servo,val) 	dynamixel_writeword(servo,AX_GOAL_SPEED_L,CLAMP(val,0,1023))	
+#define ax12SetGOAL_POSITION(servo,val) 	dynamixel_writeword(servo,AX_GOAL_POSITION_L,CLAMP(val,0,1023))	
 
 #endif

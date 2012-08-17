@@ -22,7 +22,7 @@
 #include <wixel.h>
 
 #include <uart1.h>
-
+#include <usb.h>
 
 #include "HeaderDefs.h"
 
@@ -97,7 +97,7 @@ void updateLeds()
         errorOccurredRecently = 0;
     }
 
-    LED_RED(errorOccurredRecently || uartRxDisabled);
+    LED_YELLOW(errorOccurredRecently || uartRxDisabled);
 }
 
 /* Returns the logical values of the input control signal pins.
@@ -289,7 +289,7 @@ void main()
 	}
 	speed = interpolate(now, 0, 5000, 100, 900); // speed is really the position.
 	
-	ax12SetGOAL_POSITION(52, speed);
+	ax12SetGOAL_POSITION(32, speed);
 
 	delayMs(30);
     }
