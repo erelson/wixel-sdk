@@ -11,6 +11,10 @@ typedef unsigned char  uint8;
 /** A signed 8-bit integer.  The range of this data type is -128 to 127. **/
 typedef signed   char  int8;
 
+// create a type for boolean
+//typedef int8_t boolean;
+typedef signed   char boolean;
+
 /** An unsigned 16-bit integer.  The range of this data type is 0 to 65,535. **/
 typedef unsigned short uint16;
 
