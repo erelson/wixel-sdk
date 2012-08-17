@@ -37,33 +37,73 @@
 #ifndef GAITRUNNER_H_
 #define GAITRUNNER_H_
 
-#include "../libdefs.h"
-#include "../actuators.h"
+#include <wixel.h>
+// #include "../libdefs.h"
+// #include "../actuators.h"
 
 #ifdef __cplusplus
 /* ===================== C Code ===============================================*/
 extern "C" {
 #endif
 
+/**~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~From libdefs.h~~~~~~~~~~~~**/
+#define FALSE 0
+#define TRUE  1
+#define __inline__
+#define  null ((void*)0)
+
+	#define pgm_read_byte(addr) *addr
+	#define pgm_read_word(addr) *addr
+
+/** ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~From actuators.h~~~~~~~~~~~~~~~~~~~~~~~~~~~~~**/
+#define DRIVE_SPEED_MIN   ((int8)-127)
+#define DRIVE_SPEED_MAX ((int8) 127)
+// Define forward references
+struct c_actuator_driver;
+
+/*----------------------------------------------------------------------------------------
+* An abstract datatype used by all of the different actuators.
+* The only time when it is used by itself is a 'virtual' actuator where the device is
+* connected to a 3rd party driver board - where we only talk to the controller board
+* rather than to each actuator directly
+-----------------------------------------------------------------------------------------*/
+
+typedef struct s_actuator_common{
+	const struct c_actuator_driver* sclass;// The driver class that controls this actuator
+	int8	  required_speed;	// The last required speed that has been set. Note that the motor might not yet be at that speed. See encoders.
+	boolean		  connected:1;		// When disconnected a device will freewheel, as opposed to speed=0 which will make it brake
+	const boolean inverted:1;		// If TRUE then will reverse the direction of the motor ie it will use 'required_speed * -1'. So if your motor is
+									// turning the wrong way then just flip this flag
+} __ACTUATOR;
+
+// Define the standard constructor for an actuator
+// Start with a speed of -128 so that the next setSpeed is a change
+#define MAKE_ACTUATOR_WITH_CLASS(class,inverted)  {class, -128 ,FALSE, inverted}
+#define MAKE_ACTUATOR(inverted)  MAKE_ACTUATOR_WITH_CLASS(null,inverted)
+
+typedef __ACTUATOR* /*PROGMEM*/  ACTUATOR_LIST;
+/** ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~**/
+
+
 // Define the position of one limb
 typedef struct s_limbPos{
-	int16_t		cubeX,cubeY;
-	int16_t		squareX,squareY;
-	int16_t		timeX,timeY;
-	DRIVE_SPEED	startY;
+	int16		cubeX,cubeY;
+	int16		squareX,squareY;
+	int16		timeX,timeY;
+	int8	startY;
 } G8_LIMB_POSITION;
 #define MAKE_G8_LIMB_POSITION(cubeX,cubeY,squareX,squareY, timeX, timeY, startY) {cubeX,cubeY,squareX,squareY, timeX, timeY, startY}
 
 // Define the position of all limbs for a given frame
 typedef struct s_frame{
-	uint16_t	time;				// This moment in time 0...1000
+	uint16	time;				// This moment in time 0...1000
 	const G8_LIMB_POSITION* limbs;	// The array of limb positions
 } G8_FRAME;
 #define MAKE_G8_FRAME(time, limbs) { time, limbs }
 
 // Define one animation
 typedef struct s_animation{
-	const uint8_t			numFrames;		// Number of frames in this animation
+	const uint8			numFrames;		// Number of frames in this animation
 	const G8_FRAME* const	frames;			// The array of frames
 	const boolean			sweep;			// Does it sweep back and forth?
 } G8_ANIMATION;
@@ -72,30 +112,30 @@ typedef struct s_animation{
 // Define the gait runner itself
 typedef struct s_runner{
 	const ACTUATOR_LIST* const 	actuators;		// The list of actuators to control
-	const uint8_t 	 		num_actuators;	// The number of actuators in the list
+	const uint8 	 		num_actuators;	// The number of actuators in the list
 	const G8_ANIMATION* const 	animations;	// The address of the animations array
-	volatile uint8_t 		animation;		// The current animation
-	volatile uint8_t		frame;			// The current frame in the animation
-	volatile int16_t		repeatCount;	// Number of loops to play (0=forever)
+	volatile uint8 		animation;		// The current animation
+	volatile uint8		frame;			// The current frame in the animation
+	volatile int16		repeatCount;	// Number of loops to play (0=forever)
 	volatile boolean		playing;		// Is an animation current playing?
-	volatile TICK_COUNT		startTime;		// Time when the animation started
-	volatile int16_t		currentTime;	// The current time offset
-	volatile int16_t		totalTime;		// The total time required to play the animation
+	volatile uint32		startTime;		// Time when the animation started
+	volatile int16		currentTime;	// The current time offset
+	volatile int16		totalTime;		// The total time required to play the animation
 	volatile boolean		backwards;		// Are we playing the animation backwards
-	volatile DRIVE_SPEED	speed;			// The speed of animation
-	volatile DRIVE_SPEED*	speeds;			// The speed/position setting for each actuator
-	volatile DRIVE_SPEED*	delta;			// The speed/position setting to add for each actuator
+	volatile int8	speed;			// The speed of animation
+	volatile int8*	speeds;			// The speed/position setting for each actuator
+	volatile int8*	delta;			// The speed/position setting to add for each actuator
 } G8_RUNNER;
 
 #define MAKE_G8_RUNNER(list, animations) { list, \
-		(uint8_t)(sizeof(list)/sizeof(__ACTUATOR*)), \
+		(uint8)(sizeof(list)/sizeof(__ACTUATOR*)), \
 		animations, 0,0,0,false,0,0,0,false, 0, null,null };
 
 // Initialise a gait runner from appInitHardware or appInitSoftware
 void gaitRunnerInit(G8_RUNNER* runner);
 
 // Start running a new animation
-void gaitRunnerPlay(G8_RUNNER* runner, uint8_t animation, int16_t loopSpeed, DRIVE_SPEED speed, int16_t repeatCount);
+void gaitRunnerPlay(G8_RUNNER* runner, uint8 animation, int16 loopSpeed, int8 speed, int16 repeatCount);
 
 // Stop the animation when it next reaches its last frame
 static __inline__ void gaitRunnerStop(G8_RUNNER* runner){
@@ -113,19 +153,19 @@ static __inline__ boolean gaitRunnerIsPlaying(const G8_RUNNER* runner){
 	return runner->playing;
 }
 
-static __inline__ int16_t gaitRunnerRepeatCount(const G8_RUNNER* runner){
+static __inline__ int16 gaitRunnerRepeatCount(const G8_RUNNER* runner){
 	return runner->repeatCount;
 }
 
-static __inline__ void gaitRunnerSetSpeed(G8_RUNNER* runner, DRIVE_SPEED speed ){
+static __inline__ void gaitRunnerSetSpeed(G8_RUNNER* runner, int8 speed ){
 	runner->speed = speed;
 }
-static __inline__ DRIVE_SPEED gaitRunnerGetSpeed(const G8_RUNNER* runner ){
+static __inline__ int8 gaitRunnerGetSpeed(const G8_RUNNER* runner ){
 	return runner->speed;
 }
 
-void gaitRunnerSetDelta(G8_RUNNER* runner, uint8_t limbNumber, DRIVE_SPEED speed );
-static __inline__ DRIVE_SPEED gaitRunnerGetDelta(const G8_RUNNER* runner, uint8_t limbNumber){
+void gaitRunnerSetDelta(G8_RUNNER* runner, uint8 limbNumber, int8 speed );
+static __inline__ int8 gaitRunnerGetDelta(const G8_RUNNER* runner, uint8 limbNumber){
 	return runner->delta[limbNumber];
 }
 
