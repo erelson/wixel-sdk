@@ -584,7 +584,7 @@ void main()
 		}
 		speed = interpolate(now, 0, 5000, 100, 900);
 		
-		ax12SetGOAL_POSITION(52, speed);
+		ax12SetGOAL_POSITION(32, speed);
 	
 		delayMs(30);
     }
