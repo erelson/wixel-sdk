@@ -362,26 +362,7 @@ void uartToRadioService()
     // // TODO: report framing, parity, and overrun errors to the USB host here
 // }
 
-/*
-*	Interpolate between two signed numbers
-*	value - the current value to be used
-*   minVal - the minimum that 'value' can be
-*   maxVal - the maximum that 'value' can be
-*   minRtn - the return value if 'value = minVal'
-*   maxRtn - the return value if 'value = maxVal'
-*   return a value in the range minRtn to maxRtn
-*/
-int16 interpolate(int16 value, int16 minVal, int16 maxVal, int16 minRtn, int16 maxRtn){
-	register int32  lRtnRange;
-	register int32 lValRange;
-	register int32 lRelVal;
 
-	lRtnRange = maxRtn - minRtn;
-	lValRange = maxVal - minVal;
-	lRelVal = value - minVal;
-	lRtnRange =  minRtn + ( lRtnRange * lRelVal / lValRange );
-	return (int16)lRtnRange;
-}
 
 /* process messages coming from Commander 
  *  format = 0xFF RIGHT_H RIGHT_V LEFT_H LEFT_V BUTTONS EXT checksum_cmdr */
