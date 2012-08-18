@@ -19,8 +19,10 @@ apps/*/*
 *.map
 *.mem
 *.omf
+*.swp
 *.rel
 *.rst
+*.py~
 *.sym
 *.wxl
 
