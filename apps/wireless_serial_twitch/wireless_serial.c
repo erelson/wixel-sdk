@@ -37,6 +37,8 @@
 #include "dynamixel.h"
 #include "ax.h"
 
+#include "GaitRunner.h"
+
 
 /** Parameters ****************************************************************/
 #define SERIAL_MODE_AUTO        0
@@ -506,6 +508,9 @@ void UseSouthPaw(){
 
 void main()
 {
+	//
+	G8_RUNNER gait;
+	
     systemInit();
 	
 	//Among other things, allocates byte arrays for sending commands.
@@ -523,6 +528,12 @@ void main()
         radioComRxEnforceOrdering = 1;
         radioComInit();
     }
+	
+	ACTUATOR_LIST PROGMEM all[] = [];
+	
+	gait = MAKE_G8_RUNER(servos, animations);
+	
+	gaitDesignerInit(&gait);
 	
 	// Initial setting of serial mode
 	updateSerialMode();
