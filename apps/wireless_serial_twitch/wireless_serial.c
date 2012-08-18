@@ -35,6 +35,7 @@
 #include "HeaderDefs.h"
 
 // #include "Commander.h"
+#include "Interpolate.h"
 
 #include "dynamixel.h"
 #include "ax.h"
