@@ -40,6 +40,8 @@
 #include <wixel.h>
 #include <malloc.h>
 #include "HeaderDefs.h"
+#include "dynamixel.h"
+#include "ax.h"
 // #include "../timer.h"
 // #include <stdlib.h>
 
@@ -260,12 +262,14 @@ PRINTF(DEBUG,",%d",speed);
 #ifndef DEBUG
 	// Set all the servo speeds in quick succession
 	{
-	uint16 l = 0;
-	for(l = 0; l < runner->num_actuators; l++){
-		__ACTUATOR* servo = (__ACTUATOR*)pgm_read_word(&runner->actuators[l]);
-		int16 speed = (int16)(runner->speeds[l]) + (int16)(runner->delta[l]);
+	uint16 limbNumber = 0;
+	for(limbNumber = 0; limbNumber < runner->num_actuators; limbNumber++){
+		__ACTUATOR* servo = (__ACTUATOR*)pgm_read_word(&runner->actuators[limbNumber]);
+		int16 speed = (int16)(runner->speeds[limbNumber]) + (int16)(runner->delta[limbNumber]);
 		speed = CLAMP(speed,DRIVE_SPEED_MIN,DRIVE_SPEED_MAX);
-		__act_setSpeed(servo,(int8)speed);
+		speed = interpolateU(speed, DRIVE_SPEED_MIN, DRIVE_SPEED_MAX, 0, 1023);
+		// __act_setSpeed(servo,(int8)speed);
+		ax12SetGOAL_POSITION(32, (uint16)speed);
 	}
 	}
 #endif
@@ -281,7 +285,9 @@ void gaitRunnerSetDelta(G8_RUNNER* runner, uint8 limbNumber, int8 speed ){
 			__ACTUATOR* servo = (__ACTUATOR*)pgm_read_word(&runner->actuators[limbNumber]);
 			int16 speed = (int16)(runner->speeds[limbNumber]) + (int16)(runner->delta[limbNumber]);
 			speed = CLAMP(speed,DRIVE_SPEED_MIN,DRIVE_SPEED_MAX);
-			__act_setSpeed(servo,(int8)speed);
+			speed = interpolateU(speed, DRIVE_SPEED_MIN, DRIVE_SPEED_MAX, 0, 1023);
+			// __act_setSpeed(servo,(int8)speed);
+			ax12SetGOAL_POSITION(32, (uint16)speed);
 		}
 	}
 }
