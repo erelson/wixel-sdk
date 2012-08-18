@@ -29,6 +29,8 @@
 
 #include <uart1.h>
 
+#include <malloc.h>
+
 
 #include "HeaderDefs.h"
 
@@ -38,6 +40,7 @@
 #include "ax.h"
 
 #include "GaitRunner.h"
+#include "gait.h"
 
 
 /** Parameters ****************************************************************/
@@ -87,6 +90,9 @@ BIT framingErrorActive = 0;
 
 BIT errorOccurredRecently = 0;
 uint8 lastErrorTime;
+
+
+// volatile const uint8 *all;
 
 /** Functions *****************************************************************/
 
@@ -509,7 +515,20 @@ void UseSouthPaw(){
 void main()
 {
 	//
-	G8_RUNNER gait;
+	// G8_RUNNER gait;
+	
+	uint32 ms;
+	uint16 now;
+	uint16 speed;
+	
+
+	static int8 all[3] = {42,43,12};
+	
+	// gait = MAKE_G8_RUNNER(all, animations);
+	G8_RUNNER gait = { all, \
+		(uint8)(sizeof(all)/sizeof(__ACTUATOR*)), \
+		animations, 0,0,0,FALSE,0,0,0,FALSE, 0, null,null };
+	
 	
     systemInit();
 	
@@ -529,11 +548,7 @@ void main()
         radioComInit();
     }
 	
-	ACTUATOR_LIST PROGMEM all[] = [];
-	
-	gait = MAKE_G8_RUNER(servos, animations);
-	
-	gaitDesignerInit(&gait);
+	gaitRunnerInit(&gait);
 	
 	// Initial setting of serial mode
 	updateSerialMode();
@@ -546,9 +561,6 @@ void main()
 	
     while(1)
     {
-		uint32 ms;
-		uint16 now;
-		uint16 speed;
 		
         updateSerialMode();
         boardService();

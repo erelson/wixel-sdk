@@ -264,12 +264,13 @@ PRINTF(DEBUG,",%d",speed);
 	{
 	uint16 limbNumber = 0;
 	for(limbNumber = 0; limbNumber < runner->num_actuators; limbNumber++){
-		__ACTUATOR* servo = (__ACTUATOR*)pgm_read_word(&runner->actuators[limbNumber]);
+		// __ACTUATOR* servo = (__ACTUATOR*)pgm_read_word(&runner->actuators[limbNumber]);
+		uint8 servo = (uint8)(runner->ids[limbNumber]);
 		int16 speed = (int16)(runner->speeds[limbNumber]) + (int16)(runner->delta[limbNumber]);
 		speed = CLAMP(speed,DRIVE_SPEED_MIN,DRIVE_SPEED_MAX);
 		speed = interpolateU(speed, DRIVE_SPEED_MIN, DRIVE_SPEED_MAX, 0, 1023);
 		// __act_setSpeed(servo,(int8)speed);
-		ax12SetGOAL_POSITION(32, (uint16)speed);
+		ax12SetGOAL_POSITION(servo, (uint16)speed);
 	}
 	}
 #endif
@@ -282,7 +283,8 @@ void gaitRunnerSetDelta(G8_RUNNER* runner, uint8 limbNumber, int8 speed ){
 		runner->delta[limbNumber] = speed;
 		if(!gaitRunnerIsPlaying(runner)){
 			// Send the output now
-			__ACTUATOR* servo = (__ACTUATOR*)pgm_read_word(&runner->actuators[limbNumber]);
+			// __ACTUATOR* servo = (__ACTUATOR*)pgm_read_word(&runner->actuators[limbNumber]);
+			uint8* servo = (&runner->ids[limbNumber]);
 			int16 speed = (int16)(runner->speeds[limbNumber]) + (int16)(runner->delta[limbNumber]);
 			speed = CLAMP(speed,DRIVE_SPEED_MIN,DRIVE_SPEED_MAX);
 			speed = interpolateU(speed, DRIVE_SPEED_MIN, DRIVE_SPEED_MAX, 0, 1023);

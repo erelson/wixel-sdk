@@ -103,7 +103,7 @@ typedef struct s_frame{
 
 // Define one animation
 typedef struct s_animation{
-	const uint8			numFrames;		// Number of frames in this animation
+	const uint8				numFrames;		// Number of frames in this animation
 	const G8_FRAME* const	frames;			// The array of frames
 	const boolean			sweep;			// Does it sweep back and forth?
 } G8_ANIMATION;
@@ -111,20 +111,21 @@ typedef struct s_animation{
 
 // Define the gait runner itself
 typedef struct s_runner{
-	const ACTUATOR_LIST* const 	actuators;		// The list of actuators to control
+	// const ACTUATOR_LIST* const 	actuators;		// The list of actuators to control
+	const uint8*        	ids;
 	const uint8 	 		num_actuators;	// The number of actuators in the list
 	const G8_ANIMATION* const 	animations;	// The address of the animations array
-	volatile uint8 		animation;		// The current animation
-	volatile uint8		frame;			// The current frame in the animation
-	volatile int16		repeatCount;	// Number of loops to play (0=forever)
+	volatile uint8 			animation;		// The current animation
+	volatile uint8			frame;			// The current frame in the animation
+	volatile int16			repeatCount;	// Number of loops to play (0=forever)
 	volatile boolean		playing;		// Is an animation current playing?
-	volatile uint32		startTime;		// Time when the animation started
-	volatile int16		currentTime;	// The current time offset
-	volatile int16		totalTime;		// The total time required to play the animation
+	volatile uint32			startTime;		// Time when the animation started
+	volatile int16			currentTime;	// The current time offset
+	volatile int16			totalTime;		// The total time required to play the animation
 	volatile boolean		backwards;		// Are we playing the animation backwards
-	volatile int8	speed;			// The speed of animation
-	volatile int8*	speeds;			// The speed/position setting for each actuator
-	volatile int8*	delta;			// The speed/position setting to add for each actuator
+	volatile int8			speed;			// The speed of animation
+	volatile int8*			speeds;			// The speed/position setting for each actuator
+	volatile int8*			delta;			// The speed/position setting to add for each actuator
 } G8_RUNNER;
 
 #define MAKE_G8_RUNNER(list, animations) { list, \
