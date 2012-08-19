@@ -160,6 +160,11 @@ ARCHIVE_COMMAND  = $(AR) $@ $^
 LINK_COMMAND     = $(CC) $(LD_FLAGS) libraries/xpage/xpage.rel $^
 else
 V=@
+# Toggle to fake VERBOSE
+# COMPILE_COMMAND  = $(CC) -c $< $(C_FLAGS) -o $@
+# ASSEMBLE_COMMAND = $(AS) -glos $(AS_FLAGS) $<
+# ARCHIVE_COMMAND  = $(AR) $@ $^
+# LINK_COMMAND     = $(CC) $(LD_FLAGS) libraries/xpage/xpage.rel $^
 COMPILE_COMMAND  = @echo Compiling  $@ && $(CC) -c $< $(C_FLAGS) -o $@
 ASSEMBLE_COMMAND = @echo Assembling $@ && $(AS) -glos $(AS_FLAGS) $<
 ARCHIVE_COMMAND  = @echo Creating   $@ && $(AR) $@ $^
