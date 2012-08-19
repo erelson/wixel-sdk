@@ -202,85 +202,85 @@ uint8 dynamixel_txrx(volatile uint8* txpacket, volatile uint8* rxpacket)
 
 /// RECEIVE STUFF
 
-uint8 dynamixel_ping(uint8 id)
-{	
-	dynamixel_txpacket[DYNAMIXEL_ID]          = (uint8) id;
-	dynamixel_txpacket[DYNAMIXEL_LENGTH]      = (uint8) 2;
-	dynamixel_txpacket[DYNAMIXEL_INSTRUCTION] = (uint8) DYNAMIXEL_PING;
+// uint8 dynamixel_ping(uint8 id)
+// {	
+	// dynamixel_txpacket[DYNAMIXEL_ID]          = (uint8) id;
+	// dynamixel_txpacket[DYNAMIXEL_LENGTH]      = (uint8) 2;
+	// dynamixel_txpacket[DYNAMIXEL_INSTRUCTION] = (uint8) DYNAMIXEL_PING;
 	
-	return dynamixel_txrx(dynamixel_txpacket, dynamixel_rxpacket);
-}
+	// return dynamixel_txrx(dynamixel_txpacket, dynamixel_rxpacket);
+// }
 
-uint8 dynamixel_readbyte(uint8 id, uint8 address, uint8* value)
-{
-	uint8 result;
+// uint8 dynamixel_readbyte(uint8 id, uint8 address, uint8* value)
+// {
+	// uint8 result;
 	
-	dynamixel_txpacket[DYNAMIXEL_ID]          = (uint8) id;
-	dynamixel_txpacket[DYNAMIXEL_LENGTH]      = (uint8) 4;
-	dynamixel_txpacket[DYNAMIXEL_INSTRUCTION] = (uint8) DYNAMIXEL_READ;
-	dynamixel_txpacket[DYNAMIXEL_PARAMETER]   = (uint8) address;
-	dynamixel_txpacket[DYNAMIXEL_PARAMETER+1] = (uint8) 1;
+	// dynamixel_txpacket[DYNAMIXEL_ID]          = (uint8) id;
+	// dynamixel_txpacket[DYNAMIXEL_LENGTH]      = (uint8) 4;
+	// dynamixel_txpacket[DYNAMIXEL_INSTRUCTION] = (uint8) DYNAMIXEL_READ;
+	// dynamixel_txpacket[DYNAMIXEL_PARAMETER]   = (uint8) address;
+	// dynamixel_txpacket[DYNAMIXEL_PARAMETER+1] = (uint8) 1;
 	
-	result = dynamixel_txrx(dynamixel_txpacket, dynamixel_rxpacket);
+	// result = dynamixel_txrx(dynamixel_txpacket, dynamixel_rxpacket);
 	
-	if(result == DYNAMIXEL_SUCCESS)
-		*value = dynamixel_rxpacket[DYNAMIXEL_PARAMETER];
+	// if(result == DYNAMIXEL_SUCCESS)
+		// *value = dynamixel_rxpacket[DYNAMIXEL_PARAMETER];
 	
-	return result;
-}
+	// return result;
+// }
 
-uint8 dynamixel_readword(uint8 id, uint8 address, uint16* value)
-{
-	uint8 result;
+// uint8 dynamixel_readword(uint8 id, uint8 address, uint16* value)
+// {
+	// uint8 result;
 	
-	dynamixel_txpacket[DYNAMIXEL_ID]          = (uint8) id;
-	dynamixel_txpacket[DYNAMIXEL_LENGTH]      = (uint8) 4;
-	dynamixel_txpacket[DYNAMIXEL_INSTRUCTION] = (uint8) DYNAMIXEL_READ;
-	dynamixel_txpacket[DYNAMIXEL_PARAMETER]   = (uint8) address;
-	dynamixel_txpacket[DYNAMIXEL_PARAMETER+1] = (uint8) 2;
+	// dynamixel_txpacket[DYNAMIXEL_ID]          = (uint8) id;
+	// dynamixel_txpacket[DYNAMIXEL_LENGTH]      = (uint8) 4;
+	// dynamixel_txpacket[DYNAMIXEL_INSTRUCTION] = (uint8) DYNAMIXEL_READ;
+	// dynamixel_txpacket[DYNAMIXEL_PARAMETER]   = (uint8) address;
+	// dynamixel_txpacket[DYNAMIXEL_PARAMETER+1] = (uint8) 2;
 	
-	result = dynamixel_txrx(dynamixel_txpacket, dynamixel_rxpacket);
+	// result = dynamixel_txrx(dynamixel_txpacket, dynamixel_rxpacket);
 	
-	if(result == DYNAMIXEL_SUCCESS)
-		*value = (uint16) dynamixel_makeword(dynamixel_rxpacket[DYNAMIXEL_PARAMETER], dynamixel_rxpacket[DYNAMIXEL_PARAMETER+1]);
+	// if(result == DYNAMIXEL_SUCCESS)
+		// *value = (uint16) dynamixel_makeword(dynamixel_rxpacket[DYNAMIXEL_PARAMETER], dynamixel_rxpacket[DYNAMIXEL_PARAMETER+1]);
 	
-	return result;
-}
+	// return result;
+// }
 
-uint8 dynamixel_readtable(uint8 id, uint8 start_address, uint8 end_address, uint8* table)
-{
-	uint8 result;
-	uint8 length = end_address - start_address + 1;
+// uint8 dynamixel_readtable(uint8 id, uint8 start_address, uint8 end_address, uint8* table)
+// {
+	// uint8 result;
+	// uint8 length = end_address - start_address + 1;
 	
-	dynamixel_txpacket[DYNAMIXEL_ID]          = (uint8) id;
-	dynamixel_txpacket[DYNAMIXEL_LENGTH]      = (uint8) 4;
-	dynamixel_txpacket[DYNAMIXEL_INSTRUCTION] = (uint8) DYNAMIXEL_READ;
-	dynamixel_txpacket[DYNAMIXEL_PARAMETER]   = (uint8) start_address;
-	dynamixel_txpacket[DYNAMIXEL_PARAMETER+1] = (uint8) length;
+	// dynamixel_txpacket[DYNAMIXEL_ID]          = (uint8) id;
+	// dynamixel_txpacket[DYNAMIXEL_LENGTH]      = (uint8) 4;
+	// dynamixel_txpacket[DYNAMIXEL_INSTRUCTION] = (uint8) DYNAMIXEL_READ;
+	// dynamixel_txpacket[DYNAMIXEL_PARAMETER]   = (uint8) start_address;
+	// dynamixel_txpacket[DYNAMIXEL_PARAMETER+1] = (uint8) length;
 	
-	result = dynamixel_txrx(dynamixel_txpacket, dynamixel_rxpacket);
+	// result = dynamixel_txrx(dynamixel_txpacket, dynamixel_rxpacket);
 	
-	if(result == DYNAMIXEL_SUCCESS)
-	{
-		uint8 i = 0;
-		for(i = 0; i < length; i++)
-			table[start_address + i] = dynamixel_rxpacket[DYNAMIXEL_PARAMETER + i];
-	}
+	// if(result == DYNAMIXEL_SUCCESS)
+	// {
+		// uint8 i = 0;
+		// for(i = 0; i < length; i++)
+			// table[start_address + i] = dynamixel_rxpacket[DYNAMIXEL_PARAMETER + i];
+	// }
 	
-	return result;
-}
+	// return result;
+// }
 
 /// TRANSMIT STUFF
-uint8 dynamixel_writebyte(uint8 id, uint8 address, uint8 value)
-{	//Call this method to setup writing a 8bit value
-	dynamixel_txpacket[DYNAMIXEL_ID]          = (uint8) id;
-	dynamixel_txpacket[DYNAMIXEL_LENGTH]      = (uint8) 4;
-	dynamixel_txpacket[DYNAMIXEL_INSTRUCTION] = (uint8) DYNAMIXEL_WRITE;
-	dynamixel_txpacket[DYNAMIXEL_PARAMETER]   = (uint8) address;
-	dynamixel_txpacket[DYNAMIXEL_PARAMETER+1] = (uint8) value;
+// uint8 dynamixel_writebyte(uint8 id, uint8 address, uint8 value)
+// {	//Call this method to setup writing a 8bit value
+	// dynamixel_txpacket[DYNAMIXEL_ID]          = (uint8) id;
+	// dynamixel_txpacket[DYNAMIXEL_LENGTH]      = (uint8) 4;
+	// dynamixel_txpacket[DYNAMIXEL_INSTRUCTION] = (uint8) DYNAMIXEL_WRITE;
+	// dynamixel_txpacket[DYNAMIXEL_PARAMETER]   = (uint8) address;
+	// dynamixel_txpacket[DYNAMIXEL_PARAMETER+1] = (uint8) value;
 	
-	return dynamixel_txrx(dynamixel_txpacket, dynamixel_rxpacket);
-}
+	// return dynamixel_txrx(dynamixel_txpacket, dynamixel_rxpacket);
+// }
 
 uint8 dynamixel_writeword(uint8 id, uint8 address, uint16 value)
 {	//Call this method to setup writing a 16bit value
@@ -310,14 +310,14 @@ uint8 dynamixel_syncwrite(uint8 address, uint8 length, uint8 number, uint8* para
 	return dynamixel_txrx(dynamixel_txpacket, dynamixel_rxpacket);
 }
 
-uint8 dynamixel_reset(uint8 id)
-{
-	dynamixel_txpacket[DYNAMIXEL_ID]          = (uint8) id;
-	dynamixel_txpacket[DYNAMIXEL_LENGTH]      = (uint8) 2;
-	dynamixel_txpacket[DYNAMIXEL_INSTRUCTION] = (uint8) DYNAMIXEL_RESET;
+// uint8 dynamixel_reset(uint8 id)
+// {
+	// dynamixel_txpacket[DYNAMIXEL_ID]          = (uint8) id;
+	// dynamixel_txpacket[DYNAMIXEL_LENGTH]      = (uint8) 2;
+	// dynamixel_txpacket[DYNAMIXEL_INSTRUCTION] = (uint8) DYNAMIXEL_RESET;
 	
-	return dynamixel_txrx(dynamixel_txpacket, dynamixel_rxpacket);
-}
+	// return dynamixel_txrx(dynamixel_txpacket, dynamixel_rxpacket);
+// }
 
 uint16 dynamixel_makeword(uint8 lowbyte, uint8 highbyte)
 {

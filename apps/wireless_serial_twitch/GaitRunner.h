@@ -113,7 +113,7 @@ typedef struct s_animation{
 // Define the gait runner itself
 typedef struct s_runner{
 	// const ACTUATOR_LIST* const 	actuators;		// The list of actuators to control
-	const uint8*        const   ids;
+	const uint8*        const   ids[3];
 	const uint8 	 		num_actuators;	// The number of actuators in the list
 	const G8_ANIMATION* const 	animations;	// The address of the animations array
 	volatile uint8 			animation;		// The current animation
