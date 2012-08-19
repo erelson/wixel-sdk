@@ -40,8 +40,8 @@
 #include "dynamixel.h"
 #include "ax.h"
 
-// #include "GaitRunner.h"
-// #include "gait.h"
+#include "GaitRunner.h"
+#include "gait.h"
 
 
 /** Parameters ****************************************************************/
@@ -406,68 +406,71 @@ int CmdrReadMsgs(){
 					// rprintf("\npacket error!\n");
 					index_cmdr = -1;
 					return 0;
-				}else{
+				}
+				else{
 					char buttonval = vals[4];
 					short dowalking = zTRUE;
 					
 					//rprintf("\t%d\t",(int)buttonval);
 					//Turn gait...
-					if((buttonval&0x40) > 0){ //if(buttonval & BUT_LT){
-						// if(PRINT_DEBUG_COMMANDER){rprintf("lft\t");}
-						turnleft = zTRUE;
-						turnright = zFALSE;
+					// if((buttonval&0x40) > 0){ //if(buttonval & BUT_LT){
+						// // if(PRINT_DEBUG_COMMANDER){rprintf("lft\t");}
+						// turnleft = zTRUE;
+						// turnright = zFALSE;
 						
-						dowalking = zFALSE;
-					}
-					else if((buttonval&0x80) > 0){ //if(buttonval & BUT_RT){
-						// if(PRINT_DEBUG_COMMANDER){rprintf("rgt\t");}
-						turnright = zTRUE;
-						turnleft = zFALSE;
+						// dowalking = zFALSE;
+					// }
+					// else if((buttonval&0x80) > 0){ //if(buttonval & BUT_RT){
+						// // if(PRINT_DEBUG_COMMANDER){rprintf("rgt\t");}
+						// turnright = zTRUE;
+						// turnleft = zFALSE;
 						
-						dowalking = zFALSE;
-					}
-					else { // Do nothing
-						turnright = zFALSE;
-						turnleft = zFALSE;
-						turn = zFALSE;
-					}
-					if((buttonval&BUT_L6) > 0){
-						gunbutton = zTRUE;
-						// if(PRINT_DEBUG_COMMANDER){rprintf("guns\t");}
-					}
-					else{gunbutton = zFALSE;}
+						// dowalking = zFALSE;
+					// }
+					// else { // Do nothing
+						// turnright = zFALSE;
+						// turnleft = zFALSE;
+						// turn = zFALSE;
+					// }
+					// if((buttonval&BUT_L6) > 0){
+						// gunbutton = zTRUE;
+						// // if(PRINT_DEBUG_COMMANDER){rprintf("guns\t");}
+					// }
+					// else{gunbutton = zFALSE;}
 
-					if((buttonval&BUT_R3) > 0){
-						panicbutton = zTRUE;
-						// if(PRINT_DEBUG_COMMANDER){rprintf("panic\t");}
-					}
-					else{panicbutton = zFALSE;}
+					// if((buttonval&BUT_R3) > 0){
+						// panicbutton = zTRUE;
+						// // if(PRINT_DEBUG_COMMANDER){rprintf("panic\t");}
+					// }
+					// else{panicbutton = zFALSE;}
 					
-					if((buttonval&BUT_L4) > 0){
-						infobutton = zTRUE;
-						// if(PRINT_DEBUG_COMMANDER){rprintf("info\t");}
-					}
-					else{infobutton = zFALSE;}
-					
-					if((buttonval&BUT_R2) > 0){
-						pan_pos = PAN_CENTER;
-						tilt_pos = TILT_CENTER;
-						// if(PRINT_DEBUG_COMMANDER){rprintf("look\t");}
-					}
+					// if((buttonval&BUT_L4) > 0){
+						// infobutton = zTRUE;
+						// // if(PRINT_DEBUG_COMMANDER){rprintf("info\t");}
+					// }
 					// else{infobutton = zFALSE;}
 					
-					if((buttonval&BUT_R1) > 0){
-						agitbutton = zTRUE;
-						// if(PRINT_DEBUG_COMMANDER){rprintf("agit\t");}
-					}
-					else{agitbutton = zFALSE;}
+					// if((buttonval&BUT_R2) > 0){
+						// pan_pos = PAN_CENTER;
+						// tilt_pos = TILT_CENTER;
+						// // if(PRINT_DEBUG_COMMANDER){rprintf("look\t");}
+					// }
+					// else{infobutton = zFALSE;}
 					
-					if((southpaw&0x01) > 0){     // SouthPaw
-						walkV = (signed char)( (int)vals[0]-128 );
-						walkH = (signed char)( (int)vals[1]-128 );
-						// lookV = (signed char)( (int)vals[2]-128 );
-						// lookH = (signed char)( (int)vals[3]-128 );
-					}else if (dowalking){
+					// if((buttonval&BUT_R1) > 0){
+						// agitbutton = zTRUE;
+						// // if(PRINT_DEBUG_COMMANDER){rprintf("agit\t");}
+					// }
+					// else{agitbutton = zFALSE;}
+					
+					// if((southpaw&0x01) > 0){     // SouthPaw
+						// walkV = (signed char)( (int)vals[0]-128 );
+						// walkH = (signed char)( (int)vals[1]-128 );
+						// // lookV = (signed char)( (int)vals[2]-128 );
+						// // lookH = (signed char)( (int)vals[3]-128 );
+					// }
+					// else if (dowalking){
+					// if (dowalking){
 						// vals - 128 gives look a vlaue in the range from -128 to 127?
 						lookV = (signed char)( (int)vals[0]-128 );
 						lookH = (signed char)( (int)vals[1]-128 );
@@ -480,8 +483,8 @@ int CmdrReadMsgs(){
 						
 						// int pan_add = (-(float)lookH)/17;
 						// int tilt_add = (-(float)lookV)/25;
-						pan_add = (-(float)lookH)/17;
-						tilt_add = (-(float)lookV)/25;
+						// pan_add = (-(float)lookH)/17;
+						// tilt_add = (-(float)lookV)/25;
 						
 						
 						// pan_pos = interpolate( (int)vals[1],0,255,servo51Max,servo51Min);
@@ -492,7 +495,7 @@ int CmdrReadMsgs(){
 						//Default handling in original Commander.c - sets to range of -127 to 127 or so...
 						walkV = (signed char)( (int)vals[2]-128 );
 						walkH = (signed char)( (int)vals[3]-128 );
-					}
+					// }
 					// pan = (vals[0]<<8) + vals[1];
 					// tilt = (vals[2]<<8) + vals[3];
 					// buttons = vals[4];
@@ -509,9 +512,256 @@ int CmdrReadMsgs(){
 	return 0;
 }
 
-void UseSouthPaw(){
-	southpaw |= 0x01;
+
+
+// Initialise a gait runner from appInitHardware or appInitSoftware
+void gaitRunnerInit(G8_RUNNER* runner){
+	if(runner->speeds == null){
+		uint8 i=0;
+		runner->speeds = malloc(runner->num_actuators * sizeof(int8));
+		runner->delta = malloc(runner->num_actuators * sizeof(int8));
+		for(i=0; i<runner->num_actuators; i++){
+			runner->speeds[i] = runner->delta[i] = 0;
+		}
+	}
 }
+
+// // Start running a new animation
+// void gaitRunnerPlay(G8_RUNNER* runner, uint8 animation, int16 loopSpeed, int8 speed, int16 repeatCount){
+	// // Update variables with interrupts off - in case the gait is
+	// // updated under interrupts
+	// uint32 now = getMs();
+	// // CRITICAL_SECTION {
+		// runner->animation = animation;
+		// runner->repeatCount = repeatCount;
+		// runner->frame = 0;
+		// runner->playing = TRUE;
+		// runner->startTime =  now;
+		// runner->currentTime = (speed<0) ? loopSpeed : 0;
+		// runner->totalTime = loopSpeed;
+		// runner->speed = speed;
+		// runner->backwards = FALSE;
+	// // }
+	// // Set servos to initial position
+	// gaitRunnerProcess(runner);
+// }
+
+static uint16 calcX(const G8_LIMB_POSITION* limb, float t1){
+	int16 a = (int)pgm_read_word(&limb->cubeX);
+	int16 b = (int)pgm_read_word(&limb->squareX);
+	int16 c = (int)pgm_read_word(&limb->timeX);
+	float t2 = t1 * t1;
+	float t3 = t2 * t1;
+	uint16 nx = (uint16) ( (t3 * a) + (t2 * b) + (t1 * c) );
+	return nx;
+}
+
+static int8 calcY(const G8_LIMB_POSITION* limb, float t1){
+	int16 a = (int)pgm_read_word(&limb->cubeY);
+	int16 b = (int)pgm_read_word(&limb->squareY);
+	int16 c = (int)pgm_read_word(&limb->timeY);
+	int8 d = (int8)pgm_read_byte(&limb->startY);
+	float t2 = t1 * t1;
+	float t3 = t2 * t1;
+	int8 ny = (int8) ( (t3 * a) + (t2 * b) + (t1 * c) + d );
+	return ny;
+}
+
+
+// Update the gait runner and move servos to new positions
+// Call it from your main loop or via the scheduler to do it in the background
+// NB There is no point scheduling any faster than 20ms as that is the servo refresh rate
+// Return true if an animation is playing
+boolean gaitRunnerProcess(G8_RUNNER* runner){
+
+	uint32 now = getMs();
+	// int16_t  interval = (now - runner->startTime)>>16; //original
+	int16  interval = (int16)(now);// - (runner->startTime))>>16;
+	// int16  interval;
+
+	// int16 test2 = (int16)(runner->startTime);
+	// interval = (int16)(now - test2)>>16;
+	
+	// interval = (int16)(now - (runner->startTime))>>16;
+
+	const G8_ANIMATION* animation;
+	int16 currentTime;
+	uint16 frameTime;
+	uint16 frameStartTime;
+	uint16 frameEndTime;
+	const G8_FRAME* frame;
+	uint8 i;
+	uint16 frameTimeOffset;
+	uint16 l;
+	float distanceGuess;
+	const G8_LIMB_POSITION* limb;
+	
+	if(!gaitRunnerIsPlaying(runner) || (runner->speeds)==null){
+		return FALSE;
+	}
+
+	if(interval == 0){
+		// return TRUE;
+		interval = 1;
+	}
+
+	// There has been a noticeable change in time
+	runner->startTime = now;
+	if(runner->backwards){
+		interval *= -1;
+	}
+	interval *= runner->speed;
+
+	// Re-check as drive speed could be zero
+	if(interval == 0){
+		return TRUE;
+	}
+
+	// Locate the current animation
+	animation = &runner->animations[runner->animation];
+
+	// Update the current time with the new interval
+	currentTime = runner->currentTime + interval;
+	if(currentTime >= runner->totalTime){
+		// We have finished playing the animation
+		if(pgm_read_byte(&animation->sweep)==FALSE){
+			currentTime %= runner->totalTime;			// Set back to start of loop
+			if(runner->repeatCount){
+				runner->repeatCount -= 1;				// One less frame to go
+				if(runner->repeatCount==0){
+					runner->playing = FALSE;			// we have reached the end
+					currentTime = 0;					// set servos to final position
+				}
+			}
+		}else{
+			// Start going backwards through the animation
+			currentTime = runner->totalTime - (currentTime - runner->totalTime);
+			runner->backwards = TRUE;
+		}
+	}else if(currentTime < 0){
+		// We have moved before the start
+		if(pgm_read_byte(&animation->sweep)==FALSE){
+			currentTime = runner->totalTime + currentTime;
+			if(runner->repeatCount){
+				runner->repeatCount += 1;				// One more frame to go
+				if(runner->repeatCount==0){
+					runner->playing = FALSE;			// we have reached the end
+					currentTime = 0;					// set servos to start position
+				}
+			}
+		}else{
+			// We have completed a sweep
+			runner->backwards = FALSE;
+			currentTime = -currentTime;
+
+			if(runner->repeatCount){
+				runner->repeatCount -= 1;			// One less frame to go
+				if(runner->repeatCount==0){
+					runner->playing = FALSE;		// we have reached the end
+					currentTime = 0;				// set servos to initial position
+				}
+			}
+		}
+	}
+	runner->currentTime = currentTime; // range is 0....totalTime
+
+	// Current time in the range 0...SCALE_X
+	frameTime = interpolateU(currentTime, 0,runner->totalTime, 0, SCALE_X);
+	frameStartTime = 0;
+	frameEndTime = SCALE_X;
+
+	// Locate the correct frame
+	frame = (const G8_FRAME*)pgm_read_word(&animation->frames);
+	for(i = pgm_read_byte(&animation->numFrames)-1; i>0; i--){
+		const G8_FRAME* f = &frame[i];
+		frameStartTime = pgm_read_word(&f->time);
+		if(frameStartTime <= frameTime){
+			frame = f;
+			break;
+		}
+		frameEndTime = frameStartTime;
+		frameStartTime = 0;
+	}
+	runner->frame = i;
+
+// #ifdef DEBUG
+// PRINTF(DEBUG,"\n%u,%d",i,currentTime);
+// #endif
+
+	// Now have:- frameStartTime <= frameTime <= frameEndTime
+
+	// We now need to find the distance along the curve (0...1) that represents
+	// the x value = frameTime
+
+	// First guess from 0..1
+	frameTimeOffset = frameTime-frameStartTime;
+	l = 0;
+	distanceGuess = ((float)(frameTimeOffset)) / ((float)(frameEndTime-frameStartTime));
+
+	limb = (const G8_LIMB_POSITION*)pgm_read_word(&frame->limbs);
+	for(l = 0; l < runner->num_actuators; l++, limb++){
+		float distanceMin = 0.0;
+		float distanceMax = 1.0;
+		float distance = distanceGuess;
+		uint8 iterations = 0;
+		// Find the correct distance along the line for the required frameTime
+		for(iterations=0; iterations<20; iterations++){
+			uint16 actualX = calcX(limb, distance);
+			if(actualX == frameTimeOffset) break;	// Found it
+
+			if( actualX < frameTimeOffset){
+				// We need to increase t
+				distanceMin = distance;
+			}else{
+				distanceMax = distance;
+			}
+
+			// Next guess is half way between
+			distance = distanceMin + ((distanceMax - distanceMin) / 2);
+		}
+
+		// We now know the distance
+		runner->speeds[l] = calcY(limb,distance);
+
+// #ifdef DEBUG
+// PRINTF(DEBUG,",%d",speed);
+// #endif
+	}	// next limb
+
+#ifndef DEBUG
+	// Set all the servo speeds in quick succession
+	{
+	uint16 limbNumber = 0;
+	for(limbNumber = 0; limbNumber < runner->num_actuators; limbNumber++){
+		// __ACTUATOR* servo = (__ACTUATOR*)pgm_read_word(&runner->actuators[limbNumber]);
+		uint8 servo = (uint8)(runner->ids[limbNumber]);
+		int16 speed = (int16)(runner->speeds[limbNumber]);// + (int16)(runner->delta[limbNumber]);
+		speed = CLAMP(speed,DRIVE_SPEED_MIN,DRIVE_SPEED_MAX);
+		speed = interpolateU(speed, DRIVE_SPEED_MIN, DRIVE_SPEED_MAX, 0, 1023);
+		// __act_setSpeed(servo,(int8)speed);
+		ax12SetGOAL_POSITION(servo, (uint16)speed);
+	}
+	}
+#endif
+
+	return gaitRunnerIsPlaying(runner);
+}
+
+// void gaitRunnerSetDelta(G8_RUNNER* runner, uint8 limbNumber, int8 speed ){
+	// if(limbNumber < runner->num_actuators){
+		// runner->delta[limbNumber] = speed;
+		// if(!gaitRunnerIsPlaying(runner)){
+			// // Send the output now
+			// // __ACTUATOR* servo = (__ACTUATOR*)pgm_read_word(&runner->actuators[limbNumber]);
+			// uint8 servo = (uint8)(runner->ids[limbNumber]);
+			// int16 speed = (int16)(runner->speeds[limbNumber]);// + (int16)(runner->delta[limbNumber]);
+			// // speed = CLAMP(speed,DRIVE_SPEED_MIN,DRIVE_SPEED_MAX);
+			// // speed = interpolateU(speed, DRIVE_SPEED_MIN, DRIVE_SPEED_MAX, 0, 1023);
+			// // // __act_setSpeed(servo,(int8)speed);
+			// // ax12SetGOAL_POSITION(servo, (uint16)speed);
+		// }
+	// }
+// }
 
 
 
@@ -526,13 +776,13 @@ void main()
 	uint16 speed;
 	
 
-	static int8 all[3] = {42,43,12};
+	static uint8 all[3] = {42,43,12};
 	
 	// gait = MAKE_G8_RUNNER(all, animations);
-	/* G8_RUNNER gait = { all, \
-		(uint8)(sizeof(all)/sizeof(__ACTUATOR*)), \
-		animations, 0,0,0,FALSE,0,0,0,FALSE, 0, null,null };
-	*/
+	// gait = { all, \
+		// (uint8)(sizeof(all)/sizeof(__ACTUATOR*)), \
+		// animations, 0,0,0,FALSE,0,0,0,FALSE, 0, null,null };
+	
 	
     systemInit();
 	
