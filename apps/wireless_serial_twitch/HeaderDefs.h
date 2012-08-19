@@ -28,6 +28,13 @@
 #define zFALSE 0
 
 #define LISTEN UART2toXbee38400
+
+
+// The scaling factor used in GaitDesigner when generating the gait
+#define SCALE_X 1000
+
+
+
 // #define LISTEN UART0toUSB38400
 
 // short derp;
@@ -134,14 +141,14 @@
 #define s41Aoff 0
 
 
-#define c_s11A0 cos(s11A0 + s11Aoff)
-#define s_s11A0 sin(s11A0 + s11Aoff)
-#define c_s21A0 cos(s21A0 + s21Aoff)
-#define s_s21A0 sin(s21A0 + s21Aoff)
-#define c_s31A0 cos(s31A0 + s31Aoff)
-#define s_s31A0 sin(s31A0 + s31Aoff)
-#define c_s41A0 cos(s41A0 + s41Aoff)
-#define s_s41A0 sin(s41A0 + s41Aoff)
+// #define c_s11A0 cos(s11A0 + s11Aoff)
+// #define s_s11A0 sin(s11A0 + s11Aoff)
+// #define c_s21A0 cos(s21A0 + s21Aoff)
+// #define s_s21A0 sin(s21A0 + s21Aoff)
+// #define c_s31A0 cos(s31A0 + s31Aoff)
+// #define s_s31A0 sin(s31A0 + s31Aoff)
+// #define c_s41A0 cos(s41A0 + s41Aoff)
+// #define s_s41A0 sin(s41A0 + s41Aoff)
 
 
 //Center angles for each leg.
@@ -206,10 +213,10 @@
 #define PAN_CENTER 511 + 153 
 #define TILT_CENTER 511 + 95
 
-uint8 d_tilt;
-uint8 d_pan;
-uint8 tilt_pos; // where tilt servo ought to be
-uint8 pan_pos;  // where pan servo ought to be
+// uint8 d_tilt;
+// uint8 d_pan;
+// uint8 tilt_pos; // where tilt servo ought to be
+// uint8 pan_pos;  // where pan servo ought to be
 
 // // 4*52 -> 60 degrees?
 // extern uint16_t servo51Min;
@@ -238,26 +245,26 @@ uint8 pan_pos;  // where pan servo ought to be
 // extern TICK_COUNT guns_firing_duration;
 // extern TICK_COUNT spdChngOffset;
 
-short turnright;
-short turnleft;
-short gunbutton;
-short panicbutton;
-short infobutton;
-short agitbutton;
+// short turnright;
+// short turnleft;
+// short gunbutton;
+// short panicbutton;
+// short infobutton;
+// short agitbutton;
 
 // extern uint16_t loopLengthList[];
 
-// extern int16_t ang_dir;
-short walk;
-short turn;
-short light;
-short kneeling;
-short flopCnt;
-short panic;
-// extern TICK_COUNT agitate;
+// // extern int16_t ang_dir;
+// extern short walk;
+// extern short turn;
+// extern short light;
+// extern short kneeling;
+// extern short flopCnt;
+// extern short panic;
+// // extern TICK_COUNT agitate;
 
-uint8 pan_add;
-uint8 tilt_add;
+// uint8 pan_add;
+// uint8 tilt_add;
 
 
 ////////////////
