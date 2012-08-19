@@ -40,8 +40,8 @@
 #include "dynamixel.h"
 #include "ax.h"
 
-#include "GaitRunner.h"
-#include "gait.h"
+// #include "GaitRunner.h"
+// #include "gait.h"
 
 
 /** Parameters ****************************************************************/
@@ -513,6 +513,9 @@ void UseSouthPaw(){
 	southpaw |= 0x01;
 }
 
+
+
+
 void main()
 {
 	//
@@ -526,10 +529,10 @@ void main()
 	static int8 all[3] = {42,43,12};
 	
 	// gait = MAKE_G8_RUNNER(all, animations);
-	G8_RUNNER gait = { all, \
+	/* G8_RUNNER gait = { all, \
 		(uint8)(sizeof(all)/sizeof(__ACTUATOR*)), \
 		animations, 0,0,0,FALSE,0,0,0,FALSE, 0, null,null };
-	
+	*/
 	
     systemInit();
 	
@@ -549,7 +552,7 @@ void main()
         radioComInit();
     }
 	
-	gaitRunnerInit(&gait);
+	// gaitRunnerInit(&gait);
 	
 	// Initial setting of serial mode
 	updateSerialMode();

@@ -20,3 +20,4 @@ def replace(file, pattern, subst):
     move(abs_path, file)
 
 replace("gait.h", '<Gait/GaitRunner.h>', '"GaitRunner.h"')
+replace("gait.h", 'PROGMEM', '')
