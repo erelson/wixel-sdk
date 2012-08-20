@@ -21,9 +21,12 @@
 /** Dependencies **************************************************************/
 #include <wixel.h>
 
-#define INCL_USB
+// #define INCL_USB
+
+#ifdef INCL_USB
 #include <usb.h>
 #include <usb_com.h>
+#endif
 
 #include <radio_com.h>
 #include <radio_link.h>
@@ -106,7 +109,9 @@ void updateLeds()
     static uint16 lastRadioActivityTime;
     uint16 now;
 
+#ifdef INCL_USB
     usbShowStatusWithGreenLed();
+#endif
 
     now = (uint16)getMs();
 
@@ -765,7 +770,7 @@ void main()
     setDigitalOutput(param_arduino_DTR_pin, LOW);
     ioTxSignals(0);
 
-    usbInit();
+    // usbInit();
     uart1Init();
     uart1SetBaudRate(param_baud_rate);
 
@@ -776,7 +781,7 @@ void main()
     }
 	
 #ifdef GAIT_ENABLE
-	// gaitRunnerInit(&gait);
+	gaitRunnerInit(&gait);
 #endif
 	
 	// Initial setting of serial mode
@@ -803,8 +808,10 @@ void main()
             radioComTxService();
         }
 
+#ifdef INCL_USB
 		//Unneeded?
         usbComService();
+#endif
 
         // switch(currentSerialMode)
         // {
