@@ -21,6 +21,7 @@
 /** Dependencies **************************************************************/
 #include <wixel.h>
 
+#define INCL_USB
 #include <usb.h>
 #include <usb_com.h>
 
@@ -85,7 +86,7 @@ int32 CODE param_framing_error_ms = 0;
 // would not receive notice of those errors.
 BIT uartRxDisabled = 0;
 
-uint8 DATA currentSerialMode;
+// uint8 DATA currentSerialMode;
 
 BIT framingErrorActive = 0;
 
@@ -107,12 +108,12 @@ void updateLeds()
 
     now = (uint16)getMs();
 
-    if (currentSerialMode == SERIAL_MODE_USB_UART)
-    {
-        // The radio is not being used, so turn off the yellow LED.
-        LED_YELLOW(0);
-    }
-    else if (!radioLinkConnected())
+    // if (currentSerialMode == SERIAL_MODE_USB_UART)
+    // {
+        // // The radio is not being used, so turn off the yellow LED.
+        // LED_YELLOW(0);
+    // }
+    if (!radioLinkConnected())
     {
         // We have not connected to another device wirelessly yet, so do a
         // 50% blink with a period of 1024 ms.
@@ -276,56 +277,12 @@ void errorService()
     }
 }
 
-void updateSerialMode()
-//Switches between USB/UART/radio pairings
-{
-    // if ((uint8)param_serial_mode > 0 && (uint8)param_serial_mode <= 3)
-    // {
-        // currentSerialMode = (uint8)param_serial_mode;
-        // return;
-    // }
-
-    // if (usbPowerPresent())
-    // {
-        // if (vinPowerPresent())
-        // {
-            // currentSerialMode = SERIAL_MODE_USB_UART;
-        // }
-        // else
-        // {
-            // currentSerialMode = SERIAL_MODE_USB_RADIO;
-        // }
-    // }
-    // else
-    // {
-        // currentSerialMode = SERIAL_MODE_UART_RADIO;
-    // }
-	currentSerialMode = SERIAL_MODE_UART_RADIO;
-}
-
-// void usbToRadioService()
+// void updateSerialMode()
+// //Switches between USB/UART/radio pairings
 // {
-    // uint8 signals;
-
-    // // Data
-    // while(usbComRxAvailable() && radioComTxAvailable())
-    // {
-        // radioComTxSendByte(usbComRxReceiveByte());
-    // }
-
-    // while(radioComRxAvailable() && usbComTxAvailable())
-    // {
-        // usbComTxSendByte(radioComRxReceiveByte());
-    // }
-
-    // // Control Signals
-
-    // radioComTxControlSignals(usbComRxControlSignals() & 3);
-
-    // // Need to switch bits 0 and 1 so that DTR pairs up with DSR.
-    // signals = radioComRxControlSignals();
-    // usbComTxControlSignals( ((signals & 1) ? 2 : 0) | ((signals & 2) ? 1 : 0));
+	// currentSerialMode = SERIAL_MODE_UART_RADIO;
 // }
+
 
 void uartToRadioService()
 {
@@ -518,33 +475,34 @@ int CmdrReadMsgs(){
 void gaitRunnerInit(G8_RUNNER* runner){
 	if(runner->speeds == null){
 		uint8 i=0;
-		runner->speeds = malloc(runner->num_actuators * sizeof(int8));
-		runner->delta = malloc(runner->num_actuators * sizeof(int8));
-		for(i=0; i<runner->num_actuators; i++){
-			runner->speeds[i] = runner->delta[i] = 0;
+		runner->speeds = malloc(NUM_ACTUATORS * sizeof(int8));
+		// runner->delta = malloc(runner->num_actuators * sizeof(int8));
+		for(i=0; i < NUM_ACTUATORS; i++){
+			// runner->speeds[i] = runner->delta[i] = 0;
+			runner->speeds[i] = 0;
 		}
 	}
 }
 
-// // Start running a new animation
-// void gaitRunnerPlay(G8_RUNNER* runner, uint8 animation, int16 loopSpeed, int8 speed, int16 repeatCount){
-	// // Update variables with interrupts off - in case the gait is
-	// // updated under interrupts
-	// uint32 now = getMs();
-	// // CRITICAL_SECTION {
-		// runner->animation = animation;
-		// runner->repeatCount = repeatCount;
-		// runner->frame = 0;
-		// runner->playing = TRUE;
-		// runner->startTime =  now;
-		// runner->currentTime = (speed<0) ? loopSpeed : 0;
-		// runner->totalTime = loopSpeed;
-		// runner->speed = speed;
-		// runner->backwards = FALSE;
-	// // }
-	// // Set servos to initial position
-	// gaitRunnerProcess(runner);
-// }
+// Start running a new animation
+void gaitRunnerPlay(G8_RUNNER* runner, uint8 animation, int16 loopSpeed, int8 speed, int16 repeatCount){
+	// Update variables with interrupts off - in case the gait is
+	// updated under interrupts
+	uint32 now = getMs();
+	// CRITICAL_SECTION {
+		runner->animation = animation;
+		runner->repeatCount = repeatCount;
+		runner->frame = 0;
+		runner->playing = TRUE;
+		runner->startTime =  now;
+		runner->currentTime = (speed<0) ? loopSpeed : 0;
+		runner->totalTime = loopSpeed;
+		runner->speed = speed;
+		runner->backwards = FALSE;
+	// }
+	// Set servos to initial position
+	gaitRunnerProcess(runner);
+}
 
 static uint16 calcX(const G8_LIMB_POSITION* limb, float t1){
 	int16 a = (int)pgm_read_word(&limb->cubeX);
@@ -592,7 +550,7 @@ boolean gaitRunnerProcess(G8_RUNNER* runner){
 	const G8_FRAME* frame;
 	uint8 i;
 	uint16 frameTimeOffset;
-	uint16 l;
+	// uint16 l;
 	float distanceGuess;
 	const G8_LIMB_POSITION* limb;
 	
@@ -695,11 +653,11 @@ boolean gaitRunnerProcess(G8_RUNNER* runner){
 
 	// First guess from 0..1
 	frameTimeOffset = frameTime-frameStartTime;
-	l = 0;
+	i = 0;
 	distanceGuess = ((float)(frameTimeOffset)) / ((float)(frameEndTime-frameStartTime));
 
 	limb = (const G8_LIMB_POSITION*)pgm_read_word(&frame->limbs);
-	for(l = 0; l < runner->num_actuators; l++, limb++){
+	for(i = 0; i < NUM_ACTUATORS; i++, limb++){
 		float distanceMin = 0.0;
 		float distanceMax = 1.0;
 		float distance = distanceGuess;
@@ -721,7 +679,7 @@ boolean gaitRunnerProcess(G8_RUNNER* runner){
 		}
 
 		// We now know the distance
-		runner->speeds[l] = calcY(limb,distance);
+		runner->speeds[i] = calcY(limb,distance);
 
 // #ifdef DEBUG
 // PRINTF(DEBUG,",%d",speed);
@@ -732,7 +690,7 @@ boolean gaitRunnerProcess(G8_RUNNER* runner){
 	// Set all the servo speeds in quick succession
 	{
 	uint16 limbNumber = 0;
-	for(limbNumber = 0; limbNumber < runner->num_actuators; limbNumber++){
+	for(limbNumber = 0; limbNumber < NUM_ACTUATORS; limbNumber++){
 		// __ACTUATOR* servo = (__ACTUATOR*)pgm_read_word(&runner->actuators[limbNumber]);
 		uint8 servo = (uint8)(runner->ids[limbNumber]);
 		int16 speed = (int16)(runner->speeds[limbNumber]);// + (int16)(runner->delta[limbNumber]);
@@ -748,7 +706,7 @@ boolean gaitRunnerProcess(G8_RUNNER* runner){
 }
 
 // void gaitRunnerSetDelta(G8_RUNNER* runner, uint8 limbNumber, int8 speed ){
-	// if(limbNumber < runner->num_actuators){
+	// if(limbNumber < NUM_ACTUATORS){
 		// runner->delta[limbNumber] = speed;
 		// if(!gaitRunnerIsPlaying(runner)){
 			// // Send the output now
@@ -805,7 +763,9 @@ void main()
 	// gaitRunnerInit(&gait);
 	
 	// Initial setting of serial mode
-	updateSerialMode();
+	// // updateSerialMode();
+	// currentSerialMode = SERIAL_MODE_UART_RADIO;
+	
 
     // Set up P1_5 to be the radio's TX debug signal.
     // P1DIR |= (1<<5);
@@ -816,7 +776,7 @@ void main()
     while(1)
     {
 		
-        updateSerialMode();
+        // updateSerialMode();
         boardService();
         updateLeds();
         errorService();
