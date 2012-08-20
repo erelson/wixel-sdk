@@ -44,6 +44,8 @@
 #include "GaitRunner.h"
 #include "gait.h"
 
+/** Enables *******************************************************************/
+#define GAIT_ENABLE
 
 /** Parameters ****************************************************************/
 #define SERIAL_MODE_AUTO        0
@@ -692,7 +694,8 @@ boolean gaitRunnerProcess(G8_RUNNER* runner){
 	uint16 limbNumber = 0;
 	for(limbNumber = 0; limbNumber < NUM_ACTUATORS; limbNumber++){
 		// __ACTUATOR* servo = (__ACTUATOR*)pgm_read_word(&runner->actuators[limbNumber]);
-		uint8 servo = (uint8)(runner->ids[limbNumber]);
+		// uint8 servo = (uint8)(runner->ids[limbNumber]);
+		uint8 servo = (uint8)(61+limbNumber); // Using IDs 61, 62, 63
 		int16 speed = (int16)(runner->speeds[limbNumber]);// + (int16)(runner->delta[limbNumber]);
 		speed = CLAMP(speed,DRIVE_SPEED_MIN,DRIVE_SPEED_MAX);
 		speed = interpolateU(speed, DRIVE_SPEED_MIN, DRIVE_SPEED_MAX, 0, 1023);
@@ -726,21 +729,33 @@ boolean gaitRunnerProcess(G8_RUNNER* runner){
 
 void main()
 {
+
 	//
-	// G8_RUNNER gait;
 	
 	uint32 ms;
 	uint16 now;
 	uint16 speed;
 	
-
-	static uint8 all[3] = {42,43,12};
+	// static uint8 all[3] = {42,43,12};
+	
+#ifdef GAIT_ENABLE	
+	// G8_RUNNER gait;
+	// struct s_runner gait;
+	
+	// struct s_runner gait = { all, animations, 0,0,0,FALSE,0,0,0,FALSE, 0, null };
+	
+	// const G8_RUNNER gait = { all, animations, 0,0,0,FALSE,0,0,0,FALSE, 0, null };
+	
+	// G8_RUNNER gait = { all, animations, 0,0,0,FALSE,0,0,0,FALSE, 0, null };
+	
+	// G8_RUNNER gait;
+	// gait = { all, animations, 0,0,0,FALSE,0,0,0,FALSE, 0, null };
 	
 	// gait = MAKE_G8_RUNNER(all, animations);
-	// gait = { all, \
-		// (uint8)(sizeof(all)/sizeof(__ACTUATOR*)), \
-		// animations, 0,0,0,FALSE,0,0,0,FALSE, 0, null,null };
-	
+	// G8_RUNNER gait = MAKE_G8_RUNNER(all, animations);
+	G8_RUNNER gait = MAKE_G8_RUNNER(animations);
+	// gait = { all, animations, 0,0,0,FALSE,0,0,0,FALSE, 0, null };
+#endif
 	
     systemInit();
 	
@@ -760,7 +775,9 @@ void main()
         radioComInit();
     }
 	
+#ifdef GAIT_ENABLE
 	// gaitRunnerInit(&gait);
+#endif
 	
 	// Initial setting of serial mode
 	// // updateSerialMode();
