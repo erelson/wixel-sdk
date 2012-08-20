@@ -59,6 +59,9 @@ extern "C" {
 /** ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~From actuators.h~~~~~~~~~~~~~~~~~~~~~~~~~~~~~**/
 #define DRIVE_SPEED_MIN   ((int8)-127)
 #define DRIVE_SPEED_MAX ((int8) 127)
+
+#define NUM_ACTUATORS 3
+
 // Define forward references
 struct c_actuator_driver;
 
@@ -114,7 +117,7 @@ typedef struct s_animation{
 typedef struct s_runner{
 	// const ACTUATOR_LIST* const 	actuators;		// The list of actuators to control
 	const uint8*        const   ids[3];
-	const uint8 	 		num_actuators;	// The number of actuators in the list
+	// const uint8 	 		num_actuators;	// The number of actuators in the list
 	const G8_ANIMATION* const 	animations;	// The address of the animations array
 	volatile uint8 			animation;		// The current animation
 	volatile uint8			frame;			// The current frame in the animation
@@ -126,12 +129,14 @@ typedef struct s_runner{
 	volatile boolean		backwards;		// Are we playing the animation backwards
 	volatile int8			speed;			// The speed of animation
 	volatile int8*			speeds;			// The speed/position setting for each actuator
-	volatile int8*			delta;			// The speed/position setting to add for each actuator
+	// volatile int8*			delta;			// The speed/position setting to add for each actuator
 } G8_RUNNER;
 
-#define MAKE_G8_RUNNER(list, animations) { list, \
+/*#define MAKE_G8_RUNNER(list, animations) { list, \
 		(uint8)(sizeof(list)/sizeof(__ACTUATOR*)), \
-		animations, 0,0,0,false,0,0,0,false, 0, null,null };
+		animations, 0,0,0,false,0,0,0,false, 0, null,null };*/
+#define MAKE_G8_RUNNER(list, animations) { list, \
+		animations, 0,0,0,false,0,0,0,false, 0, null };
 
 // Initialise a gait runner from appInitHardware or appInitSoftware
 void gaitRunnerInit(G8_RUNNER* runner);
@@ -155,21 +160,21 @@ static __inline__ boolean gaitRunnerIsPlaying(const G8_RUNNER* runner){
 	return runner->playing;
 }
 
-static __inline__ int16 gaitRunnerRepeatCount(const G8_RUNNER* runner){
-	return runner->repeatCount;
-}
+// static __inline__ int16 gaitRunnerRepeatCount(const G8_RUNNER* runner){
+	// return runner->repeatCount;
+// }
 
-static __inline__ void gaitRunnerSetSpeed(G8_RUNNER* runner, int8 speed ){
-	runner->speed = speed;
-}
-static __inline__ int8 gaitRunnerGetSpeed(const G8_RUNNER* runner ){
-	return runner->speed;
-}
+// static __inline__ void gaitRunnerSetSpeed(G8_RUNNER* runner, int8 speed ){
+	// runner->speed = speed;
+// }
+// static __inline__ int8 gaitRunnerGetSpeed(const G8_RUNNER* runner ){
+	// return runner->speed;
+// }
 
-void gaitRunnerSetDelta(G8_RUNNER* runner, uint8 limbNumber, int8 speed );
-static __inline__ int8 gaitRunnerGetDelta(const G8_RUNNER* runner, uint8 limbNumber){
-	return runner->delta[limbNumber];
-}
+// void gaitRunnerSetDelta(G8_RUNNER* runner, uint8 limbNumber, int8 speed );
+// static __inline__ int8 gaitRunnerGetDelta(const G8_RUNNER* runner, uint8 limbNumber){
+	// return runner->delta[limbNumber];
+// }
 
 #ifdef __cplusplus
 }

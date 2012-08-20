@@ -291,7 +291,7 @@ void UseSouthPaw();
 unsigned char vals[7];  // temporary values, moved after we confirm checksum_cmdr
 int index_cmdr;              // -1 = waiting for new packet
 int checksum_cmdr;
-unsigned char southpaw; 
+// unsigned char southpaw; 
 
 int walkV;
 int walkH;
