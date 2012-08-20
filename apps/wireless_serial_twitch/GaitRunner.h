@@ -105,6 +105,13 @@ typedef struct s_frame{
 } G8_FRAME;
 #define MAKE_G8_FRAME(time, limbs) { time, limbs }
 
+/*// Define one animation
+typedef struct s_animation{
+	const uint8				numFrames;		// Number of frames in this animation
+	const G8_FRAME* const	frames;			// The array of frames
+	const boolean			sweep;			// Does it sweep back and forth?
+} G8_ANIMATION;
+#define MAKE_G8_ANIMATION(numFrames, frames, sweep) { numFrames, frames, sweep }*/
 // Define one animation
 typedef struct s_animation{
 	const uint8				numFrames;		// Number of frames in this animation
