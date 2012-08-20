@@ -116,7 +116,8 @@ typedef struct s_animation{
 // Define the gait runner itself
 typedef struct s_runner{
 	// const ACTUATOR_LIST* const 	actuators;		// The list of actuators to control
-	const uint8*        const   ids[3];
+	// const uint8*        const   ids[3]; 	//THIS DOESN"T WORK; or maybe is an array of 3 arrays.
+	// const uint8*        const   ids;
 	// const uint8 	 		num_actuators;	// The number of actuators in the list
 	const G8_ANIMATION* const 	animations;	// The address of the animations array
 	volatile uint8 			animation;		// The current animation
@@ -132,11 +133,13 @@ typedef struct s_runner{
 	// volatile int8*			delta;			// The speed/position setting to add for each actuator
 } G8_RUNNER;
 
+
 /*#define MAKE_G8_RUNNER(list, animations) { list, \
 		(uint8)(sizeof(list)/sizeof(__ACTUATOR*)), \
 		animations, 0,0,0,false,0,0,0,false, 0, null,null };*/
-#define MAKE_G8_RUNNER(list, animations) { list, \
-		animations, 0,0,0,false,0,0,0,false, 0, null };
+/*#define MAKE_G8_RUNNER(list, animations) { list, \
+		animations, 0,0,0,FALSE,0,0,0,FALSE, 0, null };*/
+#define MAKE_G8_RUNNER(animations) { animations, 0,0,0,FALSE,0,0,0,FALSE, 0, null };
 
 // Initialise a gait runner from appInitHardware or appInitSoftware
 void gaitRunnerInit(G8_RUNNER* runner);
