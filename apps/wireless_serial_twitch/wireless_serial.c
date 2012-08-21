@@ -99,6 +99,15 @@ BIT errorOccurredRecently = 0;
 uint8 lastErrorTime;
 
 
+
+///MATHEMATICA CODE
+///loopSpeed = 1000;
+///Plot[65.536*loopSpeed/speed, {speed, 0, 128}, PlotRange -> {500, 4000}]
+const uint16 g8loopSpeed = 1000;
+uint16 g8speed = 25;
+int8 g8playbackDir = 1; // value should only ever be -1 or 1.
+int8 g8repeatCount = 0;
+
 // volatile const uint8 *all;
 
 /** Functions *****************************************************************/
@@ -795,6 +804,10 @@ void main()
 
 	// P1DIR |= 0x20; //Enable pin P1_5
 	
+	
+// void gaitRunnerPlay(G8_RUNNER* runner, uint8 animation, int16 loopSpeed, int8 speed, int16 repeatCount)
+	// gaitRunnerPlay(    &gait,                           0,                 ,        ,           0);
+
     while(1)
     {
 		
@@ -828,6 +841,8 @@ void main()
 		
 		ax12SetGOAL_POSITION(32, speed);
 	
-		delayMs(30);
+		delayMs(20);
+		
+		gaitRunnerProcess(&gait);
     }
 }
