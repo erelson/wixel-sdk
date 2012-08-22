@@ -41,20 +41,36 @@
 #define GAITDESIGNER_H_
 
 // Include stuff common to all actuators
-#include "../actuators.h"
-#include "../_uart_common.h"
+// #include "../actuators.h"
+// #include "../_uart_common.h"
 
 #ifdef __cplusplus
 /* ===================== C Code ===============================================*/
 extern "C" {
 #endif
 
+/**~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~From libdefs.h~~~~~~~~~~~~**/
+#define FALSE 0
+#define TRUE  1
+#define __inline__
+#define  null ((void*)0)
+
+	#define pgm_read_byte(addr) *addr
+	#define pgm_read_word(addr) *addr
+
+/** ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~From actuators.h~~~~~~~~~~~~~~~~~~~~~~~~~~~~~**/
+#define DRIVE_SPEED_MIN   ((int8)-127)
+#define DRIVE_SPEED_MAX ((int8) 127)
+
+
+#define NUM_ACTUATORS 3
+
 // -- Define structure and constructor for a gait designer
 typedef struct s_gait_desinger {
-	const ACTUATOR_LIST* const actuators;			// The list of actuators to control
+	// const ACTUATOR_LIST* const actuators;			// The list of actuators to control
 	uint8 	 num_actuators;				// The number of actuators in the list
 	// UART* const	 uart;						// The uart used to listen to the PC
-	BAUD_RATE	 baudRate;					// The baud rate to listen at
+	uint32	 baudRate;					// The baud rate to listen at
 	uint8*	 buffer;					// The message buffer
 	uint8		 msgInx;
 } GAIT_DESIGNER;

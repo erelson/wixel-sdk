@@ -21,7 +21,7 @@
 /** Dependencies **************************************************************/
 #include <wixel.h>
 
-// #define INCL_USB
+#define INCL_USB
 
 #ifdef INCL_USB
 #include <usb.h>
@@ -300,60 +300,62 @@ void errorService()
 // }
 
 
-void uartToRadioService()
-{
-    // Data
-    while(uart1RxAvailable() && radioComTxAvailable())
-    {
-        radioComTxSendByte(uart1RxReceiveByte());
-    }
-	
-	//Read radio's buffer
-    CmdrReadMsgs(); //In this case, CmdrReadMsgs() does the reading.
-	//    while(radioComRxAvailable() && uart1TxAvailable())
-//    {
-//        uart1TxSendByte(radioComRxReceiveByte());
-//    }
-
-    // Control Signals.
-    ioTxSignals(radioComRxControlSignals());
-    radioComTxControlSignals(ioRxSignals());
-}
-
-// void usbToUartService()
+// void uartToRadioService()
 // {
-    // uint8 signals;
-
     // // Data
-    // while(usbComRxAvailable() && uart1TxAvailable())
+    // while(uart1RxAvailable() && radioComTxAvailable())
     // {
-        // uart1TxSendByte(usbComRxReceiveByte());
+        // radioComTxSendByte(uart1RxReceiveByte());
     // }
+	
+	// //Read radio's buffer
+    // CmdrReadMsgs(); //In this case, CmdrReadMsgs() does the reading.
+	// //    while(radioComRxAvailable() && uart1TxAvailable())
+// //    {
+// //        uart1TxSendByte(radioComRxReceiveByte());
+// //    }
+
+    // // Control Signals.
+    // ioTxSignals(radioComRxControlSignals());
+    // radioComTxControlSignals(ioRxSignals());
+// }
+
+void usbToUartService()
+{
+    uint8 signals;
+
+    // Data
+    while(usbComRxAvailable())// && uart1TxAvailable())
+    {
+        usbComRxReceiveByte();
+    }
 
     // while(uart1RxAvailable() && usbComTxAvailable())
     // {
         // usbComTxSendByte(uart1RxReceiveByte());
     // }
 
-    // ioTxSignals(usbComRxControlSignals());
+    ioTxSignals(usbComRxControlSignals());
 
-    // // Need to switch bits 0 and 1 so that DTR pairs up with DSR.
-    // signals = ioRxSignals();
-    // usbComTxControlSignals( ((signals & 1) ? 2 : 0) | ((signals & 2) ? 1 : 0));
+    // Need to switch bits 0 and 1 so that DTR pairs up with DSR.
+    signals = ioRxSignals();
+    usbComTxControlSignals( ((signals & 1) ? 2 : 0) | ((signals & 2) ? 1 : 0));
 
-    // // TODO: report framing, parity, and overrun errors to the USB host here
-// }
-
-
-
-static __ACTUATOR* getEntry(const GAIT_DESIGNER* gait, uint8 inx){
-	return (__ACTUATOR*)pgm_read_word(&gait->actuators[inx]);
-
+    // TODO: report framing, parity, and overrun errors to the USB host here
 }
+
+
+
+// static __ACTUATOR* getEntry(const GAIT_DESIGNER* gait, uint8 inx){
+	// return (__ACTUATOR*)pgm_read_word(&gait->actuators[inx]);
+
+// }
 
 void gaitDesignerInit(GAIT_DESIGNER* gait){
 	// Initialise the uart
-	_uartInit(gait->uart,gait->baudRate);
+	// _uartInit(gait->uart,gait->baudRate);
+	usbInit();
+
 	if(gait->buffer == null){
 		gait->buffer = malloc(gait->num_actuators * 2 + 6); // Max is 2 bytes per actuator + some header/trailer
 	}
@@ -371,21 +373,27 @@ static int8 hexDigit(const uint8* buf, uint8 inx){
 }
 
 static void setSpeed(const GAIT_DESIGNER* gait, uint8 servo, int8 percent){
-	int16 temp = (int16)percent * int8_MAX;
+	// int16 temp = (int16)percent * int8_MAX;
+	int16 temp = (int16)percent * 127;
 	int8 speed = temp / 100;
-	__ACTUATOR* act = getEntry(gait,servo);
-	__act_setSpeed(act,speed);
+	// __ACTUATOR* act = getEntry(gait,servo);
+	// __act_setSpeed(act,speed);
 }
 
 // Process incoming characters
 void gaitDesignerProcess(GAIT_DESIGNER* gait){
-	int b = __uartGetByte(gait->uart);
+	uint8 inx;
+	uint8* buffer;
+	
+	// int b = __uartGetByte(gait->uart);
+	int b = uart1RxReceiveByte();
 	if(b==-1) return;	// No characters at all
 	
-	uint8 inx = gait->msgInx;
-	uint8* buffer = gait->buffer;
+	inx = gait->msgInx;
+	buffer = gait->buffer;
 
-	Writer old = rprintfInit(gait->uart->writer);
+	// ????????????
+	// Writer old = rprintfInit(gait->uart->writer);
 
 	// Process all received characters
 	while(b!=-1){
@@ -403,27 +411,28 @@ void gaitDesignerProcess(GAIT_DESIGNER* gait){
 				// A group message,
 				inx=0;
 				for(servo=0; servo < gait->num_actuators && buffer[inx+1];servo++){
+					int8 percent;
 					inx++;
-					int8 percent = (hexDigit(buffer,inx) << 4);
+					percent = (hexDigit(buffer,inx) << 4);
 					inx++;
 					percent |= hexDigit(buffer,inx);
 					setSpeed(gait,servo,percent);
-
-					}else if(buffer[0]=='N' && inx==1){
-				// Reply with number of servos
-				rprintf("#n%d\r\n",gait->num_actuators);
-			}else if(buffer[0]=='C'){
-				// Get config ie: C0
-				// Reply with: c0,center,range
-				servo=0;
-				inx=1;
-				while(buffer[inx]>='0' && buffer[inx]<='9'){
-					servo*=10;
-					servo+= (buffer[inx++] & 15);
 				}
-				SERVO* theServo = (SERVO*)getEntry(gait, servo);
+			// }else if(buffer[0]=='N' && inx==1){
+				// // Reply with number of servos
+				// rprintf("#n%d\r\n",gait->num_actuators);
+			// }else if(buffer[0]=='C'){
+				// // Get config ie: C0
+				// // Reply with: c0,center,range
+				// servo=0;
+				// inx=1;
+				// while(buffer[inx]>='0' && buffer[inx]<='9'){
+					// servo*=10;
+					// servo+= (buffer[inx++] & 15);
+				// }
+				// SERVO* theServo = (SERVO*)getEntry(gait, servo);
 
-				rprintf("#c%d,%d,%d\r\n",servo,theServo->center_us,theServo->range_us);
+				// rprintf("#c%d,%d,%d\r\n",servo,theServo->center_us,theServo->range_us);
 			}else if(buffer[0]=='S'){
 				// Single servo cmd  <inx>,<speed>
 				boolean neg = FALSE;
@@ -455,10 +464,11 @@ void gaitDesignerProcess(GAIT_DESIGNER* gait){
 		}else{
 			buffer[inx++] = b;
 		}
-		b = __uartGetByte(gait->uart);
+		b = usbComRxReceiveByte();
+		// b = __uartGetByte(gait->uart);
 	}
 	gait->msgInx = inx;
-	rprintfInit(old);
+	// rprintfInit(old);
 }
 
 
@@ -566,6 +576,6 @@ void main()
 	
 		delayMs(20);
 		
-		gaitRunnerProcess(&gait);
+		// gaitRunnerProcess(&gait);
     }
 }

@@ -293,12 +293,6 @@ void errorService()
     }
 }
 
-// void updateSerialMode()
-// //Switches between USB/UART/radio pairings
-// {
-	// currentSerialMode = SERIAL_MODE_UART_RADIO;
-// }
-
 
 void uartToRadioService()
 {
@@ -806,7 +800,7 @@ void main()
 	
 	
 // void gaitRunnerPlay(G8_RUNNER* runner, uint8 animation, int16 loopSpeed, int8 speed, int16 repeatCount)
-	// gaitRunnerPlay(    &gait,                           0,                 ,        ,           0);
+	gaitRunnerPlay(    &gait,    G8_ANIM_DEFAULT,       g8loopSpeed, g8playbackDir * g8speed, g8playbackDir * g8repeatCount);
 
     while(1)
     {
