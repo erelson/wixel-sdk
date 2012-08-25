@@ -7,7 +7,7 @@ def replace(file, pattern, subst):
     #Create temp file
     fh, abs_path = mkstemp()
     new_file = open(abs_path,'w')
-    old_file = open(file)
+    old_file = open(file, 'r')
     for line in old_file:
         new_file.write(line.replace(pattern, subst))
     #close temp file
@@ -19,5 +19,5 @@ def replace(file, pattern, subst):
     #Move new file
     move(abs_path, file)
 
-replace("gait.h", '<Gait/GaitRunner.h>', '"GaitRunner.h"')
-replace("gait.h", 'PROGMEM', '')
+replace("C:/wixel-sdk/apps/wireless_serial_twitch/gait.h", '<Gait/GaitRunner.h>', '"GaitRunner.h"')
+replace("C:/wixel-sdk/apps/wireless_serial_twitch/gait.h", 'PROGMEM', '')
