@@ -96,7 +96,7 @@ typedef struct s_limbPos{
 	int16		timeX,timeY;
 	int8	startY;
 } G8_LIMB_POSITION;
-#define MAKE_G8_LIMB_POSITION(cubeX,cubeY,squareX,squareY, timeX, timeY, startY) {cubeX,cubeY,squareX,squareY, timeX, timeY, startY}
+#define MAKE_G8_LIMB_POSITION(cubeX,cubeY, squareX,squareY, timeX, timeY, startY) {cubeX,cubeY,squareX,squareY, timeX, timeY, startY}
 
 // Define the position of all limbs for a given frame
 typedef struct s_frame{
