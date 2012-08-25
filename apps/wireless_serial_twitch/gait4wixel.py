@@ -2,6 +2,7 @@
 from tempfile import mkstemp
 from shutil import move
 from os import remove, close
+import os, stat
 
 def replace(file, pattern, subst):
     #Create temp file
@@ -19,5 +20,13 @@ def replace(file, pattern, subst):
     #Move new file
     move(abs_path, file)
 
-replace("C:/wixel-sdk/apps/wireless_serial_twitch/gait.h", '<Gait/GaitRunner.h>', '"GaitRunner.h"')
-replace("C:/wixel-sdk/apps/wireless_serial_twitch/gait.h", 'PROGMEM', '')
+myFile = "C:/wixel-sdk/apps/wireless_serial_twitch/gait.h"
+fileAtt = os.stat(myFile)[0]
+
+if (not fileAtt & stat.S_IWRITE):
+    print "attempting to set writeable.."
+    # File is read-only, so make it writeable
+    os.chmod(myFile, stat.S_IWRITE)
+    
+replace(myFile, '<Gait/GaitRunner.h>', '"GaitRunner.h"')
+replace(myFile, 'PROGMEM', '')
