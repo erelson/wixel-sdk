@@ -515,9 +515,9 @@ void gaitRunnerPlay(G8_RUNNER* runner, uint8 animation, int16 loopSpeed, int8 sp
 }
 
 static uint16 calcX(const G8_LIMB_POSITION* limb, float t1){
-	int16 a = (int)pgm_read_word(&limb->cubeX);
-	int16 b = (int)pgm_read_word(&limb->squareX);
-	int16 c = (int)pgm_read_word(&limb->timeX);
+	int16 a = (int16)pgm_read_word(&limb->cubeX);
+	int16 b = (int16)pgm_read_word(&limb->squareX);
+	int16 c = (int16)pgm_read_word(&limb->timeX);
 	float t2 = t1 * t1;
 	float t3 = t2 * t1;
 	uint16 nx = (uint16) ( (t3 * a) + (t2 * b) + (t1 * c) );
@@ -525,9 +525,9 @@ static uint16 calcX(const G8_LIMB_POSITION* limb, float t1){
 }
 
 static int8 calcY(const G8_LIMB_POSITION* limb, float t1){
-	int16 a = (int)pgm_read_word(&limb->cubeY);
-	int16 b = (int)pgm_read_word(&limb->squareY);
-	int16 c = (int)pgm_read_word(&limb->timeY);
+	int16 a = (int16)pgm_read_word(&limb->cubeY);
+	int16 b = (int16)pgm_read_word(&limb->squareY);
+	int16 c = (int16)pgm_read_word(&limb->timeY);
 	int8 d = (int8)pgm_read_byte(&limb->startY);
 	float t2 = t1 * t1;
 	float t3 = t2 * t1;
@@ -713,6 +713,7 @@ boolean gaitRunnerProcess(G8_RUNNER* runner){
 		speed = interpolateU(speed, DRIVE_SPEED_MIN, DRIVE_SPEED_MAX, 374, 650);
 		// __act_setSpeed(servo,(int8)speed);
 		ax12SetGOAL_POSITION(servo, (uint16)speed);
+		
 	}
 	}
 #endif
@@ -744,9 +745,9 @@ void main()
 
 	//
 	
-	uint32 ms;
-	uint16 now;
-	uint16 speed;
+	// uint32 ms;
+	// uint16 now;
+	// uint16 speed;
 	
 	// static uint8 all[3] = {42,43,12};
 	
@@ -808,7 +809,8 @@ void main()
 ///loopSpeed = 1000;
 ///Plot[65.536*loopSpeed/speed, {speed, 0, 128}, PlotRange -> {500, 4000}]
 // void gaitRunnerPlay(G8_RUNNER* runner, uint8 animation, int16 loopSpeed, int8 speed, int16 repeatCount)
-	gaitRunnerPlay(    &gait,    G8_ANIM_DEFAULT,       g8loopSpeed, g8playbackDir * g8speed, g8playbackDir * g8repeatCount);
+	// gaitRunnerPlay(    &gait,    G8_ANIM_DEFAULT,       g8loopSpeed, g8playbackDir * g8speed, g8playbackDir * g8repeatCount);
+	gaitRunnerPlay(    &gait,    G8_ANIM_DEFAULT2,       g8loopSpeed, g8playbackDir * g8speed, g8playbackDir * g8repeatCount);
 
     while(1)
     {
@@ -834,14 +836,14 @@ void main()
         // case SERIAL_MODE_UART_RADIO: uartToRadioService(); break;
         // //case SERIAL_MODE_USB_UART:   usbToUartService();   break;
         // }
-		ms = getMs();		// Get current time in ms
-		now = ms % (uint32)10000; 	// 10 sec for a full swing
-		if(now >= (uint16)5000){				// Goes from 0ms...5000ms
-			now = (uint16)10000 - now;			// then 5000ms...0ms
-		}
-		speed = interpolate(now, 0, 5000, 100, 900);
+		// ms = getMs();		// Get current time in ms
+		// now = ms % (uint32)10000; 	// 10 sec for a full swing
+		// if(now >= (uint16)5000){				// Goes from 0ms...5000ms
+			// now = (uint16)10000 - now;			// then 5000ms...0ms
+		// }
+		// speed = interpolate(now, 0, 5000, 100, 900);
 		
-		ax12SetGOAL_POSITION(32, speed);
+		// ax12SetGOAL_POSITION(32, speed);
 	
 		delayMs(20);
 		
