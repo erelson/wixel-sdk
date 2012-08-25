@@ -103,7 +103,7 @@ uint8 lastErrorTime;
 ///MATHEMATICA CODE
 ///loopSpeed = 1000;
 ///Plot[65.536*loopSpeed/speed, {speed, 0, 128}, PlotRange -> {500, 4000}]
-const uint16 g8loopSpeed = 1000;
+const uint16 g8loopSpeed = 10000;
 uint16 g8speed = 25;
 int8 g8playbackDir = 1; // value should only ever be -1 or 1.
 int8 g8repeatCount = 0;
@@ -799,6 +799,10 @@ void main()
 	// P1DIR |= 0x20; //Enable pin P1_5
 	
 	
+
+///MATHEMATICA CODE
+///loopSpeed = 1000;
+///Plot[65.536*loopSpeed/speed, {speed, 0, 128}, PlotRange -> {500, 4000}]
 // void gaitRunnerPlay(G8_RUNNER* runner, uint8 animation, int16 loopSpeed, int8 speed, int16 repeatCount)
 	gaitRunnerPlay(    &gait,    G8_ANIM_DEFAULT,       g8loopSpeed, g8playbackDir * g8speed, g8playbackDir * g8repeatCount);
 
