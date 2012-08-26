@@ -11,7 +11,8 @@
 
 // Define constants for each animation sequence
 #define G8_ANIM_DEFAULT 0
-#define G8_ANIM_DEFAULT2 1
+#define G8_ANIM_START 1
+#define G8_ANIM_DEFAULT2 2
 
 
 // The limb positions for animation number 0 Frame#0
@@ -37,13 +38,27 @@ static const  G8_LIMB_POSITION  limbs_0_2[G8_NUM_LIMBS] = {
 
 // The limb positions for animation number 1 Frame#0
 static const  G8_LIMB_POSITION  limbs_1_0[G8_NUM_LIMBS] = {
+	MAKE_G8_LIMB_POSITION( -498,142 , 747,-213 , 750,0 , 0 ),
+	MAKE_G8_LIMB_POSITION( -498,0 , 747,0 , 750,0 , 0 ),
+	MAKE_G8_LIMB_POSITION( -498,0 , 747,0 , 750,0 , 0 )
+};
+
+// The limb positions for animation number 1 Frame#1
+static const  G8_LIMB_POSITION  limbs_1_1[G8_NUM_LIMBS] = {
+	MAKE_G8_LIMB_POSITION( 3,-142 , -3,213 , 0,0 , -71 ),
+	MAKE_G8_LIMB_POSITION( 0,0 , 0,0 , 0,0 , 0 ),
+	MAKE_G8_LIMB_POSITION( 0,0 , 0,0 , 0,0 , 0 )
+};
+
+// The limb positions for animation number 2 Frame#0
+static const  G8_LIMB_POSITION  limbs_2_0[G8_NUM_LIMBS] = {
 	MAKE_G8_LIMB_POSITION( -96,102 , 144,-153 , 444,0 , 51 ),
 	MAKE_G8_LIMB_POSITION( -102,0 , 153,0 , 441,0 , 0 ),
 	MAKE_G8_LIMB_POSITION( -102,0 , 153,0 , 441,0 , 0 )
 };
 
-// The limb positions for animation number 1 Frame#1
-static const  G8_LIMB_POSITION  limbs_1_1[G8_NUM_LIMBS] = {
+// The limb positions for animation number 2 Frame#1
+static const  G8_LIMB_POSITION  limbs_2_1[G8_NUM_LIMBS] = {
 	MAKE_G8_LIMB_POSITION( -98,-102 , 147,153 , 459,0 , 0 ),
 	MAKE_G8_LIMB_POSITION( -98,0 , 147,0 , 459,0 , 0 ),
 	MAKE_G8_LIMB_POSITION( -98,0 , 147,0 , 459,0 , 0 )
@@ -58,10 +73,17 @@ static const  G8_FRAME  frames_0[3] = {
 
 // The frames for animation number 1
 static const  G8_FRAME  frames_1[2] = {
-	MAKE_G8_FRAME(0, limbs_1_0),
-	MAKE_G8_FRAME(492, limbs_1_1)
+	MAKE_G8_FRAME(1, limbs_1_0),
+	MAKE_G8_FRAME(1000, limbs_1_1)
 };
-const  G8_ANIMATION  animations[2] = {
+
+// The frames for animation number 2
+static const  G8_FRAME  frames_2[2] = {
+	MAKE_G8_FRAME(0, limbs_2_0),
+	MAKE_G8_FRAME(492, limbs_2_1)
+};
+const  G8_ANIMATION  animations[3] = {
 	MAKE_G8_ANIMATION(3, frames_0, FALSE),
-	MAKE_G8_ANIMATION(2, frames_1, FALSE)
+	MAKE_G8_ANIMATION(2, frames_1, TRUE),
+	MAKE_G8_ANIMATION(2, frames_2, FALSE)
 };

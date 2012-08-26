@@ -703,6 +703,7 @@ boolean gaitRunnerProcess(G8_RUNNER* runner){
 	for(limbNumber = 0; limbNumber < NUM_ACTUATORS; limbNumber++){
 		// __ACTUATOR* servo = (__ACTUATOR*)pgm_read_word(&runner->actuators[limbNumber]);
 		// uint8 servo = (uint8)(runner->ids[limbNumber]);
+		///Note servo 1 = 61, servo 2 = 62, servo3 = 63, 61 is center servo.  62 is right servo, with wixel board on it. 
 		uint8 servo = (uint8)(61+limbNumber); // Using IDs 61, 62, 63
 		int16 speed = (int16)(runner->speeds[limbNumber]);// + (int16)(runner->delta[limbNumber]);
 		speed = CLAMP(speed,DRIVE_SPEED_MIN,DRIVE_SPEED_MAX);
@@ -810,7 +811,8 @@ void main()
 ///Plot[65.536*loopSpeed/speed, {speed, 0, 128}, PlotRange -> {500, 4000}]
 // void gaitRunnerPlay(G8_RUNNER* runner, uint8 animation, int16 loopSpeed, int8 speed, int16 repeatCount)
 	// gaitRunnerPlay(    &gait,    G8_ANIM_DEFAULT,       g8loopSpeed, g8playbackDir * g8speed, g8playbackDir * g8repeatCount);
-	gaitRunnerPlay(    &gait,    G8_ANIM_DEFAULT2,       g8loopSpeed, g8playbackDir * g8speed, g8playbackDir * g8repeatCount);
+	// gaitRunnerPlay(    &gait,    G8_ANIM_DEFAULT2,       g8loopSpeed, g8playbackDir * g8speed, g8playbackDir * g8repeatCount);
+	gaitRunnerPlay(    &gait,    G8_ANIM_START,       g8loopSpeed, g8playbackDir * g8speed, g8playbackDir * 1);
 
     while(1)
     {
