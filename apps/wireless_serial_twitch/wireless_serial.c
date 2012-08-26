@@ -707,12 +707,17 @@ boolean gaitRunnerProcess(G8_RUNNER* runner){
 		int16 speed = (int16)(runner->speeds[limbNumber]);// + (int16)(runner->delta[limbNumber]);
 		speed = CLAMP(speed,DRIVE_SPEED_MIN,DRIVE_SPEED_MAX);
 		
+		// Testing speed to see if it oscillates.
+		//uart1TxSendByte
+		//dynamixel_writeword(servo,AX_GOAL_POSITION_L,CLAMP(val,0,1023))
+		dynamixel_writeword2((uint16)speed);
+		
 		/// Min goal position for ends is 374... -> 650 max, aka +-	138
 		/// Center servo should go +- 80 at most.
 		// speed = interpolateU(speed, DRIVE_SPEED_MIN, DRIVE_SPEED_MAX, 0, 1023);
-		speed = interpolateU(speed, DRIVE_SPEED_MIN, DRIVE_SPEED_MAX, 374, 650);
-		// __act_setSpeed(servo,(int8)speed);
-		ax12SetGOAL_POSITION(servo, (uint16)speed);
+//		speed = interpolateU(speed, DRIVE_SPEED_MIN, DRIVE_SPEED_MAX, 374, 650);
+//		// __act_setSpeed(servo,(int8)speed);
+//		ax12SetGOAL_POSITION(servo, (uint16)speed);
 		
 	}
 	}

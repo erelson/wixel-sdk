@@ -173,6 +173,8 @@ uint8 dynamixel_txrx(volatile uint8* txpacket, volatile uint8* rxpacket)
 	
 	uint8 rxlength = 0;
 	uint8 txlength = dynamixel_txpacket[DYNAMIXEL_LENGTH] + 4; // 0xff,0xff, ID, packet, checksum ?
+																// Note length is stored in the packet
+																//  at index 3
 	
 	txpacket[0] = (uint8) 0xff;
 	txpacket[1] = (uint8) 0xff;
@@ -194,6 +196,49 @@ uint8 dynamixel_txrx(volatile uint8* txpacket, volatile uint8* rxpacket)
 			
 		return dynamixel_readpacket(rxpacket, rxlength);			
 	}
+	
+	dynamixel_settx();
+		
+	return DYNAMIXEL_SUCCESS;
+}
+
+uint8 dynamixel_txrx2(volatile uint8* txpacket, volatile uint8* rxpacket)
+{
+	/* Function ...
+	1: Calcs tx packet checksum
+	2: sets tx mode
+	3: writes tx packet
+	4: sets rx mode
+	5: determine rx packet length
+	6: read rx packet
+	7: set tx mode	
+	*/
+	
+	uint8 rxlength = 0;
+	uint8 txlength = dynamixel_txpacket[DYNAMIXEL_LENGTH - 1] + 3; // 0xff,0xff, ID, packet, checksum ?
+																// Note length is stored in the packet
+																//  at index 3
+	
+	txpacket[0] = (uint8) 0xff;
+	txpacket[1] = (uint8) 0xff;
+	txpacket[txlength - 1] = (uint8) dynamixel_calculatechecksum(txpacket);
+	
+	dynamixel_settx();
+	dynamixel_writepacket(txpacket, txlength);
+	dynamixel_setrx();
+	
+	// If talking to a specific servo,...
+/*	if(txpacket[DYNAMIXEL_ID] != DYNAMIXEL_BROADCAST_ID)
+	{	
+		// and if TX packet was a read request
+		if(txpacket[DYNAMIXEL_INSTRUCTION] == DYNAMIXEL_READ)
+			//Read back whatever the servos says in return...
+			rxlength = txpacket[DYNAMIXEL_PARAMETER + 1] + 6;
+		else
+			rxlength = 6; // Default answer packet length? for DYNAMIXEL_WRITE?
+			
+		return dynamixel_readpacket(rxpacket, rxlength);			
+	}*/
 	
 	dynamixel_settx();
 		
@@ -292,6 +337,19 @@ uint8 dynamixel_writeword(uint8 id, uint8 address, uint16 value)
 	dynamixel_txpacket[DYNAMIXEL_PARAMETER+2] = (uint8) dynamixel_gethighbyte(value);
 	
 	return dynamixel_txrx(dynamixel_txpacket, dynamixel_rxpacket);
+}
+
+// uint8 dynamixel_writeword2(uint8 id, uint8 address, uint16 value)
+uint8 dynamixel_writeword2(uint16 value)
+{	//Call this method to setup writing a 16bit value
+	// dynamixel_txpacket[DYNAMIXEL_ID]          = (uint8) id;
+	dynamixel_txpacket[DYNAMIXEL_LENGTH]      = (uint8) 3;
+	// dynamixel_txpacket[DYNAMIXEL_INSTRUCTION] = (uint8) DYNAMIXEL_WRITE;
+	// dynamixel_txpacket[DYNAMIXEL_PARAMETER]   = (uint8) address;
+	dynamixel_txpacket[DYNAMIXEL_PARAMETER+1] = (uint8) dynamixel_getlowbyte(value);
+	dynamixel_txpacket[DYNAMIXEL_PARAMETER+2] = (uint8) dynamixel_gethighbyte(value);
+	
+	return dynamixel_txrx2(dynamixel_txpacket, dynamixel_rxpacket);
 }
 
 uint8 dynamixel_syncwrite(uint8 address, uint8 length, uint8 number, uint8* param)
