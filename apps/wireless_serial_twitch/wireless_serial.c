@@ -103,7 +103,7 @@ uint8 lastErrorTime;
 ///MATHEMATICA CODE
 ///loopSpeed = 1000;
 ///Plot[65.536*loopSpeed/speed, {speed, 0, 128}, PlotRange -> {500, 4000}]
-const uint16 g8loopSpeed = 10000;
+const uint16 g8loopSpeed = 1000;
 uint16 g8speed = 25;
 int8 g8playbackDir = 1; // value should only ever be -1 or 1.
 int8 g8repeatCount = 0;
@@ -544,7 +544,7 @@ boolean gaitRunnerProcess(G8_RUNNER* runner){
 
 	uint32 now = getMs();
 	// int16_t  interval = (now - runner->startTime)>>16; //original
-	int16  interval = (int16)(now);// - (runner->startTime))>>16;
+	int16  interval = (int16)((now) - (runner->startTime))>>16;
 	// int16  interval;
 
 	// int16 test2 = (int16)(runner->startTime);
