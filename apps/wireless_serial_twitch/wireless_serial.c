@@ -811,8 +811,8 @@ void main()
 ///Plot[65.536*loopSpeed/speed, {speed, 0, 128}, PlotRange -> {500, 4000}]
 // void gaitRunnerPlay(G8_RUNNER* runner, uint8 animation, int16 loopSpeed, int8 speed, int16 repeatCount)
 	// gaitRunnerPlay(    &gait,    G8_ANIM_DEFAULT,       g8loopSpeed, g8playbackDir * g8speed, g8playbackDir * g8repeatCount);
-	// gaitRunnerPlay(    &gait,    G8_ANIM_DEFAULT2,       g8loopSpeed, g8playbackDir * g8speed, g8playbackDir * g8repeatCount);
-	gaitRunnerPlay(    &gait,    G8_ANIM_START,       g8loopSpeed, g8playbackDir * g8speed, g8playbackDir * 1);
+	gaitRunnerPlay(    &gait,    G8_ANIM_WALK_STRAIGHT, g8loopSpeed, g8playbackDir * g8speed, g8playbackDir * g8repeatCount);
+	// gaitRunnerPlay(    &gait,    G8_ANIM_START,       g8loopSpeed, g8playbackDir * g8speed, g8playbackDir * 1);
 
     while(1)
     {
