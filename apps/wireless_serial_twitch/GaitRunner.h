@@ -116,7 +116,8 @@ typedef struct s_animation{
 typedef struct s_animation{
 	const uint8				numFrames;		// Number of frames in this animation
 	const G8_FRAME* const	frames;			// The array of frames
-	const boolean			sweep;			// Does it sweep back and forth?
+	// const boolean			sweep;			// Does it sweep back and forth?
+	const uint8			sweep;			// Does it sweep back and forth?
 } G8_ANIMATION;
 #define MAKE_G8_ANIMATION(numFrames, frames, sweep) { numFrames, frames, sweep }
 
