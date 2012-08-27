@@ -439,8 +439,8 @@ int CmdrReadMsgs(){
 					// else if (dowalking){
 					// if (dowalking){
 						// vals - 128 gives look a vlaue in the range from -128 to 127?
-						lookV = (signed char)( (int)vals[0]-128 );
-						lookH = (signed char)( (int)vals[1]-128 );
+						lookV = (signed char)( (int8)vals[0]-128 );
+						lookH = (signed char)( (int8)vals[1]-128 );
 						// if( (int)vals[0] >= 128){
 							// tilt_pos = interpolateU( (int)vals[0],128,128+102,TILT_CENTER,servo52Max);
 						// }
@@ -460,8 +460,8 @@ int CmdrReadMsgs(){
 						// tilt_pos = CLAMP(tilt_pos + tilt_add, servo52Min, servo52Max);
 						
 						//Default handling in original Commander.c - sets to range of -127 to 127 or so...
-						walkV = (signed char)( (int)vals[2]-128 );
-						walkH = (signed char)( (int)vals[3]-128 );
+						walkV = (signed char)( (int8)vals[2]-128 );
+						walkH = (signed char)( (int8)vals[3]-128 );
 					// }
 					// pan = (vals[0]<<8) + vals[1];
 					// tilt = (vals[2]<<8) + vals[3];
@@ -862,8 +862,82 @@ void main()
 		
 		// ax12SetGOAL_POSITION(32, speed);
 	
+		if (walkV > 20) {
+			desiredGait = G8_ANIM_WALK_STRAIGHT;
+		} else if (walkV < -20) {
+			desiredGait = G8_ANIM_WALK_STRAIGHT;
+		} else if (walkH > 20) {
+			desiredGait = G8_ANIM_TURN_LEFT;
+		{ else if (walkH < -20) {
+			desiredGait = G8_ANIM_TURN_LEFT;
+		} else {
+			desiredGait = NO_GAIT;
+			nextGait = G8_ANIM_START;
+			nextDir = -1;
+		}
+	
 		delayMs(20);
 		
 		gaitRunnerProcess(&gait);
     }
 }
+
+/*
+
+//Plan: We keep 3 levels of gait planning:
+- The currently playing gait 				(gait->animation)
+- The  next gait to play 					(nextGait)
+- The gait being suggested by the Commander 	(desiredGait)
+
+Cases:
+- suggested gait, playing same gait
+	do nothing(?)
+	nextGait = desiredGait (??)
+- suggested gait, playing same gait at diff speed
+	TODO: Modify gaitRunnerPlay()
+	nextGait = desiredGait (??)
+- suggested gait, playing another
+	-playing start
+		nextGait = desiredGait
+	-playing an actual gait
+		call gaitRunnerStop
+		nextGait = desiredGait
+- suggested gait, not playing another
+	call gaitRunnerPlay(startGait)
+	nextGait = desiredGait
+- suggest no gait, currently playing a gait
+	nextGait = start gait backwards
+	call gaitRunnerStop
+- suggest no gait, currently doing start gait
+	nextGait = start gait backwards
+- suggest no gait, not playing a gait
+
+
+If the commander suggests a gait, and another gait is already playing we do the following:
+- call gaitRunnerStop()
+- 
+
+*/
+
+/*
+
+# Continue current gait
+if (desiredGait = gait->animation)
+	continue;
+	
+else if (desiredGait != nextGait)
+	nextGait = desiredGait;
+
+//Else if finished playing START
+else if (gait->animation == G8_ANIM_START && gait->playing = FALSE)
+	// If in neutral position
+	if (gait->backwards){
+		gait->animation = NO_GAIT;
+	// Else, play the next queued animation
+	}else {gaitPlay(nextGait ..... )}
+
+
+if current gait is not NO_GAIT or G8_ANIM_START:
+	nextGait = G8_ANIM_START
+
+*/

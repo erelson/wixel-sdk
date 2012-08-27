@@ -61,6 +61,7 @@ extern "C" {
 #define DRIVE_SPEED_MAX ((int8) 127)
 
 #define NUM_ACTUATORS 3
+#define NO_GAIT 100
 
 // Define forward references
 struct c_actuator_driver;
