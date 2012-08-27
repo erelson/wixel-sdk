@@ -506,7 +506,7 @@ void gaitRunnerPlay(G8_RUNNER* runner, uint8 animation, int16 loopSpeed, int8 sp
 		runner->playing = TRUE;
 		runner->startTime =  now;
 		runner->currentTime = (speed<0) ? loopSpeed : 0;
-		runner->totalTime = loopSpeed;
+		runner->totalTime = loopSpeed;	///Always positive?
 		runner->speed = speed;
 		runner->backwards = FALSE;
 	// }
@@ -596,23 +596,28 @@ boolean gaitRunnerProcess(G8_RUNNER* runner){
 			currentTime %= runner->totalTime;			// Set back to start of loop
 			if(runner->repeatCount){
 				runner->repeatCount -= 1;				// One less frame to go
-				if(runner->repeatCount==0){
+				if(runner->repeatCount==0){				/// Reached zero from a non-zero repeatCount
 					runner->playing = FALSE;			// we have reached the end
 					currentTime = 0;					// set servos to final position
 				}
 			}
+		}else if(pgm_read_byte(&animation->sweep)==2){
+			currentTime = runner->totalTime;
+			
 		}else{
 			// Start going backwards through the animation
+			//		currentTime becomes totalTime - x, where x is how much currentTime exceeds totalTime
 			currentTime = runner->totalTime - (currentTime - runner->totalTime);
 			runner->backwards = TRUE;
 		}
+	///NOTE: currentTime is negative when... speed is negative, and we overshoot zero.
 	}else if(currentTime < 0){
 		// We have moved before the start
 		if(pgm_read_byte(&animation->sweep)==FALSE){
-			currentTime = runner->totalTime + currentTime;
+			currentTime = runner->totalTime + currentTime;	///wrap around
 			if(runner->repeatCount){
-				runner->repeatCount += 1;				// One more frame to go
-				if(runner->repeatCount==0){
+				runner->repeatCount += 1;				// One more frame to go ///(??? One less frame to go, really...)
+				if(runner->repeatCount==0){				/// Reached zero from a non-zero repeatCount
 					runner->playing = FALSE;			// we have reached the end
 					currentTime = 0;					// set servos to start position
 				}
@@ -719,6 +724,13 @@ boolean gaitRunnerProcess(G8_RUNNER* runner){
 	}
 #endif
 
+	///Extra!
+	///Stops gait when we get to the end of a sweep == 2 animation
+	if( currentTime == runner->totalTime && pgm_read_byte(&animation->sweep) == 2) {
+		currentTime = 0;
+		runner->playing = FALSE;			// we have reached the end
+	}
+	
 	return gaitRunnerIsPlaying(runner);
 }
 
@@ -810,9 +822,12 @@ void main()
 ///loopSpeed = 1000;
 ///Plot[65.536*loopSpeed/speed, {speed, 0, 128}, PlotRange -> {500, 4000}]
 // void gaitRunnerPlay(G8_RUNNER* runner, uint8 animation, int16 loopSpeed, int8 speed, int16 repeatCount)
-	// gaitRunnerPlay(    &gait,    G8_ANIM_DEFAULT,       g8loopSpeed, g8playbackDir * g8speed, g8playbackDir * g8repeatCount);
-	gaitRunnerPlay(    &gait,    G8_ANIM_WALK_STRAIGHT, g8loopSpeed, g8playbackDir * g8speed, g8playbackDir * g8repeatCount);
-	// gaitRunnerPlay(    &gait,    G8_ANIM_START,       g8loopSpeed, g8playbackDir * g8speed, g8playbackDir * 1);
+	// gaitRunnerPlay(&gait,    G8_ANIM_DEFAULT,       g8loopSpeed, g8playbackDir * g8speed, g8playbackDir * g8repeatCount);
+	// gaitRunnerPlay(&gait,    G8_ANIM_WALK_STRAIGHT, g8loopSpeed, g8playbackDir * g8speed, g8playbackDir * g8repeatCount);
+	// gaitRunnerPlay(&gait,    G8_ANIM_START,       g8loopSpeed, g8playbackDir * g8speed, g8playbackDir * 1);
+	// g8playbackDir = -1;
+	// gaitRunnerPlay(&gait,    G8_ANIM_START,       g8loopSpeed, g8playbackDir * g8speed, g8playbackDir * 1);
+	gaitRunnerPlay(&gait,    G8_ANIM_TURN_LEFT,       g8loopSpeed, g8playbackDir * g8speed, g8playbackDir * g8repeatCount);
 
     while(1)
     {
