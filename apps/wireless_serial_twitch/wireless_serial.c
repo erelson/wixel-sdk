@@ -342,7 +342,7 @@ void uartToRadioService()
 
 /* process messages coming from Commander 
  *  format = 0xFF RIGHT_H RIGHT_V LEFT_H LEFT_V BUTTONS EXT checksum_cmdr */
-int CmdrReadMsgs(){
+uint8 CmdrReadMsgs(){
 	//while(LISTEN.available() > 0){
 	while(radioComRxAvailable() == zFALSE){
 		if(index_cmdr == -1){         // looking for new packet
@@ -758,6 +758,10 @@ void main()
 
 	//
 	
+	uint8 nextGait;
+	uint8 desiredGait;
+	int8 nextDir;
+	
 	// uint32 ms;
 	// uint16 now;
 	// uint16 speed;
@@ -841,6 +845,8 @@ void main()
         {
             radioComTxService();
         }
+		
+		CmdrReadMsgs();
 
 #ifdef INCL_USB
 		//Unneeded?
@@ -868,7 +874,7 @@ void main()
 			desiredGait = G8_ANIM_WALK_STRAIGHT;
 		} else if (walkH > 20) {
 			desiredGait = G8_ANIM_TURN_LEFT;
-		{ else if (walkH < -20) {
+		} else if (walkH < -20) {
 			desiredGait = G8_ANIM_TURN_LEFT;
 		} else {
 			desiredGait = NO_GAIT;
@@ -896,10 +902,9 @@ Cases:
 - suggested gait, playing same gait at diff speed
 	TODO: Modify gaitRunnerPlay()
 	nextGait = desiredGait (??)
-- suggested gait, playing another
-	-playing start
-		nextGait = desiredGait
-	-playing an actual gait
+- suggested gait, playing start
+	nextGait = desiredGait
+- suggested gait, playing an actual gait         -> 
 		call gaitRunnerStop
 		nextGait = desiredGait
 - suggested gait, not playing another
@@ -922,8 +927,11 @@ If the commander suggests a gait, and another gait is already playing we do the 
 /*
 
 # Continue current gait
-if (desiredGait = gait->animation)
-	continue;
+{
+uint8 currentGait = gait->animation;
+uint8 currentDir = gait->backwards;
+if (desiredGait == )
+	nextGait = desiredGait;
 	
 else if (desiredGait != nextGait)
 	nextGait = desiredGait;
