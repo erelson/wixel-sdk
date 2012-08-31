@@ -284,7 +284,7 @@
 #define BUT_RT      0x40
 #define BUT_LT      0x80
 
-int CmdrReadMsgs();
+uint8 CmdrReadMsgs();
 void UseSouthPaw();
 
 // variables used for reading messages
