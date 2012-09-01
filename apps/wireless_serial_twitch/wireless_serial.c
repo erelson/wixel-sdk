@@ -495,7 +495,7 @@ void gaitRunnerInit(G8_RUNNER* runner){
 }
 
 // Start running a new animation
-void gaitRunnerPlay(G8_RUNNER* runner, uint8 animation, int16 loopSpeed, int8 speed, int16 repeatCount){
+void gaitRunnerPlay(G8_RUNNER* runner, uint8 animation, int16 loopSpeed, int8 speed, int8 repeatCount){
 	// Update variables with interrupts off - in case the gait is
 	// updated under interrupts
 	uint32 now = getMs();
@@ -925,7 +925,7 @@ If the commander suggests a gait, and another gait is already playing we do the 
 */
 
 
-
+/*
 
 {
 uint8 currentGait = gait->animation;
@@ -987,7 +987,7 @@ else { // No gait requested; work towards sitting mode.
 	
 }
 
-
+*/
 /*	
 else if (desiredGait != nextGait)
 	nextGait = desiredGait;

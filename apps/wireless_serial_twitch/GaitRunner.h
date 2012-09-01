@@ -131,7 +131,7 @@ typedef struct s_runner{
 	const G8_ANIMATION* const 	animations;	// The address of the animations array
 	volatile uint8 			animation;		// The current animation
 	volatile uint8			frame;			// The current frame in the animation
-	volatile int16			repeatCount;	// Number of loops to play (0=forever)
+	volatile int8			repeatCount;	// Number of loops to play (0=forever)
 	volatile boolean		playing;		// Is an animation current playing?
 	volatile uint32			startTime;		// Time when the animation started
 	volatile int16			currentTime;	// The current time offset
@@ -154,7 +154,7 @@ typedef struct s_runner{
 void gaitRunnerInit(G8_RUNNER* runner);
 
 // Start running a new animation
-void gaitRunnerPlay(G8_RUNNER* runner, uint8 animation, int16 loopSpeed, int8 speed, int16 repeatCount);
+void gaitRunnerPlay(G8_RUNNER* runner, uint8 animation, int16 loopSpeed, int8 speed, int8 repeatCount);
 
 // Stop the animation when it next reaches its last frame
 static __inline__ void gaitRunnerStop(G8_RUNNER* runner){
