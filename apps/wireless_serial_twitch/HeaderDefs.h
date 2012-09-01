@@ -284,7 +284,7 @@
 #define BUT_RT      0x40
 #define BUT_LT      0x80
 
-uint8 CmdrReadMsgs();
+uint8 CmdrReadMsgs(int8 *desiredGait, int8 *desiredDir, int8 *desiredSpeed);
 void UseSouthPaw();
 
 // variables used for reading messages
@@ -297,5 +297,5 @@ int walkV;
 int walkH;
 int lookV;
 int lookH;
-int walkSPD;
-float walkDIR;
+// int walkSPD;
+// float walkDIR;

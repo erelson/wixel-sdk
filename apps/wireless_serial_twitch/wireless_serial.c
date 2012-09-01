@@ -303,7 +303,9 @@ void uartToRadioService()
     }
 	
 	//Read radio's buffer
-    CmdrReadMsgs(); //In this case, CmdrReadMsgs() does the reading.
+    // CmdrReadMsgs(); //In this case, CmdrReadMsgs() does the reading.
+	///We handle CmdrReadMsgs() elsewhere since it has parameters now.
+	
 	//    while(radioComRxAvailable() && uart1TxAvailable())
 //    {
 //        uart1TxSendByte(radioComRxReceiveByte());
@@ -342,9 +344,9 @@ void uartToRadioService()
 
 /* process messages coming from Commander 
  *  format = 0xFF RIGHT_H RIGHT_V LEFT_H LEFT_V BUTTONS EXT checksum_cmdr */
-uint8 CmdrReadMsgs(){
+uint8 CmdrReadMsgs(int8 *desiredGait, int8 *desiredDir, int8 *desiredSpeed){
 	//while(LISTEN.available() > 0){
-	while(radioComRxAvailable() == zFALSE){
+	while(radioComRxAvailable() == FALSE){
 		if(index_cmdr == -1){         // looking for new packet
 			if(radioComRxReceiveByte() == 0xff){ //read until packet start
 				index_cmdr = 0;
@@ -376,7 +378,7 @@ uint8 CmdrReadMsgs(){
 				}
 				else{
 					char buttonval = vals[4];
-					short dowalking = zTRUE;
+					// short dowalking = TRUE;
 					
 					//rprintf("\t%d\t",(int)buttonval);
 					//Turn gait...
@@ -472,6 +474,31 @@ uint8 CmdrReadMsgs(){
 				//LISTEN.flush(); //flush after reading an entire packet... why?
 				// uartFlushReceiveBuffer(LISTEN);
 				//Doesn't seem to be an equivalent method for Wixels.
+				
+				if (walkV > 20) {			///walk forward
+					*desiredGait = G8_ANIM_WALK_STRAIGHT;
+					*desiredDir = 1;
+					*desiredSpeed = 50;
+				} 
+				else if (walkV < -20) {	///walk backwards
+					*desiredGait = G8_ANIM_WALK_STRAIGHT;
+					*desiredDir = -1;
+					*desiredSpeed = 50;
+				} else if (walkH > 20) {	///Turn right
+					*desiredGait = G8_ANIM_TURN_LEFT;
+					*desiredDir = -1;
+					*desiredSpeed = 50;
+				} else if (walkH < -20) {	///Turn left
+					*desiredGait = G8_ANIM_TURN_LEFT;
+					*desiredDir = 1;
+					*desiredSpeed = 50;
+				} else {
+					*desiredGait = NO_GAIT;
+					// nextGait = G8_ANIM_START;
+					*desiredDir = -1;
+					*desiredSpeed = 0;
+				}
+				
 				return 1;
 			}
 		}
@@ -632,6 +659,7 @@ boolean gaitRunnerProcess(G8_RUNNER* runner){
 				if(runner->repeatCount==0){
 					runner->playing = FALSE;		// we have reached the end
 					currentTime = 0;				// set servos to initial position
+					runner->animation = NO_GAIT;
 				}
 			}
 		}
@@ -758,9 +786,10 @@ void main()
 
 	//
 	
-	uint8 nextGait;
-	uint8 desiredGait;
-	int8 nextDir;
+	// uint8 nextGait;
+	int8 desiredGait;
+	int8 desiredDir;
+	int8 desiredSpeed;
 	
 	// uint32 ms;
 	// uint16 now;
@@ -846,7 +875,20 @@ void main()
             radioComTxService();
         }
 		
-		CmdrReadMsgs();
+		
+		{
+		// uint8 currentGait; 
+		// uint8 currentDir;
+		// uint8 currentSpeed;
+		
+		CmdrReadMsgs(&desiredGait, &desiredDir, &desiredSpeed);
+		// currentGait = pgm_read_byte(&gait->animation);
+		// currentDir = pgm_read_byte(&gait->backwards);
+		// currentSpeed = pgm_read_byte(&gait->speed);
+		// CmdrReadMsgs();
+		
+		
+		}
 
 #ifdef INCL_USB
 		//Unneeded?
@@ -868,19 +910,7 @@ void main()
 		
 		// ax12SetGOAL_POSITION(32, speed);
 	
-		if (walkV > 20) {
-			desiredGait = G8_ANIM_WALK_STRAIGHT;
-		} else if (walkV < -20) {
-			desiredGait = G8_ANIM_WALK_STRAIGHT;
-		} else if (walkH > 20) {
-			desiredGait = G8_ANIM_TURN_LEFT;
-		} else if (walkH < -20) {
-			desiredGait = G8_ANIM_TURN_LEFT;
-		} else {
-			desiredGait = NO_GAIT;
-			nextGait = G8_ANIM_START;
-			nextDir = -1;
-		}
+		
 	
 		delayMs(20);
 		
@@ -925,13 +955,9 @@ If the commander suggests a gait, and another gait is already playing we do the 
 */
 
 
+
 /*
 
-{
-uint8 currentGait = gait->animation;
-uint8 currentDir = gait->backwards;
-uint8 currentSpeed = gait->speed;
-CmdrReadMsgs(&desiredGait, &desiredDir, &desiredSpeed);
 
 //Some gait requested
 if (desiredGait != NO_GAIT) {
@@ -939,6 +965,7 @@ if (desiredGait != NO_GAIT) {
 		if (currentSpeed == desiredSpeed) {
 			if (currentDir == desiredDir) {
 				//Change speed
+				continue;
 			} else {
 				gaitReverse();
 			}
@@ -953,19 +980,22 @@ if (desiredGait != NO_GAIT) {
 		
 	} else if (currentGait != NO_GAIT) { //Some other gait is running. Wait til it ends.
 		gaitRunnerStop();
+		currentPos = START_POS;
 	} else { //No other gait is running. Start the desired gait.
 		g8speed = desiredSpeed;
 		g8playbackDir = desiredDir;
 /// void gaitRunnerPlay(*runner, uint8 animation, int16 loopSpeed, int8 speed, repeatCount)
 		gaitRunnerPlay(&gait, desiredGait, g8loopSpeed, g8playbackDir*g8speed, 0);
+		currentPos = MOVING_POS;
 	}
 }
-//Not moving currently
+
 else { // No gait requested; work towards sitting mode.
-	if (currentGait != NO_GAIT) {
+	if (currentGait != NO_GAIT) {// If moving...
 		if (currentGait == G8_ANIM_START) { //If doing start gait...
-			if (currentDir == 1) { //Going to start position
+			if (currentDir == 1) { //And going to start position
 				gaitReverse();
+				currentPos = SIT_POS;
 			} else {	//Going into sit position
 				//Do nothing
 			
@@ -974,10 +1004,14 @@ else { // No gait requested; work towards sitting mode.
 			//Tell gait engine to stop at end of loop.
 			gaitRunnerStop();
 		}
-	} else if (currentPos == START_POS) { //in START_POS
+	} 
+	
+	//Not moving currently
+	else if (currentPos == START_POS) { //in START_POS
 		g8playbackDir = -1;
-		// g8speed = START_SPEED;
+		// g8speed = START_SPEED; //unnecessary?
 		gaitRunnerPlay(&gait, G8_ANIM_START, g8loopSpeed, g8playbackDir*g8speed, g8playbackDir * 1);
+		currentPos = SIT_POS;
 	} else { // in SIT_POS
 		continue;
 	}
@@ -986,8 +1020,8 @@ else { // No gait requested; work towards sitting mode.
 	
 	
 }
-
 */
+
 /*	
 else if (desiredGait != nextGait)
 	nextGait = desiredGait;
