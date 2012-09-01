@@ -924,15 +924,71 @@ If the commander suggests a gait, and another gait is already playing we do the 
 
 */
 
-/*
 
-# Continue current gait
+
+
 {
 uint8 currentGait = gait->animation;
 uint8 currentDir = gait->backwards;
-if (desiredGait == )
-	nextGait = desiredGait;
+uint8 currentSpeed = gait->speed;
+CmdrReadMsgs(&desiredGait, &desiredDir, &desiredSpeed);
+
+//Some gait requested
+if (desiredGait != NO_GAIT) {
+	if ( currentGait == desiredGait) {
+		if (currentSpeed == desiredSpeed) {
+			if (currentDir == desiredDir) {
+				//Change speed
+			} else {
+				gaitReverse();
+			}
+		} else { //desire a different speed
+			if (currentDir == desiredDir) {
+				//Change speed
+			} else {
+				gaitReverse();
+				// Change speed
+			}
+		}
+		
+	} else if (currentGait != NO_GAIT) { //Some other gait is running. Wait til it ends.
+		gaitRunnerStop();
+	} else { //No other gait is running. Start the desired gait.
+		g8speed = desiredSpeed;
+		g8playbackDir = desiredDir;
+/// void gaitRunnerPlay(*runner, uint8 animation, int16 loopSpeed, int8 speed, repeatCount)
+		gaitRunnerPlay(&gait, desiredGait, g8loopSpeed, g8playbackDir*g8speed, 0);
+	}
+}
+//Not moving currently
+else { // No gait requested; work towards sitting mode.
+	if (currentGait != NO_GAIT) {
+		if (currentGait == G8_ANIM_START) { //If doing start gait...
+			if (currentDir == 1) { //Going to start position
+				gaitReverse();
+			} else {	//Going into sit position
+				//Do nothing
+			
+			}
+		} else { //If doing some movement gait
+			//Tell gait engine to stop at end of loop.
+			gaitRunnerStop();
+		}
+	} else if (currentPos == START_POS) { //in START_POS
+		g8playbackDir = -1;
+		// g8speed = START_SPEED;
+		gaitRunnerPlay(&gait, G8_ANIM_START, g8loopSpeed, g8playbackDir*g8speed, g8playbackDir * 1);
+	} else { // in SIT_POS
+		continue;
+	}
 	
+}
+	
+	
+}
+
+
+/*	
 else if (desiredGait != nextGait)
 	nextGait = desiredGait;
 
