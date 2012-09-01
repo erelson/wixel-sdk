@@ -156,6 +156,9 @@ void gaitRunnerInit(G8_RUNNER* runner);
 // Start running a new animation
 void gaitRunnerPlay(G8_RUNNER* runner, uint8 animation, int16 loopSpeed, int8 speed, int8 repeatCount);
 
+// // Reverses the current gait's direction
+// void gaitReverse(G8_RUNNER* runner);
+
 // Stop the animation when it next reaches its last frame
 static __inline__ void gaitRunnerStop(G8_RUNNER* runner){
 	runner->repeatCount = (runner->speed < 0) ? -1 : 1;
