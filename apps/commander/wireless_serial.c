@@ -482,11 +482,11 @@ int CmdrReadMsgs(){
 			}
 		}
 	}
-return 0;
+	return 0;
 }
 
 void UseSouthPaw(){
-southpaw |= 0x01;
+	southpaw |= 0x01;
 }
 
 void main()
