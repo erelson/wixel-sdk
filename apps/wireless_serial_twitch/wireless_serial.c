@@ -357,9 +357,19 @@ void uartToRadioService()
  *  format = 0xFF RIGHT_H RIGHT_V LEFT_H LEFT_V BUTTONS EXT checksum_cmdr */
 uint8 CmdrReadMsgs(int8 *desiredGait, int8 *desiredDir, int8 *desiredSpeed){
 	//while(LISTEN.available() > 0){
-	while(radioComRxAvailable() == FALSE){
-		if(index_cmdr == -1){         // looking for new packet
+	int8 loopCount = 0;
+	int8 avail = radioComRxAvailable();
+	// while(radioComRxAvailable() == TRUE){
+	while(avail == TRUE){
+		loopCount += 1;
+		if (loopCount > 2) {
+		// if (avail > 0) {
 			ax12LED(61,1);
+		}
+		// else {
+			// ax12LED(61,0);
+		// }
+		if(index_cmdr == -1){         // looking for new packet
 			if(radioComRxReceiveByte() == 0xff){ //read until packet start
 				index_cmdr = 0;
 				checksum_cmdr = 0;
@@ -368,10 +378,12 @@ uint8 CmdrReadMsgs(int8 *desiredGait, int8 *desiredDir, int8 *desiredSpeed){
 			// add next byte to vals
 			vals[index_cmdr] = (unsigned char) radioComRxReceiveByte();
 			// look for first real byte (non 0xFF)
-			if(vals[index_cmdr] != 0xff){            
+			if(vals[index_cmdr] != 0xff){
 				checksum_cmdr += (int) vals[index_cmdr];
 				index_cmdr++;
 			}
+		}else if(index_cmdr == 1){
+			ax12LED(61,1);
 		}else{ //for bytes after the 0th byte
 			vals[index_cmdr] = (unsigned char) radioComRxReceiveByte(); 
 			//loops will sequentially read bytes and store them here
@@ -515,7 +527,17 @@ uint8 CmdrReadMsgs(int8 *desiredGait, int8 *desiredDir, int8 *desiredSpeed){
 				return 1;
 			}
 		}
+		// delayMicroseconds(1000);
+        // delayMicroseconds(250);
+        // delayMicroseconds(250);
+        // delayMicroseconds(250);
+        // delayMicroseconds(249);
+		avail = radioComRxAvailable();
+		while(avail == 0) {
+			avail = radioComRxAvailable();
+		}
 	}
+	ax12LED(61,0);
 	return 0;
 }
 
