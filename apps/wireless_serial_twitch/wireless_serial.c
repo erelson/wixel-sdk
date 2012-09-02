@@ -367,7 +367,7 @@ uint8 CmdrReadMsgs(int8 *desiredGait, int8 *desiredDir, int8 *desiredSpeed){
 		}else if(index_cmdr == 0){
 			// add next byte to vals
 			vals[index_cmdr] = (unsigned char) radioComRxReceiveByte();
-			// if byte is 0xff, do nothing (first real byte should appear in next go-around.)
+			// look for first real byte (non 0xFF)
 			if(vals[index_cmdr] != 0xff){            
 				checksum_cmdr += (int) vals[index_cmdr];
 				index_cmdr++;
