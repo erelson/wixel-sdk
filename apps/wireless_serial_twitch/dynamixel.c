@@ -270,17 +270,17 @@ uint8 dynamixel_txrx(volatile uint8* txpacket, volatile uint8* rxpacket)
 	// return result;
 // }
 
-/// TRANSMIT STUFF
-// uint8 dynamixel_writebyte(uint8 id, uint8 address, uint8 value)
-// {	//Call this method to setup writing a 8bit value
-	// dynamixel_txpacket[DYNAMIXEL_ID]          = (uint8) id;
-	// dynamixel_txpacket[DYNAMIXEL_LENGTH]      = (uint8) 4;
-	// dynamixel_txpacket[DYNAMIXEL_INSTRUCTION] = (uint8) DYNAMIXEL_WRITE;
-	// dynamixel_txpacket[DYNAMIXEL_PARAMETER]   = (uint8) address;
-	// dynamixel_txpacket[DYNAMIXEL_PARAMETER+1] = (uint8) value;
+// / TRANSMIT STUFF
+uint8 dynamixel_writebyte(uint8 id, uint8 address, uint8 value)
+{	//Call this method to setup writing a 8bit value
+	dynamixel_txpacket[DYNAMIXEL_ID]          = (uint8) id;
+	dynamixel_txpacket[DYNAMIXEL_LENGTH]      = (uint8) 4;
+	dynamixel_txpacket[DYNAMIXEL_INSTRUCTION] = (uint8) DYNAMIXEL_WRITE;
+	dynamixel_txpacket[DYNAMIXEL_PARAMETER]   = (uint8) address;
+	dynamixel_txpacket[DYNAMIXEL_PARAMETER+1] = (uint8) value;
 	
-	// return dynamixel_txrx(dynamixel_txpacket, dynamixel_rxpacket);
-// }
+	return dynamixel_txrx(dynamixel_txpacket, dynamixel_rxpacket);
+}
 
 uint8 dynamixel_writeword(uint8 id, uint8 address, uint16 value)
 {	//Call this method to setup writing a 16bit value
