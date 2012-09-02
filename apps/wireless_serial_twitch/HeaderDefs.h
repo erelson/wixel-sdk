@@ -289,13 +289,13 @@ void UseSouthPaw();
 
 // variables used for reading messages
 unsigned char vals[7];  // temporary values, moved after we confirm checksum_cmdr
-int index_cmdr;              // -1 = waiting for new packet
-int checksum_cmdr;
+int8 index_cmdr;              // -1 = waiting for new packet
+int8 checksum_cmdr;
 // unsigned char southpaw; 
 
-int walkV;
-int walkH;
-int lookV;
-int lookH;
+int8 walkV;
+int8 walkH;
+int8 lookV;
+int8 lookH;
 // int walkSPD;
 // float walkDIR;
