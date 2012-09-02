@@ -43,6 +43,8 @@
 
 #include "dynamixel.h"
 #include "ax.h"
+#define ax12SetGOAL_POSITION(servo,val) 	dynamixel_writeword(servo,AX_GOAL_POSITION_L,CLAMP(val,0,1023))	
+#define ax12LED(servo,val)						dynamixel_writebyte(servo,AX_LED,CLAMP(val,0,1))
 
 #include "GaitRunner.h"
 #include "gait.h"
@@ -99,6 +101,11 @@ BIT errorOccurredRecently = 0;
 uint8 lastErrorTime;
 
 
+#define START_SPEED 50;
+
+#define START_POS   100
+#define SIT_POS     101
+#define MOVING_POS  102
 
 ///MATHEMATICA CODE
 ///loopSpeed = 1000;
@@ -108,11 +115,8 @@ uint16 g8speed = 25;
 int8 g8playbackDir = 1; // value should only ever be -1 or 1.
 int8 g8repeatCount = 0;
 
-#def START_SPEED 50;
+uint8 currentPos = SIT_POS;
 
-#def START_POS   100
-#def SIT_POS     101
-#def MOVING_POS  102
 
 
 // volatile const uint8 *all;
@@ -355,17 +359,20 @@ uint8 CmdrReadMsgs(int8 *desiredGait, int8 *desiredDir, int8 *desiredSpeed){
 	//while(LISTEN.available() > 0){
 	while(radioComRxAvailable() == FALSE){
 		if(index_cmdr == -1){         // looking for new packet
+			ax12LED(61,1);
 			if(radioComRxReceiveByte() == 0xff){ //read until packet start
 				index_cmdr = 0;
 				checksum_cmdr = 0;
 			}
 		}else if(index_cmdr == 0){
+			// add next byte to vals
 			vals[index_cmdr] = (unsigned char) radioComRxReceiveByte();
+			// if byte is 0xff, do nothing (first real byte should appear in next go-around.)
 			if(vals[index_cmdr] != 0xff){            
 				checksum_cmdr += (int) vals[index_cmdr];
 				index_cmdr++;
 			}
-		}else{
+		}else{ //for bytes after the 0th byte
 			vals[index_cmdr] = (unsigned char) radioComRxReceiveByte(); 
 			//loops will sequentially read bytes and store them here
 
@@ -505,7 +512,6 @@ uint8 CmdrReadMsgs(int8 *desiredGait, int8 *desiredDir, int8 *desiredSpeed){
 					*desiredDir = -1;
 					*desiredSpeed = 0;
 				}
-				
 				return 1;
 			}
 		}
@@ -843,6 +849,7 @@ void main()
     // usbInit();
     uart1Init();
     uart1SetBaudRate(param_baud_rate);
+	index_cmdr = -1;
 
     if (param_serial_mode != SERIAL_MODE_USB_UART)
     {
@@ -893,17 +900,84 @@ void main()
 		
 		
 		{
-		// uint8 currentGait; 
-		// uint8 currentDir;
-		// uint8 currentSpeed;
+		int8 currentGait; 
+		// int8 currentDir;
+		int8 currentSpeed;
 		
 		CmdrReadMsgs(&desiredGait, &desiredDir, &desiredSpeed);
 		// currentGait = pgm_read_byte(&gait->animation);
 		// currentDir = pgm_read_byte(&gait->backwards);
 		// currentSpeed = pgm_read_byte(&gait->speed);
+		currentGait = gait.animation;
+		// currentS = gait.speed;
+		currentSpeed = gait.speed;
 		// CmdrReadMsgs();
 		
-		
+		//Some gait requested
+		if (desiredGait != NO_GAIT) {
+			if ( currentGait == desiredGait) {
+				if (currentSpeed == desiredSpeed) {
+						//Nothing to change.	//1
+				} else { //desire a different speed
+					//Change speed				//2a
+					gait.speed = desiredSpeed;
+				}
+			} else if (currentGait == G8_ANIM_START) {
+				// if (currentDir == 1) {
+				if (currentSpeed > 0) {
+					continue;					//3a
+				// } else if (currentDir == -1) {
+				} else if (currentSpeed < 0) {
+					// gaitReverse();			//3b
+					gait.speed = START_SPEED;
+				}		
+			} else if (currentGait != NO_GAIT) { //Some other gait is running. Wait til it ends.
+				gaitRunnerStop(&gait);				//4
+				currentPos = START_POS;
+			///below this level, currentGait == NO_GAIT
+			} else if (currentPos == SIT_POS) { //No other gait is running, and currently in sit pos. Run START animation.
+				g8playbackDir = 1;				//6
+				g8speed = START_SPEED; //unnecessary?
+				gaitRunnerPlay(&gait, G8_ANIM_START, g8loopSpeed, g8playbackDir*g8speed, g8playbackDir * 1);
+				currentPos = START_POS;
+			} else { //No other gait is running, and currently in start position. Start the desired gait.
+				g8speed = desiredSpeed;			//5
+				g8playbackDir = desiredDir;
+		/// void gaitRunnerPlay(*runner, uint8 animation, int16 loopSpeed, int8 speed, repeatCount)
+				gaitRunnerPlay(&gait, desiredGait, g8loopSpeed, g8playbackDir*g8speed, 0);
+				currentPos = MOVING_POS;
+			}
+		}
+
+		else { // No gait requested; work towards sitting mode.
+			if (currentGait != NO_GAIT) {// If moving...
+				if (currentGait == G8_ANIM_START) { //If doing start gait...
+					// if (currentDir == 1) { //And going to start position
+					if (currentSpeed > 0) { //And going to start position
+						// gaitReverse();		//8
+						gait.speed *= -1;
+						currentPos = SIT_POS;
+					} else {	//Going into sit position
+						continue;	//Do nothing//9
+						
+					}
+				} else { //If doing some movement gait
+					//Tell gait engine to stop at end of loop.
+					gaitRunnerStop(&gait);			//7
+				}
+			} 
+			
+			//Not moving currently
+			else if (currentPos == START_POS) { //in START_POS
+				g8playbackDir = -1;				//10
+				g8speed = START_SPEED; //unnecessary?
+				gaitRunnerPlay(&gait, G8_ANIM_START, g8loopSpeed, g8playbackDir*g8speed, g8playbackDir * 1);
+				currentPos = SIT_POS;
+			} else { // in SIT_POS
+				continue;						//11
+			}
+			
+		}
 		}
 
 #ifdef INCL_USB
@@ -972,45 +1046,36 @@ If the commander suggests a gait, and another gait is already playing we do the 
 
 
 
-
+/*
 
 
 //Some gait requested
 if (desiredGait != NO_GAIT) {
 	if ( currentGait == desiredGait) {
 		if (currentSpeed == desiredSpeed) {
-			if (currentDir == desiredDir) {
-				//Nothing to change.
-				continue;		//1
-			} else {
-				gaitReverse(&gait);		//2b
-			}
+				//Nothing to change.	//1
 		} else { //desire a different speed
-			if (currentDir == desiredDir) {
-				//Change speed		//2a
-				continue;
-			} else {
-				gaitReverse();
-				// Change speed		//2c
-			}
+			//Change speed				//2a
+			gait->speed = desiredSpeed;
 		}
 	} else if (currentGait == START_GAIT) {
 		if (currentDir == 1) {
-			continue();				//3a
+			continue();					//3a
 		} else if (currentDir == -1) {
-			gaitReverse();			//3b
+			// gaitReverse();			//3b
+			gait->speed = START_SPEED;
 		}		
 	} else if (currentGait != NO_GAIT) { //Some other gait is running. Wait til it ends.
-		gaitRunnerStop();			//4
+		gaitRunnerStop();				//4
 		currentPos = START_POS;
 	///below this level, currentGait == NO_GAIT
 	} else if (currentPos == SIT_POS) { //No other gait is running, and currently in sit pos. Run START animation.
-		g8playbackDir = 1;			//6
+		g8playbackDir = 1;				//6
 		g8speed = START_SPEED; //unnecessary?
 		gaitRunnerPlay(&gait, G8_ANIM_START, g8loopSpeed, g8playbackDir*g8speed, g8playbackDir * 1);
 		currentPos = START_POS;
 	} else { //No other gait is running, and currently in start position. Start the desired gait.
-		g8speed = desiredSpeed;		//5
+		g8speed = desiredSpeed;			//5
 		g8playbackDir = desiredDir;
 /// void gaitRunnerPlay(*runner, uint8 animation, int16 loopSpeed, int8 speed, repeatCount)
 		gaitRunnerPlay(&gait, desiredGait, g8loopSpeed, g8playbackDir*g8speed, 0);
@@ -1022,27 +1087,27 @@ else { // No gait requested; work towards sitting mode.
 	if (currentGait != NO_GAIT) {// If moving...
 		if (currentGait == G8_ANIM_START) { //If doing start gait...
 			if (currentDir == 1) { //And going to start position
-				gaitReverse();		//8
+				// gaitReverse();		//8
+				gait->speed *= -1;
 				currentPos = SIT_POS;
 			} else {	//Going into sit position
-				continue;			//9
-				//Do nothing
-			
+				continue;	//Do nothing//9
+				
 			}
 		} else { //If doing some movement gait
 			//Tell gait engine to stop at end of loop.
-			gaitRunnerStop();		//7
+			gaitRunnerStop();			//7
 		}
 	} 
 	
 	//Not moving currently
 	else if (currentPos == START_POS) { //in START_POS
-		g8playbackDir = -1;			//10
+		g8playbackDir = -1;				//10
 		g8speed = START_SPEED; //unnecessary?
 		gaitRunnerPlay(&gait, G8_ANIM_START, g8loopSpeed, g8playbackDir*g8speed, g8playbackDir * 1);
 		currentPos = SIT_POS;
 	} else { // in SIT_POS
-		continue;					//11
+		continue;						//11
 	}
 	
 }
