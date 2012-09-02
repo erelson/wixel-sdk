@@ -298,7 +298,8 @@ void usbToRadioService()
 
     while(radioComRxAvailable() && usbComTxAvailable())
     {
-        usbComTxSendByte(radioComRxReceiveByte());
+        // usbComTxSendByte(radioComRxReceiveByte());
+        usbComTxSendByte(CmdrReadMsgs());
     }
 
     // Control Signals
@@ -308,24 +309,6 @@ void usbToRadioService()
     // Need to switch bits 0 and 1 so that DTR pairs up with DSR.
     signals = radioComRxControlSignals();
     usbComTxControlSignals( ((signals & 1) ? 2 : 0) | ((signals & 2) ? 1 : 0));
-}
-
-void uartToRadioService()
-{
-    // Data
-    while(uart1RxAvailable() && radioComTxAvailable())
-    {
-        radioComTxSendByte(uart1RxReceiveByte());
-    }
-
-    while(radioComRxAvailable() && uart1TxAvailable())
-    {
-        uart1TxSendByte(radioComRxReceiveByte());
-    }
-
-    // Control Signals.
-    ioTxSignals(radioComRxControlSignals());
-    radioComTxControlSignals(ioRxSignals());
 }
 
 void usbToUartService()
@@ -352,11 +335,29 @@ void usbToUartService()
     // TODO: report framing, parity, and overrun errors to the USB host here
 }
 
+void uartToRadioService()
+{
+    // Data
+    while(uart1RxAvailable() && radioComTxAvailable())
+    {
+        radioComTxSendByte(uart1RxReceiveByte());
+    }
+
+    while(radioComRxAvailable() && uart1TxAvailable())
+    {
+        uart1TxSendByte(radioComRxReceiveByte());
+    }
+
+    // Control Signals.
+    ioTxSignals(radioComRxControlSignals());
+    radioComTxControlSignals(ioRxSignals());
+}
+
 /* process messages coming from Commander
 * format = 0xFF RIGHT_H RIGHT_V LEFT_H LEFT_V BUTTONS EXT checksum_cmdr */
 int CmdrReadMsgs(){
 	//while(LISTEN.available() > 0){
-	while(uart1RxAvailable() == zFALSE){
+	while(radioComRxAvailable() == zTRUE){
 		if(index_cmdr == -1){ // looking for new packet
 			if(uart1RxReceiveByte() == 0xff){ //read until packet start
 			index_cmdr = 0;
