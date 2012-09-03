@@ -357,15 +357,16 @@ void uartToRadioService()
  *  format = 0xFF RIGHT_H RIGHT_V LEFT_H LEFT_V BUTTONS EXT checksum_cmdr */
 uint8 CmdrReadMsgs(int8 *desiredGait, int8 *desiredDir, int8 *desiredSpeed){
 	//while(LISTEN.available() > 0){
-	int8 loopCount = 0;
-	int8 avail = radioComRxAvailable();
-	// while(radioComRxAvailable() == TRUE){
-	while(avail == TRUE){
-		loopCount += 1;
-		if (loopCount > 2) {
-		// if (avail > 0) {
-			ax12LED(61,1);
-		}
+	// int8 loopCount = 0;
+	// int8 avail = radioComRxAvailable();
+	while(radioComRxAvailable() > 0){
+	// while(avail > 0){
+		// loopCount += 1;
+		// if (loopCount > 6) {
+		// if (index_cmdr > 5) {
+		// // if (avail > 0) {
+			// ax12LED(61,1);
+		// }
 		// else {
 			// ax12LED(61,0);
 		// }
@@ -378,17 +379,16 @@ uint8 CmdrReadMsgs(int8 *desiredGait, int8 *desiredDir, int8 *desiredSpeed){
 			// add next byte to vals
 			vals[index_cmdr] = (unsigned char) radioComRxReceiveByte();
 			// look for first real byte (non 0xFF)
+			// if(checksum_cmdr == 0) { ax12LED(61,0);}
 			if(vals[index_cmdr] != 0xff){
-				checksum_cmdr += (int) vals[index_cmdr];
+				checksum_cmdr += (uint8) vals[index_cmdr];
 				index_cmdr++;
 			}
-		}else if(index_cmdr == 1){
-			ax12LED(61,1);
 		}else{ //for bytes after the 0th byte
 			vals[index_cmdr] = (unsigned char) radioComRxReceiveByte(); 
 			//loops will sequentially read bytes and store them here
 
-			checksum_cmdr += (int) vals[index_cmdr];
+			checksum_cmdr += (uint8) vals[index_cmdr];
 			index_cmdr++;
 			
 			// DEBUG: if all packets go through, shoudl see x2 through 
@@ -396,6 +396,9 @@ uint8 CmdrReadMsgs(int8 *desiredGait, int8 *desiredDir, int8 *desiredSpeed){
 			// rprintf("x%u ",index_cmdr);
 			
 			if(index_cmdr == 7){ // packet complete
+				// if(vals[0] == 0xff) {
+					// ax12LED(61,1);
+				// }
 				if(checksum_cmdr%256 != 255){
 					// packet error!
 					// rprintf("\npacket error!\n");
@@ -467,29 +470,29 @@ uint8 CmdrReadMsgs(int8 *desiredGait, int8 *desiredDir, int8 *desiredSpeed){
 					// else if (dowalking){
 					// if (dowalking){
 						// vals - 128 gives look a vlaue in the range from -128 to 127?
-						lookV = (signed char)( (int8)vals[0]-128 );
-						lookH = (signed char)( (int8)vals[1]-128 );
-						// if( (int)vals[0] >= 128){
-							// tilt_pos = interpolateU( (int)vals[0],128,128+102,TILT_CENTER,servo52Max);
-						// }
-						// else {
-							// tilt_pos = interpolateU( (int)vals[0],128-102,128,servo52Min,TILT_CENTER);
-						// }
-						
-						// int pan_add = (-(float)lookH)/17;
-						// int tilt_add = (-(float)lookV)/25;
-						// pan_add = (-(float)lookH)/17;
-						// tilt_add = (-(float)lookV)/25;
-						
-						
-						// pan_pos = interpolate( (int)vals[1],0,255,servo51Max,servo51Min);
-						
-						// pan_pos = CLAMP(pan_pos + pan_add, servo51Min, servo51Max);
-						// tilt_pos = CLAMP(tilt_pos + tilt_add, servo52Min, servo52Max);
-						
-						//Default handling in original Commander.c - sets to range of -127 to 127 or so...
-						walkV = (signed char)( (int8)vals[2]-128 );
-						walkH = (signed char)( (int8)vals[3]-128 );
+					lookV = (signed char)( (int8)vals[0]-128 );
+					lookH = (signed char)( (int8)vals[1]-128 );
+					// if( (int)vals[0] >= 128){
+						// tilt_pos = interpolateU( (int)vals[0],128,128+102,TILT_CENTER,servo52Max);
+					// }
+					// else {
+						// tilt_pos = interpolateU( (int)vals[0],128-102,128,servo52Min,TILT_CENTER);
+					// }
+					
+					// int pan_add = (-(float)lookH)/17;
+					// int tilt_add = (-(float)lookV)/25;
+					// pan_add = (-(float)lookH)/17;
+					// tilt_add = (-(float)lookV)/25;
+					
+					
+					// pan_pos = interpolate( (int)vals[1],0,255,servo51Max,servo51Min);
+					
+					// pan_pos = CLAMP(pan_pos + pan_add, servo51Min, servo51Max);
+					// tilt_pos = CLAMP(tilt_pos + tilt_add, servo52Min, servo52Max);
+					
+					//Default handling in original Commander.c - sets to range of -127 to 127 or so...
+					walkV = (signed char)( (int8)vals[2]-128 );
+					walkH = (signed char)( (int8)vals[3]-128 );
 					// }
 					// pan = (vals[0]<<8) + vals[1];
 					// tilt = (vals[2]<<8) + vals[3];
@@ -532,12 +535,11 @@ uint8 CmdrReadMsgs(int8 *desiredGait, int8 *desiredDir, int8 *desiredSpeed){
         // delayMicroseconds(250);
         // delayMicroseconds(250);
         // delayMicroseconds(249);
-		avail = radioComRxAvailable();
-		while(avail == 0) {
-			avail = radioComRxAvailable();
-		}
+		// avail = radioComRxAvailable();
+		// while(avail == 0) {
+			// avail = radioComRxAvailable();
+		// }
 	}
-	ax12LED(61,0);
 	return 0;
 }
 
@@ -831,7 +833,7 @@ void main()
 	//
 	
 	// uint8 nextGait;
-	int8 desiredGait;
+	int8 desiredGait = NO_GAIT;
 	int8 desiredDir;
 	int8 desiredSpeed;
 	
@@ -881,6 +883,8 @@ void main()
 	
 #ifdef GAIT_ENABLE
 	gaitRunnerInit(&gait);
+	
+	gait.animation = NO_GAIT;
 #endif
 	
 	// Initial setting of serial mode
@@ -905,7 +909,8 @@ void main()
 	// gaitRunnerPlay(&gait,    G8_ANIM_START,       g8loopSpeed, g8playbackDir * g8speed, g8playbackDir * 1);
 	// g8playbackDir = -1;
 	// gaitRunnerPlay(&gait,    G8_ANIM_START,       g8loopSpeed, g8playbackDir * g8speed, g8playbackDir * 1);
-	gaitRunnerPlay(&gait,    G8_ANIM_TURN_LEFT,       g8loopSpeed, g8playbackDir * g8speed, g8playbackDir * g8repeatCount);
+	
+	// gaitRunnerPlay(&gait,    G8_ANIM_TURN_LEFT,       g8loopSpeed, g8playbackDir * g8speed, g8playbackDir * g8repeatCount);
 
     while(1)
     {
@@ -925,8 +930,11 @@ void main()
 		int8 currentGait; 
 		// int8 currentDir;
 		int8 currentSpeed;
-		
+		int8 led = 0;
 		CmdrReadMsgs(&desiredGait, &desiredDir, &desiredSpeed);
+		// if (desiredGait == G8_ANIM_WALK_STRAIGHT) {
+			// ax12LED(61,1);
+		// }
 		// currentGait = pgm_read_byte(&gait->animation);
 		// currentDir = pgm_read_byte(&gait->backwards);
 		// currentSpeed = pgm_read_byte(&gait->speed);
@@ -935,8 +943,13 @@ void main()
 		currentSpeed = gait.speed;
 		// CmdrReadMsgs();
 		
+		// if (currentGait == G8_ANIM_WALK_STRAIGHT) {
+			// ax12LED(61,1);
+		// }
+		
 		//Some gait requested
 		if (desiredGait != NO_GAIT) {
+			led = 1;
 			if ( currentGait == desiredGait) {
 				if (currentSpeed == desiredSpeed) {
 						//Nothing to change.	//1
@@ -1000,8 +1013,11 @@ void main()
 			}
 			
 		}
+		
+		if (led) { ax12LED(61,1); }
+		else { ax12LED(61,0); }
+		
 		}
-
 #ifdef INCL_USB
 		//Unneeded?
         usbComService();
@@ -1024,7 +1040,7 @@ void main()
 	
 		
 	
-		delayMs(20);
+		delayMs(10);
 		
 		gaitRunnerProcess(&gait);
     }

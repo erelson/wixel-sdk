@@ -290,7 +290,7 @@ void UseSouthPaw();
 // variables used for reading messages
 unsigned char vals[7];  // temporary values, moved after we confirm checksum_cmdr
 int8 index_cmdr;              // -1 = waiting for new packet
-int8 checksum_cmdr;
+uint8 checksum_cmdr;
 // unsigned char southpaw; 
 
 int8 walkV;
