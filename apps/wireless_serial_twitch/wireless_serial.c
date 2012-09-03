@@ -30,6 +30,7 @@
 
 #include <radio_com.h>
 #include <radio_link.h>
+#include <radio_queue.h>
 
 #include <uart1.h>
 
@@ -362,13 +363,8 @@ uint8 CmdrReadMsgs(int8 *desiredGait, int8 *desiredDir, int8 *desiredSpeed){
 	// while(radioComRxAvailable() == TRUE){
 	while(avail == TRUE){
 		loopCount += 1;
-		if (loopCount > 2) {
-		// if (avail > 0) {
-			ax12LED(61,1);
-		}
-		// else {
-			// ax12LED(61,0);
-		// }
+		if (loopCount > 2)  { ax12LED(61,1);	}
+
 		if(index_cmdr == -1){         // looking for new packet
 			if(radioComRxReceiveByte() == 0xff){ //read until packet start
 				index_cmdr = 0;
@@ -382,18 +378,12 @@ uint8 CmdrReadMsgs(int8 *desiredGait, int8 *desiredDir, int8 *desiredSpeed){
 				checksum_cmdr += (int) vals[index_cmdr];
 				index_cmdr++;
 			}
-		}else if(index_cmdr == 1){
-			ax12LED(61,1);
 		}else{ //for bytes after the 0th byte
 			vals[index_cmdr] = (unsigned char) radioComRxReceiveByte(); 
 			//loops will sequentially read bytes and store them here
-
+			
 			checksum_cmdr += (int) vals[index_cmdr];
 			index_cmdr++;
-			
-			// DEBUG: if all packets go through, shoudl see x2 through 
-			// 	x7 when Commander input is being received.
-			// rprintf("x%u ",index_cmdr);
 			
 			if(index_cmdr == 7){ // packet complete
 				if(checksum_cmdr%256 != 255){
@@ -402,140 +392,16 @@ uint8 CmdrReadMsgs(int8 *desiredGait, int8 *desiredDir, int8 *desiredSpeed){
 					index_cmdr = -1;
 					return 0;
 				}
-				else{
-					char buttonval = vals[4];
-					// short dowalking = TRUE;
-					
-					//rprintf("\t%d\t",(int)buttonval);
-					//Turn gait...
-					// if((buttonval&0x40) > 0){ //if(buttonval & BUT_LT){
-						// // if(PRINT_DEBUG_COMMANDER){rprintf("lft\t");}
-						// turnleft = zTRUE;
-						// turnright = zFALSE;
-						
-						// dowalking = zFALSE;
-					// }
-					// else if((buttonval&0x80) > 0){ //if(buttonval & BUT_RT){
-						// // if(PRINT_DEBUG_COMMANDER){rprintf("rgt\t");}
-						// turnright = zTRUE;
-						// turnleft = zFALSE;
-						
-						// dowalking = zFALSE;
-					// }
-					// else { // Do nothing
-						// turnright = zFALSE;
-						// turnleft = zFALSE;
-						// turn = zFALSE;
-					// }
-					// if((buttonval&BUT_L6) > 0){
-						// gunbutton = zTRUE;
-						// // if(PRINT_DEBUG_COMMANDER){rprintf("guns\t");}
-					// }
-					// else{gunbutton = zFALSE;}
-
-					// if((buttonval&BUT_R3) > 0){
-						// panicbutton = zTRUE;
-						// // if(PRINT_DEBUG_COMMANDER){rprintf("panic\t");}
-					// }
-					// else{panicbutton = zFALSE;}
-					
-					// if((buttonval&BUT_L4) > 0){
-						// infobutton = zTRUE;
-						// // if(PRINT_DEBUG_COMMANDER){rprintf("info\t");}
-					// }
-					// else{infobutton = zFALSE;}
-					
-					// if((buttonval&BUT_R2) > 0){
-						// pan_pos = PAN_CENTER;
-						// tilt_pos = TILT_CENTER;
-						// // if(PRINT_DEBUG_COMMANDER){rprintf("look\t");}
-					// }
-					// else{infobutton = zFALSE;}
-					
-					// if((buttonval&BUT_R1) > 0){
-						// agitbutton = zTRUE;
-						// // if(PRINT_DEBUG_COMMANDER){rprintf("agit\t");}
-					// }
-					// else{agitbutton = zFALSE;}
-					
-					// if((southpaw&0x01) > 0){     // SouthPaw
-						// walkV = (signed char)( (int)vals[0]-128 );
-						// walkH = (signed char)( (int)vals[1]-128 );
-						// // lookV = (signed char)( (int)vals[2]-128 );
-						// // lookH = (signed char)( (int)vals[3]-128 );
-					// }
-					// else if (dowalking){
-					// if (dowalking){
-						// vals - 128 gives look a vlaue in the range from -128 to 127?
-						lookV = (signed char)( (int8)vals[0]-128 );
-						lookH = (signed char)( (int8)vals[1]-128 );
-						// if( (int)vals[0] >= 128){
-							// tilt_pos = interpolateU( (int)vals[0],128,128+102,TILT_CENTER,servo52Max);
-						// }
-						// else {
-							// tilt_pos = interpolateU( (int)vals[0],128-102,128,servo52Min,TILT_CENTER);
-						// }
-						
-						// int pan_add = (-(float)lookH)/17;
-						// int tilt_add = (-(float)lookV)/25;
-						// pan_add = (-(float)lookH)/17;
-						// tilt_add = (-(float)lookV)/25;
-						
-						
-						// pan_pos = interpolate( (int)vals[1],0,255,servo51Max,servo51Min);
-						
-						// pan_pos = CLAMP(pan_pos + pan_add, servo51Min, servo51Max);
-						// tilt_pos = CLAMP(tilt_pos + tilt_add, servo52Min, servo52Max);
-						
-						//Default handling in original Commander.c - sets to range of -127 to 127 or so...
-						walkV = (signed char)( (int8)vals[2]-128 );
-						walkH = (signed char)( (int8)vals[3]-128 );
-					// }
-					// pan = (vals[0]<<8) + vals[1];
-					// tilt = (vals[2]<<8) + vals[3];
-					// buttons = vals[4];
-					// ext = vals[5];
-				}
 				index_cmdr = -1;
-				//LISTEN.flush(); //flush after reading an entire packet... why?
-				// uartFlushReceiveBuffer(LISTEN);
-				//Doesn't seem to be an equivalent method for Wixels.
-				
-				if (walkV > 20) {			///walk forward
-					*desiredGait = G8_ANIM_WALK_STRAIGHT;
-					*desiredDir = 1;
-					*desiredSpeed = 50;
-				} 
-				else if (walkV < -20) {	///walk backwards
-					*desiredGait = G8_ANIM_WALK_STRAIGHT;
-					*desiredDir = -1;
-					*desiredSpeed = 50;
-				} else if (walkH > 20) {	///Turn right
-					*desiredGait = G8_ANIM_TURN_LEFT;
-					*desiredDir = -1;
-					*desiredSpeed = 50;
-				} else if (walkH < -20) {	///Turn left
-					*desiredGait = G8_ANIM_TURN_LEFT;
-					*desiredDir = 1;
-					*desiredSpeed = 50;
-				} else {
-					*desiredGait = NO_GAIT;
-					// nextGait = G8_ANIM_START;
-					*desiredDir = -1;
-					*desiredSpeed = 0;
-				}
 				return 1;
 			}
 		}
-		// delayMicroseconds(1000);
         // delayMicroseconds(250);
         // delayMicroseconds(250);
         // delayMicroseconds(250);
         // delayMicroseconds(249);
 		avail = radioComRxAvailable();
-		while(avail == 0) {
-			avail = radioComRxAvailable();
-		}
+		while(avail == 0) {	avail = radioComRxAvailable(); }
 	}
 	ax12LED(61,0);
 	return 0;
