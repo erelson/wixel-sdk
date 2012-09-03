@@ -291,16 +291,16 @@ void usbToRadioService()
     uint8 signals;
 
     // Data
-    // while(usbComRxAvailable() && radioComTxAvailable())
-    // {
-        // radioComTxSendByte(usbComRxReceiveByte());
-    // }
+    while(usbComRxAvailable() && radioComTxAvailable())
+    {
+        radioComTxSendByte(usbComRxReceiveByte());
+    }
 
-    // while(radioComRxAvailable() && usbComTxAvailable())
-    // {
-        // // usbComTxSendByte(radioComRxReceiveByte());
+    while(radioComRxAvailable() && usbComTxAvailable())
+    {
+        usbComTxSendByte(radioComRxReceiveByte());
         // usbComTxSendByte(CmdrReadMsgs());
-    // }
+    }
 
     // Control Signals
 
@@ -315,21 +315,30 @@ void usbToRadioService()
 * format = 0xFF RIGHT_H RIGHT_V LEFT_H LEFT_V BUTTONS EXT checksum_cmdr */
 int CmdrReadMsgs(){
 	//while(LISTEN.available() > 0){
-	while(radioComRxAvailable() == zTRUE){
+	while(radioComRxAvailable() > 0){
+		int8 mybyte = radioComRxReceiveByte();
+		// if (usbComTxAvailable()) { usbComTxSendByte(0xFE); }
+		// if (usbComTxAvailable()) { usbComTxSendByte(0xFE); }
+		// if (usbComTxAvailable()) { usbComTxSendByte(0xFE); }
+		// if (usbComTxAvailable()) { usbComTxSendByte(mybyte); }
+		if (usbComTxAvailable()) { usbComTxSendByte(0xFE); }
+		if (usbComTxAvailable()) { usbComTxSendByte(0xFE); }
+		if (usbComTxAvailable()) { usbComTxSendByte(mybyte); }
 		if(index_cmdr == -1){ // looking for new packet
 			if(radioComRxReceiveByte() == 0xff){ //read until packet start
 				index_cmdr = 0;
 				checksum_cmdr = 0;
 			}
 		}else if(index_cmdr == 0){
-			vals[index_cmdr] = (unsigned char) uart1RxReceiveByte();
+			// vals[index_cmdr] = (unsigned char) radioComRxReceiveByte();
+			vals[index_cmdr] = mybyte;
 			if(vals[index_cmdr] != 0xff){
 				checksum_cmdr += (int) vals[index_cmdr];
 				index_cmdr++;
-				if (usbComTxAvailable()) { usbComTxSendByte(vals[index_cmdr]); }
+				
 			}
 		}else{
-			vals[index_cmdr] = (unsigned char) uart1RxReceiveByte(); //loops will sequentially read bytes and store them here
+			vals[index_cmdr] = (unsigned char) radioComRxReceiveByte(); //loops will sequentially read bytes and store them here
 			checksum_cmdr += (int) vals[index_cmdr];
 			index_cmdr++;
 
@@ -345,16 +354,13 @@ int CmdrReadMsgs(){
 				}
 				
 				index_cmdr = -1;
-				//LISTEN.flush(); //flush after reading an entire packet... why?
+				//LISTEN.flush(); //flush after reading an entire packet
 				// uartFlushReceiveBuffer(LISTEN);
 				//Doesn't seem to be an equivalent method for Wixels.
 				return 1;
 			}
 		}
 	}
-	if (usbComTxAvailable()) { usbComTxSendByte(0xFE); }
-	if (usbComTxAvailable()) { usbComTxSendByte(0xFE); }
-	if (usbComTxAvailable()) { usbComTxSendByte(0xFE); }
 	return 0;
 }
 
@@ -388,6 +394,8 @@ void main()
 	
 	//For debugging purposes, we're only interested in this mode
 	currentSerialMode = SERIAL_MODE_USB_RADIO;
+	
+	index_cmdr = -1;
 	
     while(1)
     {

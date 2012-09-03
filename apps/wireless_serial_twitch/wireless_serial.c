@@ -361,7 +361,7 @@ uint8 CmdrReadMsgs(int8 *desiredGait, int8 *desiredDir, int8 *desiredSpeed){
 	int8 loopCount = 0;
 	int8 avail = radioComRxAvailable();
 	// while(radioComRxAvailable() == TRUE){
-	while(avail == TRUE){
+	while(avail > 0){
 		loopCount += 1;
 		if (loopCount > 2)  { ax12LED(61,1);	}
 
