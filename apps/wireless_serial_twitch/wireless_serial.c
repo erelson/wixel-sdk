@@ -949,10 +949,9 @@ void main()
 		
 		//Some gait requested
 		if (desiredGait != NO_GAIT) {
-			led = 1;
 			if ( currentGait == desiredGait) {
 				if (currentSpeed == desiredSpeed) {
-						//Nothing to change.	//1
+					// continue;//Nothing to change.	//1
 				} else { //desire a different speed
 					//Change speed				//2a
 					gait.speed = desiredSpeed;
@@ -960,22 +959,28 @@ void main()
 			} else if (currentGait == G8_ANIM_START) {
 				// if (currentDir == 1) {
 				if (currentSpeed > 0) {
-					continue;					//3a
+					// continue;					//3a
 				// } else if (currentDir == -1) {
 				} else if (currentSpeed < 0) {
+					led = 1;
 					// gaitReverse();			//3b
+					// so that we go TO start position.
 					gait.speed = START_SPEED;
+					// if  (gait.speed < 0) {led = 1;}
 				}		
 			} else if (currentGait != NO_GAIT) { //Some other gait is running. Wait til it ends.
+				// led = 1;
 				gaitRunnerStop(&gait);				//4
 				currentPos = START_POS;
 			///below this level, currentGait == NO_GAIT
 			} else if (currentPos == SIT_POS) { //No other gait is running, and currently in sit pos. Run START animation.
+				// led = 1;
 				g8playbackDir = 1;				//6
 				g8speed = START_SPEED; //unnecessary?
 				gaitRunnerPlay(&gait, G8_ANIM_START, g8loopSpeed, g8playbackDir*g8speed, g8playbackDir * 1);
 				currentPos = START_POS;
 			} else { //No other gait is running, and currently in start position. Start the desired gait.
+				// led = 1;
 				g8speed = desiredSpeed;			//5
 				g8playbackDir = desiredDir;
 		/// void gaitRunnerPlay(*runner, uint8 animation, int16 loopSpeed, int8 speed, repeatCount)
@@ -993,7 +998,7 @@ void main()
 						gait.speed *= -1;
 						currentPos = SIT_POS;
 					} else {	//Going into sit position
-						continue;	//Do nothing//9
+						// continue;	//Do nothing//9
 						
 					}
 				} else { //If doing some movement gait
@@ -1009,13 +1014,14 @@ void main()
 				gaitRunnerPlay(&gait, G8_ANIM_START, g8loopSpeed, g8playbackDir*g8speed, g8playbackDir * 1);
 				currentPos = SIT_POS;
 			} else { // in SIT_POS
-				continue;						//11
+				// continue;						//11
 			}
 			
 		}
 		
-		if (led) { ax12LED(61,1); }
-		else { ax12LED(61,0); }
+		// if (led) { ax12LED(61,1); }
+		// else { ax12LED(61,0); }
+		ax12LED(61,led);
 		
 		}
 #ifdef INCL_USB
@@ -1023,12 +1029,6 @@ void main()
         usbComService();
 #endif
 
-        // switch(currentSerialMode)
-        // {
-	// //case SERIAL_MODE_USB_RADIO:  usbToRadioService();  break;
-        // case SERIAL_MODE_UART_RADIO: uartToRadioService(); break;
-        // //case SERIAL_MODE_USB_UART:   usbToUartService();   break;
-        // }
 		// ms = getMs();		// Get current time in ms
 		// now = ms % (uint32)10000; 	// 10 sec for a full swing
 		// if(now >= (uint16)5000){				// Goes from 0ms...5000ms
@@ -1045,129 +1045,3 @@ void main()
 		gaitRunnerProcess(&gait);
     }
 }
-
-/*
-
-//Plan: We keep 3 levels of gait planning:
-- The currently playing gait 				(gait->animation)
-- The  next gait to play 					(nextGait)
-- The gait being suggested by the Commander 	(desiredGait)
-
-Cases:
-- suggested gait, playing same gait
-	do nothing(?)
-	nextGait = desiredGait (??)
-- suggested gait, playing same gait at diff speed
-	TODO: Modify gaitRunnerPlay()
-	nextGait = desiredGait (??)
-- suggested gait, playing start
-	nextGait = desiredGait
-- suggested gait, playing an actual gait         -> 
-		call gaitRunnerStop
-		nextGait = desiredGait
-- suggested gait, not playing another
-	call gaitRunnerPlay(startGait)
-	nextGait = desiredGait
-- suggest no gait, currently playing a gait
-	nextGait = start gait backwards
-	call gaitRunnerStop
-- suggest no gait, currently doing start gait
-	nextGait = start gait backwards
-- suggest no gait, not playing a gait
-
-
-If the commander suggests a gait, and another gait is already playing we do the following:
-- call gaitRunnerStop()
-- 
-
-*/
-
-
-
-/*
-
-
-//Some gait requested
-if (desiredGait != NO_GAIT) {
-	if ( currentGait == desiredGait) {
-		if (currentSpeed == desiredSpeed) {
-				//Nothing to change.	//1
-		} else { //desire a different speed
-			//Change speed				//2a
-			gait->speed = desiredSpeed;
-		}
-	} else if (currentGait == START_GAIT) {
-		if (currentDir == 1) {
-			continue();					//3a
-		} else if (currentDir == -1) {
-			// gaitReverse();			//3b
-			gait->speed = START_SPEED;
-		}		
-	} else if (currentGait != NO_GAIT) { //Some other gait is running. Wait til it ends.
-		gaitRunnerStop();				//4
-		currentPos = START_POS;
-	///below this level, currentGait == NO_GAIT
-	} else if (currentPos == SIT_POS) { //No other gait is running, and currently in sit pos. Run START animation.
-		g8playbackDir = 1;				//6
-		g8speed = START_SPEED; //unnecessary?
-		gaitRunnerPlay(&gait, G8_ANIM_START, g8loopSpeed, g8playbackDir*g8speed, g8playbackDir * 1);
-		currentPos = START_POS;
-	} else { //No other gait is running, and currently in start position. Start the desired gait.
-		g8speed = desiredSpeed;			//5
-		g8playbackDir = desiredDir;
-/// void gaitRunnerPlay(*runner, uint8 animation, int16 loopSpeed, int8 speed, repeatCount)
-		gaitRunnerPlay(&gait, desiredGait, g8loopSpeed, g8playbackDir*g8speed, 0);
-		currentPos = MOVING_POS;
-	}
-}
-
-else { // No gait requested; work towards sitting mode.
-	if (currentGait != NO_GAIT) {// If moving...
-		if (currentGait == G8_ANIM_START) { //If doing start gait...
-			if (currentDir == 1) { //And going to start position
-				// gaitReverse();		//8
-				gait->speed *= -1;
-				currentPos = SIT_POS;
-			} else {	//Going into sit position
-				continue;	//Do nothing//9
-				
-			}
-		} else { //If doing some movement gait
-			//Tell gait engine to stop at end of loop.
-			gaitRunnerStop();			//7
-		}
-	} 
-	
-	//Not moving currently
-	else if (currentPos == START_POS) { //in START_POS
-		g8playbackDir = -1;				//10
-		g8speed = START_SPEED; //unnecessary?
-		gaitRunnerPlay(&gait, G8_ANIM_START, g8loopSpeed, g8playbackDir*g8speed, g8playbackDir * 1);
-		currentPos = SIT_POS;
-	} else { // in SIT_POS
-		continue;						//11
-	}
-	
-}
-	
-	
-}
-*/
-
-/*	
-else if (desiredGait != nextGait)
-	nextGait = desiredGait;
-
-//Else if finished playing START
-else if (gait->animation == G8_ANIM_START && gait->playing = FALSE)
-	// If in neutral position
-	if (gait->backwards){
-		gait->animation = NO_GAIT;
-	// Else, play the next queued animation
-	}else {gaitPlay(nextGait ..... )}
-
-
-if current gait is not NO_GAIT or G8_ANIM_START:
-	nextGait = G8_ANIM_START
-
-*/
