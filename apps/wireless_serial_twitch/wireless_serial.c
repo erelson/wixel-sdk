@@ -631,6 +631,10 @@ boolean gaitRunnerProcess(G8_RUNNER* runner){
 	if(!gaitRunnerIsPlaying(runner) || (runner->speeds)==null){
 		return FALSE;
 	}
+	
+	if(runner->animation == NO_GAIT){
+		return FALSE;
+	}
 
 	if(interval == 0){
 		// return TRUE;
@@ -661,8 +665,9 @@ boolean gaitRunnerProcess(G8_RUNNER* runner){
 			if(runner->repeatCount){
 				runner->repeatCount -= 1;				// One less frame to go
 				if(runner->repeatCount==0){				/// Reached zero from a non-zero repeatCount
-					runner->playing = FALSE;			// we have reached the end
+					runner->playing = FALSE;			// we have reached the end (of a repeating gait played forward?)
 					currentTime = 0;					// set servos to final position
+					runner->animation = NO_GAIT;
 				}
 			}
 		}else if(pgm_read_byte(&animation->sweep)==2){
@@ -682,8 +687,9 @@ boolean gaitRunnerProcess(G8_RUNNER* runner){
 			if(runner->repeatCount){
 				runner->repeatCount += 1;				// One more frame to go ///(??? One less frame to go, really...)
 				if(runner->repeatCount==0){				/// Reached zero from a non-zero repeatCount
-					runner->playing = FALSE;			// we have reached the end
+					runner->playing = FALSE;			// we have reached the end (of a gait played backwards?)
 					currentTime = 0;					// set servos to start position
+					runner->animation = NO_GAIT;
 				}
 			}
 		}else{
@@ -694,7 +700,7 @@ boolean gaitRunnerProcess(G8_RUNNER* runner){
 			if(runner->repeatCount){
 				runner->repeatCount -= 1;			// One less frame to go
 				if(runner->repeatCount==0){
-					runner->playing = FALSE;		// we have reached the end
+					runner->playing = FALSE;		// we have reached the end (of a regular sweep)
 					currentTime = 0;				// set servos to initial position
 					runner->animation = NO_GAIT;
 				}
@@ -794,6 +800,7 @@ boolean gaitRunnerProcess(G8_RUNNER* runner){
 	if( currentTime == runner->totalTime && pgm_read_byte(&animation->sweep) == 2) {
 		currentTime = 0;
 		runner->playing = FALSE;			// we have reached the end
+		runner->animation = NO_GAIT;
 	}
 	
 	return gaitRunnerIsPlaying(runner);
@@ -946,7 +953,8 @@ void main()
 		// if (currentGait == G8_ANIM_WALK_STRAIGHT) {
 			// ax12LED(61,1);
 		// }
-		
+		if (currentGait == NO_GAIT) { led = 1; }
+		// if (currentPos == MOVING_POS) { led = 1; }
 		//Some gait requested
 		if (desiredGait != NO_GAIT) {
 			if ( currentGait == desiredGait) {
@@ -962,13 +970,13 @@ void main()
 					// continue;					//3a
 				// } else if (currentDir == -1) {
 				} else if (currentSpeed < 0) {
-					led = 1;
+					// led = 1;
 					// gaitReverse();			//3b
 					// so that we go TO start position.
 					gait.speed = START_SPEED;
 					// if  (gait.speed < 0) {led = 1;}
 				}		
-			} else if (currentGait != NO_GAIT) { //Some other gait is running. Wait til it ends.
+			} else if (currentGait != NO_GAIT /* & != G8_ANIM_START*/) { //Some other gait is running. Wait til it ends.
 				// led = 1;
 				gaitRunnerStop(&gait);				//4
 				currentPos = START_POS;
@@ -985,7 +993,7 @@ void main()
 				g8playbackDir = desiredDir;
 		/// void gaitRunnerPlay(*runner, uint8 animation, int16 loopSpeed, int8 speed, repeatCount)
 				gaitRunnerPlay(&gait, desiredGait, g8loopSpeed, g8playbackDir*g8speed, 0);
-				currentPos = MOVING_POS;
+				currentPos = MOVING_POS;	// This should be the only way a moving gait gets started...
 			}
 		}
 
@@ -1004,12 +1012,13 @@ void main()
 				} else { //If doing some movement gait
 					//Tell gait engine to stop at end of loop.
 					gaitRunnerStop(&gait);			//7
+					currentPos = START_POS;
 				}
 			} 
 			
 			//Not moving currently
 			else if (currentPos == START_POS) { //in START_POS
-				g8playbackDir = -1;				//10
+				g8playbackDir = -1;					//10
 				g8speed = START_SPEED; //unnecessary?
 				gaitRunnerPlay(&gait, G8_ANIM_START, g8loopSpeed, g8playbackDir*g8speed, g8playbackDir * 1);
 				currentPos = SIT_POS;
@@ -1021,7 +1030,7 @@ void main()
 		
 		// if (led) { ax12LED(61,1); }
 		// else { ax12LED(61,0); }
-		ax12LED(61,led);
+		// ax12LED(61,led);
 		
 		}
 #ifdef INCL_USB
