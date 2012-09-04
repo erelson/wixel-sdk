@@ -938,7 +938,12 @@ void main()
 		// int8 currentDir;
 		int8 currentSpeed;
 		int8 led = 0;
+		
+		
 		CmdrReadMsgs(&desiredGait, &desiredDir, &desiredSpeed);
+		//Empty the packet buffer?
+		while (radioComRxAvailable() > 0) { radioComRxReceiveByte(); }
+		
 		// if (desiredGait == G8_ANIM_WALK_STRAIGHT) {
 			// ax12LED(61,1);
 		// }
