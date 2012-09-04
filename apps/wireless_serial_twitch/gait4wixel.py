@@ -30,4 +30,5 @@ if (not fileAtt & stat.S_IWRITE):
     
 replace(myFile, '<Gait/GaitRunner.h>', '"GaitRunner.h"')
 replace(myFile, 'PROGMEM', '')
-replace(myFile, 'MAKE_G8_ANIMATION(2, frames_2, TRUE),', 'MAKE_G8_ANIMATION(2, frames_2, 2),')
+# replace(myFile, 'MAKE_G8_ANIMATION(2, frames_2, TRUE),', 'MAKE_G8_ANIMATION(2, frames_2, 2),')
+replace(myFile, 'MAKE_G8_ANIMATION(2, frames_1, TRUE),', 'MAKE_G8_ANIMATION(2, frames_2, 2),')
