@@ -53,7 +53,7 @@
 // #define INCL_USB
 // #define LED_DEBUG_GAITPROCESS
 #define LED_DEBUG_GAITRUN
-// #define LED_DEBUG_CONTROLOGIC
+#define LED_DEBUG_CONTROLOGIC
 
 
 /** Parameters ****************************************************************/
@@ -1023,8 +1023,7 @@ void main()
 				currentPos = START_POS;
 			///below this level, currentGait == NO_GAIT
 			} else if (currentPos == SIT_POS) { //No other gait is running, and currently in sit pos. Run START animation.
-				led = 1;
-				
+				// led = 1;
 				g8playbackDir = 1;				//6
 				g8speed = START_SPEED; //unnecessary?
 				gaitRunnerPlay(&gait, G8_ANIM_START, g8loopSpeed, g8playbackDir*g8speed, g8playbackDir * 1);
