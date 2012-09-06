@@ -21,7 +21,6 @@
 /** Dependencies **************************************************************/
 #include <wixel.h>
 
-// #define INCL_USB
 
 #ifdef INCL_USB
 #include <usb.h>
@@ -51,6 +50,11 @@
 
 /** Enables *******************************************************************/
 #define GAIT_ENABLE
+// #define INCL_USB
+// #define LED_DEBUG_GAITPROCESS
+#define LED_DEBUG_GAITRUN
+// #define LED_DEBUG_CONTROLOGIC
+
 
 /** Parameters ****************************************************************/
 #define SERIAL_MODE_AUTO        0
@@ -101,7 +105,7 @@ BIT errorOccurredRecently = 0;
 uint8 lastErrorTime;
 
 
-#define START_SPEED 50;
+#define START_SPEED 45
 
 #define START_POS   100
 #define SIT_POS     101
@@ -116,7 +120,6 @@ int8 g8playbackDir = 1; // value should only ever be -1 or 1.
 int8 g8repeatCount = 0;
 
 uint8 currentPos = SIT_POS;
-
 
 
 // volatile const uint8 *all;
@@ -503,6 +506,9 @@ uint8 CmdrReadMsgs(int8 *desiredGait, int8 *desiredDir, int8 *desiredSpeed){
 				//LISTEN.flush(); //flush after reading an entire packet... why?
 				// uartFlushReceiveBuffer(LISTEN);
 				//Doesn't seem to be an equivalent method for Wixels.
+				//Empty the packet buffer?
+				while (radioComRxAvailable() > 0) { radioComRxReceiveByte(); }
+				
 				
 				if (walkV > 20) {			///walk forward
 					*desiredGait = G8_ANIM_WALK_STRAIGHT;
@@ -523,8 +529,7 @@ uint8 CmdrReadMsgs(int8 *desiredGait, int8 *desiredDir, int8 *desiredSpeed){
 					*desiredSpeed = 50;
 				} else {
 					*desiredGait = NO_GAIT;
-					// nextGait = G8_ANIM_START;
-					*desiredDir = -1;
+					*desiredDir = -1;	// Pointless; Logic chaing shouldn't use desiredDir with NO_GAIT...
 					*desiredSpeed = 0;
 				}
 				return 1;
@@ -563,7 +568,11 @@ void gaitRunnerPlay(G8_RUNNER* runner, uint8 animation, int16 loopSpeed, int8 sp
 	// Update variables with interrupts off - in case the gait is
 	// updated under interrupts
 	uint32 now = getMs();
+#ifdef LED_DEBUG_GAITRUN
+	ax12LED(61,1);
+#endif
 	// CRITICAL_SECTION {
+	__critical {
 		runner->animation = animation;
 		runner->repeatCount = repeatCount;
 		runner->frame = 0;
@@ -574,6 +583,7 @@ void gaitRunnerPlay(G8_RUNNER* runner, uint8 animation, int16 loopSpeed, int8 sp
 		runner->speed = speed;
 		runner->backwards = FALSE;
 	// }
+	}
 	// Set servos to initial position
 	gaitRunnerProcess(runner);
 }
@@ -611,6 +621,10 @@ boolean gaitRunnerProcess(G8_RUNNER* runner){
 	int16  interval = (int16)((now) - (runner->startTime))>>16;
 	// int16  interval;
 
+// #ifdef LED_DEBUG_GAITPROCESS
+	uint8 led = 0;
+// #endif
+	
 	// int16 test2 = (int16)(runner->startTime);
 	// interval = (int16)(now - test2)>>16;
 	
@@ -690,6 +704,9 @@ boolean gaitRunnerProcess(G8_RUNNER* runner){
 					runner->playing = FALSE;			// we have reached the end (of a gait played backwards?)
 					currentTime = 0;					// set servos to start position
 					runner->animation = NO_GAIT;
+					// if (currentPos != SIT_POS) {
+						// currentPos = START_POS;
+					// }
 				}
 			}
 		}else{
@@ -703,6 +720,9 @@ boolean gaitRunnerProcess(G8_RUNNER* runner){
 					runner->playing = FALSE;		// we have reached the end (of a regular sweep)
 					currentTime = 0;				// set servos to initial position
 					runner->animation = NO_GAIT;
+					// if (currentPos != SIT_POS) {
+						// currentPos = START_POS;
+					// }
 				}
 			}
 		}
@@ -801,7 +821,19 @@ boolean gaitRunnerProcess(G8_RUNNER* runner){
 		currentTime = 0;
 		runner->playing = FALSE;			// we have reached the end
 		runner->animation = NO_GAIT;
+		
+		// if (currentPos != SIT_POS) {
+			// currentPos = START_POS;
+		// }
+			
+#ifdef	LED_DEBUG_GAITPROCESS
+		led = 1;
+#endif
 	}
+	
+#ifdef	LED_DEBUG_GAITPROCESS
+	ax12LED(61,led);
+#endif
 	
 	return gaitRunnerIsPlaying(runner);
 }
@@ -915,8 +947,8 @@ void main()
 	// gaitRunnerPlay(&gait,    G8_ANIM_WALK_STRAIGHT, g8loopSpeed, g8playbackDir * g8speed, g8playbackDir * g8repeatCount);
 	// gaitRunnerPlay(&gait,    G8_ANIM_START,       g8loopSpeed, g8playbackDir * g8speed, g8playbackDir * 1);
 	// g8playbackDir = -1;
-	// gaitRunnerPlay(&gait,    G8_ANIM_START,       g8loopSpeed, g8playbackDir * g8speed, g8playbackDir * 1);
-	
+	gaitRunnerPlay(&gait,    G8_ANIM_START,       g8loopSpeed, START_SPEED, 1);
+				
 	// gaitRunnerPlay(&gait,    G8_ANIM_TURN_LEFT,       g8loopSpeed, g8playbackDir * g8speed, g8playbackDir * g8repeatCount);
 
     while(1)
@@ -941,8 +973,6 @@ void main()
 		
 		
 		CmdrReadMsgs(&desiredGait, &desiredDir, &desiredSpeed);
-		//Empty the packet buffer?
-		while (radioComRxAvailable() > 0) { radioComRxReceiveByte(); }
 		
 		// if (desiredGait == G8_ANIM_WALK_STRAIGHT) {
 			// ax12LED(61,1);
@@ -954,14 +984,19 @@ void main()
 		// currentS = gait.speed;
 		currentSpeed = gait.speed;
 		// CmdrReadMsgs();
-		
+#ifdef LED_DEBUG_GAITRUN
+		ax12LED(61,0);
+#endif
 		// if (currentGait == G8_ANIM_WALK_STRAIGHT) {
-			// ax12LED(61,1);
+		// if (currentGait == G8_ANIM_START) {
+			// led = 1; 
 		// }
-		if (currentGait == NO_GAIT) { led = 1; }
+		// if (currentGait == NO_GAIT) { led = 1; }
 		// if (currentPos == MOVING_POS) { led = 1; }
+		if (currentPos == SIT_POS) { led = 1; }
 		//Some gait requested
 		if (desiredGait != NO_GAIT) {
+			// led = 1;
 			if ( currentGait == desiredGait) {
 				if (currentSpeed == desiredSpeed) {
 					// continue;//Nothing to change.	//1
@@ -972,6 +1007,7 @@ void main()
 			} else if (currentGait == G8_ANIM_START) {
 				// if (currentDir == 1) {
 				if (currentSpeed > 0) {
+					// led = 1;
 					// continue;					//3a
 				// } else if (currentDir == -1) {
 				} else if (currentSpeed < 0) {
@@ -987,7 +1023,8 @@ void main()
 				currentPos = START_POS;
 			///below this level, currentGait == NO_GAIT
 			} else if (currentPos == SIT_POS) { //No other gait is running, and currently in sit pos. Run START animation.
-				// led = 1;
+				led = 1;
+				
 				g8playbackDir = 1;				//6
 				g8speed = START_SPEED; //unnecessary?
 				gaitRunnerPlay(&gait, G8_ANIM_START, g8loopSpeed, g8playbackDir*g8speed, g8playbackDir * 1);
@@ -999,6 +1036,7 @@ void main()
 		/// void gaitRunnerPlay(*runner, uint8 animation, int16 loopSpeed, int8 speed, repeatCount)
 				gaitRunnerPlay(&gait, desiredGait, g8loopSpeed, g8playbackDir*g8speed, 0);
 				currentPos = MOVING_POS;	// This should be the only way a moving gait gets started...
+				// led = 1; 
 			}
 		}
 
@@ -1008,35 +1046,41 @@ void main()
 					// if (currentDir == 1) { //And going to start position
 					if (currentSpeed > 0) { //And going to start position
 						// gaitReverse();		//8
-						gait.speed *= -1;
+						gait.speed = -1 * currentSpeed;
 						currentPos = SIT_POS;
+						// led = 1; 
 					} else {	//Going into sit position
 						// continue;	//Do nothing//9
+						// led = 1; 
 						
 					}
 				} else { //If doing some movement gait
 					//Tell gait engine to stop at end of loop.
 					gaitRunnerStop(&gait);			//7
 					currentPos = START_POS;
+					// led = 1; 
 				}
 			} 
 			
 			//Not moving currently
 			else if (currentPos == START_POS) { //in START_POS
-				g8playbackDir = -1;					//10
+				// g8playbackDir = -1;					//10
 				g8speed = START_SPEED; //unnecessary?
-				gaitRunnerPlay(&gait, G8_ANIM_START, g8loopSpeed, g8playbackDir*g8speed, g8playbackDir * 1);
+				gaitRunnerPlay(&gait, G8_ANIM_START, g8loopSpeed, -1*g8speed, -1);
 				currentPos = SIT_POS;
+				// led = 1; 
 			} else { // in SIT_POS
 				// continue;						//11
+				// currentPos = SIT_POS;
+				// led = 1; 
 			}
 			
 		}
 		
-		// if (led) { ax12LED(61,1); }
-		// else { ax12LED(61,0); }
-		// ax12LED(61,led);
-		
+#ifdef LED_DEBUG_CONTROLOGIC
+		ax12LED(61,led);
+#endif
+
 		}
 #ifdef INCL_USB
 		//Unneeded?
