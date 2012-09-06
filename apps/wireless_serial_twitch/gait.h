@@ -185,7 +185,7 @@ static const  G8_FRAME  frames_3[8] = {
 };
 const  G8_ANIMATION  animations[4] = {
 	MAKE_G8_ANIMATION(3, frames_0, FALSE),
-	MAKE_G8_ANIMATION(2, frames_2, 2),
+	MAKE_G8_ANIMATION(2, frames_1, 2),
 	MAKE_G8_ANIMATION(6, frames_2, FALSE),
 	MAKE_G8_ANIMATION(8, frames_3, FALSE)
 };
