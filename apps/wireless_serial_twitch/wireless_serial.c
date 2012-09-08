@@ -637,7 +637,7 @@ boolean gaitRunnerProcess(G8_RUNNER* runner){
 	const G8_LIMB_POSITION* limb;
 	
 	now = getMs();
-	interval = (int16)((now) - (runner->startTime))>>16;
+	interval = (int16)((now) - (runner->startTime))>>16;	//subtract previous 'startTime'
 	
 	if(!gaitRunnerIsPlaying(runner) || (runner->speeds)==null){
 #ifdef	LED_DEBUG_GAITPROCESS
@@ -653,7 +653,7 @@ boolean gaitRunnerProcess(G8_RUNNER* runner){
 		return FALSE;
 	}
 
-	if(interval == 0){
+	if(interval == 0){		//Happens if ....
 		// return TRUE;
 		interval = 1;
 	}
@@ -664,6 +664,11 @@ boolean gaitRunnerProcess(G8_RUNNER* runner){
 		interval *= -1;
 	}
 	interval *= runner->speed;
+	
+	
+	if(interval < 0){
+		// led = 1;
+	}
 
 	// Re-check as drive speed could be zero
 	if(interval == 0){
@@ -673,7 +678,7 @@ boolean gaitRunnerProcess(G8_RUNNER* runner){
 		return TRUE;
 	}
 	
-	led = 1;
+	// led = 1;
 
 	// Locate the current animation
 	animation = &runner->animations[runner->animation];
@@ -703,6 +708,7 @@ boolean gaitRunnerProcess(G8_RUNNER* runner){
 		}
 	///NOTE: currentTime is negative when... speed is negative, and we overshoot zero.
 	}else if(currentTime < 0){
+	
 		// We have moved before the start
 		if(pgm_read_byte(&animation->sweep)==FALSE){
 			currentTime = runner->totalTime + currentTime;	///wrap around
@@ -717,14 +723,19 @@ boolean gaitRunnerProcess(G8_RUNNER* runner){
 					// }
 				}
 			}
+		}else if(pgm_read_byte(&animation->sweep)==2){
+			currentTime = 0;		//Triggers block at end of this function
+			
 		}else{
+			led = 1;
 			// We have completed a sweep; sweep = 1 or 2? Hmmmm...
 			runner->backwards = FALSE;
 			currentTime = -currentTime;
 
 			if(runner->repeatCount){
-				runner->repeatCount -= 1;			// One less frame to go
+				runner->repeatCount -= 1;			// One less frame to go (this is the end of a sweep with negative speed)
 				if(runner->repeatCount==0){
+					 led = 1;
 					runner->playing = FALSE;		// we have reached the end (of a regular sweep)
 					currentTime = 0;				// set servos to initial position
 					runner->animation = NO_GAIT;
@@ -755,10 +766,6 @@ boolean gaitRunnerProcess(G8_RUNNER* runner){
 		frameStartTime = 0;
 	}
 	runner->frame = i;
-
-// #ifdef DEBUG
-// PRINTF(DEBUG,"\n%u,%d",i,currentTime);
-// #endif
 
 	// Now have:- frameStartTime <= frameTime <= frameEndTime
 
@@ -795,9 +802,6 @@ boolean gaitRunnerProcess(G8_RUNNER* runner){
 		// We now know the distance
 		runner->speeds[i] = calcY(limb,distance);
 
-// #ifdef DEBUG
-// PRINTF(DEBUG,",%d",speed);
-// #endif
 	}	// next limb
 
 #ifndef DEBUG
@@ -825,18 +829,19 @@ boolean gaitRunnerProcess(G8_RUNNER* runner){
 
 	///Extra!
 	///Stops gait when we get to the end of a sweep == 2 animation
-	if( currentTime == runner->totalTime && pgm_read_byte(&animation->sweep) == 2) {
-		currentTime = 0;
-		runner->playing = FALSE;			// we have reached the end
-		runner->animation = NO_GAIT;
-		
-		// if (currentPos != SIT_POS) {
-			// currentPos = START_POS;
-		// }
+	if( pgm_read_byte(&animation->sweep) == 2) {
+		if( currentTime == runner->totalTime || currentTime == 0) {
+			currentTime = 0;
+			runner->playing = FALSE;			// we have reached the end
+			runner->animation = NO_GAIT;
 			
-		// led = 1;
+			// if (currentPos != SIT_POS) {
+				// currentPos = START_POS;
+			// }
+				
+			// led = 1;
+		}
 	}
-	
 #ifdef	LED_DEBUG_GAITPROCESS
 	ax12LED(61,led);
 #endif
@@ -1021,6 +1026,7 @@ void main()
 					// gaitReverse();			//3b
 					// so that we go TO start position.
 					gait.speed = START_SPEED;
+					// gait.repeatCount *= -1; // Seems to have no effect
 					// if  (gait.speed < 0) {led = 1;}
 				}		
 			} else if (currentGait != NO_GAIT /* & != G8_ANIM_START*/) { //Some other gait is running. Wait til it ends.
@@ -1057,7 +1063,6 @@ void main()
 					} else {	//Going into sit position
 						// continue;	//Do nothing//9
 						// led = 1; 
-						
 					}
 				} else { //If doing some movement gait
 					//Tell gait engine to stop at end of loop.
