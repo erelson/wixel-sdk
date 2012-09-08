@@ -98,42 +98,42 @@ static const  G8_LIMB_POSITION  limbs_1_7[G8_NUM_LIMBS] = {
 // The limb positions for animation number 2 Frame#0
 static const  G8_LIMB_POSITION  limbs_2_0[G8_NUM_LIMBS] = {
 	MAKE_G8_LIMB_POSITION( -76,0 , 114,0 , 111,0 , -51 ),
-	MAKE_G8_LIMB_POSITION( -70,-46 , 108,54 , 111,30 , 0 ),
+	MAKE_G8_LIMB_POSITION( -70,46 , 108,-54 , 111,-30 , 0 ),
 	MAKE_G8_LIMB_POSITION( -70,-46 , 108,54 , 111,30 , 0 )
 };
 
 // The limb positions for animation number 2 Frame#1
 static const  G8_LIMB_POSITION  limbs_2_1[G8_NUM_LIMBS] = {
 	MAKE_G8_LIMB_POSITION( -64,-204 , 96,306 , 171,0 , -51 ),
-	MAKE_G8_LIMB_POSITION( -100,0 , 150,0 , 153,0 , 38 ),
+	MAKE_G8_LIMB_POSITION( -100,0 , 150,0 , 153,0 , -38 ),
 	MAKE_G8_LIMB_POSITION( -100,0 , 150,0 , 153,0 , 38 )
 };
 
 // The limb positions for animation number 2 Frame#2
 static const  G8_LIMB_POSITION  limbs_2_2[G8_NUM_LIMBS] = {
 	MAKE_G8_LIMB_POSITION( -76,0 , 114,0 , 111,0 , 51 ),
-	MAKE_G8_LIMB_POSITION( -73,46 , 108,-84 , 114,0 , 38 ),
+	MAKE_G8_LIMB_POSITION( -73,-46 , 108,84 , 114,0 , -38 ),
 	MAKE_G8_LIMB_POSITION( -73,46 , 108,-84 , 114,0 , 38 )
 };
 
 // The limb positions for animation number 2 Frame#3
 static const  G8_LIMB_POSITION  limbs_2_3[G8_NUM_LIMBS] = {
 	MAKE_G8_LIMB_POSITION( -74,0 , 111,0 , 108,0 , 51 ),
-	MAKE_G8_LIMB_POSITION( -68,49 , 105,-60 , 108,-27 , 0 ),
+	MAKE_G8_LIMB_POSITION( -68,-49 , 105,60 , 108,27 , 0 ),
 	MAKE_G8_LIMB_POSITION( -68,49 , 105,-60 , 108,-27 , 0 )
 };
 
 // The limb positions for animation number 2 Frame#4
 static const  G8_LIMB_POSITION  limbs_2_4[G8_NUM_LIMBS] = {
 	MAKE_G8_LIMB_POSITION( -66,204 , 99,-306 , 171,0 , 51 ),
-	MAKE_G8_LIMB_POSITION( -102,0 , 153,0 , 153,0 , -38 ),
+	MAKE_G8_LIMB_POSITION( -102,0 , 153,0 , 153,0 , 38 ),
 	MAKE_G8_LIMB_POSITION( -102,0 , 153,0 , 153,0 , -38 )
 };
 
 // The limb positions for animation number 2 Frame#5
 static const  G8_LIMB_POSITION  limbs_2_5[G8_NUM_LIMBS] = {
 	MAKE_G8_LIMB_POSITION( -78,0 , 117,0 , 111,0 , -51 ),
-	MAKE_G8_LIMB_POSITION( -72,-46 , 105,84 , 117,0 , -38 ),
+	MAKE_G8_LIMB_POSITION( -72,46 , 105,-84 , 117,0 , 38 ),
 	MAKE_G8_LIMB_POSITION( -72,-46 , 105,84 , 117,0 , -38 )
 };
 

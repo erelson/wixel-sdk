@@ -523,12 +523,12 @@ uint8 CmdrReadMsgs(int8 *desiredGait, int8 *desiredDir, int8 *desiredSpeed){
 					*desiredDir = 1;
 					*desiredSpeed = 50;
 				} else if (walkH > 20) {	///Turn right
-					*desiredGait = G8_ANIM_TURN_LEFT;
+					*desiredGait = G8_ANIM_TURN_RIGHT;
 					*desiredDir = 1;
 					*desiredSpeed = 50;
 				} else if (walkH < -20) {	///Turn left
 					// *desiredGait = G8_ANIM_TURN_RIGHT;
-					*desiredGait = G8_ANIM_TURN_LEFT;
+					*desiredGait = G8_ANIM_TURN_RIGHT;
 					*desiredDir = -1;
 					*desiredSpeed = -50;
 				} else {
