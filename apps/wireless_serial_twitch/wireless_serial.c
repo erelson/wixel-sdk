@@ -43,7 +43,7 @@
 #include "dynamixel.h"
 #include "ax.h"
 #define ax12SetGOAL_POSITION(servo,val) 	dynamixel_writeword(servo,AX_GOAL_POSITION_L,CLAMP(val,0,1023))	
-#define ax12LED(servo,val)						dynamixel_writebyte(servo,AX_LED,CLAMP(val,0,1))
+#define ax12LED(servo,val)					dynamixel_writebyte(servo,AX_LED,CLAMP(val,0,1))
 
 #include "GaitRunner.h"
 #include "gait.h"
@@ -51,9 +51,9 @@
 /** Enables *******************************************************************/
 #define GAIT_ENABLE
 // #define INCL_USB
-// #define LED_DEBUG_GAITPROCESS
-#define LED_DEBUG_GAITRUN
-#define LED_DEBUG_CONTROLOGIC
+#define LED_DEBUG_GAITPROCESS
+// #define LED_DEBUG_GAITRUN
+// #define LED_DEBUG_CONTROLOGIC
 
 
 /** Parameters ****************************************************************/
@@ -616,19 +616,13 @@ static int8 calcY(const G8_LIMB_POSITION* limb, float t1){
 // Return true if an animation is playing
 boolean gaitRunnerProcess(G8_RUNNER* runner){
 
-	uint32 now = getMs();
+	uint32 now;
 	// int16_t  interval = (now - runner->startTime)>>16; //original
-	int16  interval = (int16)((now) - (runner->startTime))>>16;
-	// int16  interval;
-
+	int16  interval;
+	
 // #ifdef LED_DEBUG_GAITPROCESS
 	uint8 led = 0;
 // #endif
-	
-	// int16 test2 = (int16)(runner->startTime);
-	// interval = (int16)(now - test2)>>16;
-	
-	// interval = (int16)(now - (runner->startTime))>>16;
 
 	const G8_ANIMATION* animation;
 	int16 currentTime;
@@ -642,11 +636,20 @@ boolean gaitRunnerProcess(G8_RUNNER* runner){
 	float distanceGuess;
 	const G8_LIMB_POSITION* limb;
 	
+	now = getMs();
+	interval = (int16)((now) - (runner->startTime))>>16;
+	
 	if(!gaitRunnerIsPlaying(runner) || (runner->speeds)==null){
+#ifdef	LED_DEBUG_GAITPROCESS
+		ax12LED(61,led);
+#endif
 		return FALSE;
 	}
 	
 	if(runner->animation == NO_GAIT){
+#ifdef	LED_DEBUG_GAITPROCESS
+		ax12LED(61,led);
+#endif
 		return FALSE;
 	}
 
@@ -664,8 +667,13 @@ boolean gaitRunnerProcess(G8_RUNNER* runner){
 
 	// Re-check as drive speed could be zero
 	if(interval == 0){
+#ifdef	LED_DEBUG_GAITPROCESS
+		ax12LED(61,led);
+#endif
 		return TRUE;
 	}
+	
+	led = 1;
 
 	// Locate the current animation
 	animation = &runner->animations[runner->animation];
@@ -685,7 +693,7 @@ boolean gaitRunnerProcess(G8_RUNNER* runner){
 				}
 			}
 		}else if(pgm_read_byte(&animation->sweep)==2){
-			currentTime = runner->totalTime;
+			currentTime = runner->totalTime;		//Triggers block at end of this function
 			
 		}else{
 			// Start going backwards through the animation
@@ -710,7 +718,7 @@ boolean gaitRunnerProcess(G8_RUNNER* runner){
 				}
 			}
 		}else{
-			// We have completed a sweep
+			// We have completed a sweep; sweep = 1 or 2? Hmmmm...
 			runner->backwards = FALSE;
 			currentTime = -currentTime;
 
@@ -826,9 +834,7 @@ boolean gaitRunnerProcess(G8_RUNNER* runner){
 			// currentPos = START_POS;
 		// }
 			
-#ifdef	LED_DEBUG_GAITPROCESS
-		led = 1;
-#endif
+		// led = 1;
 	}
 	
 #ifdef	LED_DEBUG_GAITPROCESS
