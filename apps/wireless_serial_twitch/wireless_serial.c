@@ -105,7 +105,7 @@ BIT errorOccurredRecently = 0;
 uint8 lastErrorTime;
 
 
-#define START_SPEED 65
+#define START_SPEED 75
 
 #define START_POS   100
 #define SIT_POS     101
@@ -509,19 +509,38 @@ uint8 CmdrReadMsgs(int8 *desiredGait, int8 *desiredDir, int8 *desiredSpeed){
 				//Empty the packet buffer?
 				while (radioComRxAvailable() > 0) { radioComRxReceiveByte(); }
 				
-				
-				if (walkV > 20) {			///walk forward
+				if (lookV > 20) {			///walk forward
 					*desiredGait = G8_ANIM_WALK_STRAIGHT;
 					*desiredDir = 1;
 					*desiredSpeed = 50;
-				} 
-				else if (walkV < -20) {	///walk backwards
+				} else if (lookV < -20) {	///walk backwards
 					*desiredGait = G8_ANIM_WALK_STRAIGHT_BACK;
 					// *desiredGait = G8_ANIM_WALK_STRAIGHT;
 					// *desiredDir = -1;
 					// *desiredSpeed = -50;
 					*desiredDir = 1;
 					*desiredSpeed = 50;
+				} else if (lookH > 20) {	///Turn right
+					*desiredGait = G8_ANIM_TURN_SLOW;
+					*desiredDir = 1;
+					*desiredSpeed = 50;
+				} else if (lookH < -20) {	///Turn left
+					// *desiredGait = G8_ANIM_TURN_RIGHT;
+					*desiredGait = G8_ANIM_TURN_SLOW;
+					*desiredDir = -1;
+					*desiredSpeed = -50;
+				/// **********************************************************
+				} else if (walkV > 20) {			///walk forward
+					*desiredGait = G8_ANIM_WALK_STRAIGHT;
+					*desiredDir = 1;
+					*desiredSpeed = 70;
+				} else if (walkV < -20) {	///walk backwards
+					*desiredGait = G8_ANIM_WALK_STRAIGHT_BACK;
+					// *desiredGait = G8_ANIM_WALK_STRAIGHT;
+					// *desiredDir = -1;
+					// *desiredSpeed = -50;
+					*desiredDir = 1;
+					*desiredSpeed = 70;
 				} else if (walkH > 20) {	///Turn right
 					*desiredGait = G8_ANIM_TURN_RIGHT;
 					*desiredDir = 1;
