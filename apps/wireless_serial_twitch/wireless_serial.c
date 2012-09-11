@@ -523,12 +523,12 @@ uint8 CmdrReadMsgs(int8 *desiredGait, int8 *desiredDir, int8 *desiredSpeed){
 				} else if (lookH > 20) {	///Turn right
 					*desiredGait = G8_ANIM_TURN_SLOW;
 					*desiredDir = 1;
-					*desiredSpeed = 50;
+					*desiredSpeed = 70;
 				} else if (lookH < -20) {	///Turn left
 					// *desiredGait = G8_ANIM_TURN_RIGHT;
 					*desiredGait = G8_ANIM_TURN_SLOW;
 					*desiredDir = -1;
-					*desiredSpeed = -50;
+					*desiredSpeed = -70;
 				/// **********************************************************
 				} else if (walkV > 20) {			///walk forward
 					*desiredGait = G8_ANIM_WALK_STRAIGHT;
@@ -544,12 +544,12 @@ uint8 CmdrReadMsgs(int8 *desiredGait, int8 *desiredDir, int8 *desiredSpeed){
 				} else if (walkH > 20) {	///Turn right
 					*desiredGait = G8_ANIM_TURN_RIGHT;
 					*desiredDir = 1;
-					*desiredSpeed = 50;
+					*desiredSpeed = 70;
 				} else if (walkH < -20) {	///Turn left
 					// *desiredGait = G8_ANIM_TURN_RIGHT;
 					*desiredGait = G8_ANIM_TURN_RIGHT;
 					*desiredDir = -1;
-					*desiredSpeed = -50;
+					*desiredSpeed = -70;
 				} else {
 					*desiredGait = NO_GAIT;
 					*desiredDir = -1;	// Pointless; Logic chaing shouldn't use desiredDir with NO_GAIT...
