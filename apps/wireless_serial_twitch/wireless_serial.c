@@ -359,20 +359,8 @@ void uartToRadioService()
 /* process messages coming from Commander 
  *  format = 0xFF RIGHT_H RIGHT_V LEFT_H LEFT_V BUTTONS EXT checksum_cmdr */
 uint8 CmdrReadMsgs(int8 *desiredGait, int8 *desiredDir, int8 *desiredSpeed){
-	//while(LISTEN.available() > 0){
-	// int8 loopCount = 0;
-	// int8 avail = radioComRxAvailable();
+	
 	while(radioComRxAvailable() > 0){
-	// while(avail > 0){
-		// loopCount += 1;
-		// if (loopCount > 6) {
-		// if (index_cmdr > 5) {
-		// // if (avail > 0) {
-			// ax12LED(61,1);
-		// }
-		// else {
-			// ax12LED(61,0);
-		// }
 		if(index_cmdr == -1){         // looking for new packet
 			if(radioComRxReceiveByte() == 0xff){ //read until packet start
 				index_cmdr = 0;
@@ -503,6 +491,7 @@ uint8 CmdrReadMsgs(int8 *desiredGait, int8 *desiredDir, int8 *desiredSpeed){
 					// ext = vals[5];
 				}
 				index_cmdr = -1;
+				
 				//LISTEN.flush(); //flush after reading an entire packet... why?
 				// uartFlushReceiveBuffer(LISTEN);
 				//Doesn't seem to be an equivalent method for Wixels.
@@ -510,14 +499,11 @@ uint8 CmdrReadMsgs(int8 *desiredGait, int8 *desiredDir, int8 *desiredSpeed){
 				while (radioComRxAvailable() > 0) { radioComRxReceiveByte(); }
 				
 				if (lookV > 20) {			///walk forward
-					*desiredGait = G8_ANIM_WALK_STRAIGHT;
+					*desiredGait = G8_ANIM_WALK_STRAIGHT_SLOW;
 					*desiredDir = 1;
 					*desiredSpeed = 50;
 				} else if (lookV < -20) {	///walk backwards
-					*desiredGait = G8_ANIM_WALK_STRAIGHT_BACK;
-					// *desiredGait = G8_ANIM_WALK_STRAIGHT;
-					// *desiredDir = -1;
-					// *desiredSpeed = -50;
+					*desiredGait = G8_ANIM_WALK_STRAIGHT_BACK_SLOW;
 					*desiredDir = 1;
 					*desiredSpeed = 50;
 				} else if (lookH > 20) {	///Turn right
@@ -525,7 +511,6 @@ uint8 CmdrReadMsgs(int8 *desiredGait, int8 *desiredDir, int8 *desiredSpeed){
 					*desiredDir = 1;
 					*desiredSpeed = 70;
 				} else if (lookH < -20) {	///Turn left
-					// *desiredGait = G8_ANIM_TURN_RIGHT;
 					*desiredGait = G8_ANIM_TURN_SLOW;
 					*desiredDir = -1;
 					*desiredSpeed = -70;
@@ -536,9 +521,6 @@ uint8 CmdrReadMsgs(int8 *desiredGait, int8 *desiredDir, int8 *desiredSpeed){
 					*desiredSpeed = 70;
 				} else if (walkV < -20) {	///walk backwards
 					*desiredGait = G8_ANIM_WALK_STRAIGHT_BACK;
-					// *desiredGait = G8_ANIM_WALK_STRAIGHT;
-					// *desiredDir = -1;
-					// *desiredSpeed = -50;
 					*desiredDir = 1;
 					*desiredSpeed = 70;
 				} else if (walkH > 20) {	///Turn right
@@ -546,7 +528,6 @@ uint8 CmdrReadMsgs(int8 *desiredGait, int8 *desiredDir, int8 *desiredSpeed){
 					*desiredDir = 1;
 					*desiredSpeed = 70;
 				} else if (walkH < -20) {	///Turn left
-					// *desiredGait = G8_ANIM_TURN_RIGHT;
 					*desiredGait = G8_ANIM_TURN_RIGHT;
 					*desiredDir = -1;
 					*desiredSpeed = -70;
@@ -558,15 +539,6 @@ uint8 CmdrReadMsgs(int8 *desiredGait, int8 *desiredDir, int8 *desiredSpeed){
 				return 1;
 			}
 		}
-		// delayMicroseconds(1000);
-        // delayMicroseconds(250);
-        // delayMicroseconds(250);
-        // delayMicroseconds(250);
-        // delayMicroseconds(249);
-		// avail = radioComRxAvailable();
-		// while(avail == 0) {
-			// avail = radioComRxAvailable();
-		// }
 	}
 	return 0;
 }
