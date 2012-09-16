@@ -22,56 +22,56 @@
 // The limb positions for animation number 0 Frame#0
 static const  G8_LIMB_POSITION  limbs_0_0[G8_NUM_LIMBS] = {
 	MAKE_G8_LIMB_POSITION( -57,0 , 84,0 , 123,0 , -57 ),
-	MAKE_G8_LIMB_POSITION( -54,-24 , 81,33 , 123,42 , 0 ),
+	MAKE_G8_LIMB_POSITION( -54,-27 , 81,36 , 123,42 , 0 ),
 	MAKE_G8_LIMB_POSITION( -54,-24 , 81,33 , 123,42 , 0 )
 };
 
 // The limb positions for animation number 0 Frame#1
 static const  G8_LIMB_POSITION  limbs_0_1[G8_NUM_LIMBS] = {
 	MAKE_G8_LIMB_POSITION( -107,-114 , 114,171 , 93,0 , -57 ),
-	MAKE_G8_LIMB_POSITION( -35,-26 , 54,27 , 81,24 , 51 ),
+	MAKE_G8_LIMB_POSITION( -38,-17 , 57,15 , 81,21 , 51 ),
 	MAKE_G8_LIMB_POSITION( -35,-26 , 54,27 , 81,24 , 51 )
 };
 
 // The limb positions for animation number 0 Frame#2
 static const  G8_LIMB_POSITION  limbs_0_2[G8_NUM_LIMBS] = {
 	MAKE_G8_LIMB_POSITION( -107,-114 , 207,171 , 0,0 , 0 ),
-	MAKE_G8_LIMB_POSITION( -35,26 , 51,-51 , 84,0 , 76 ),
+	MAKE_G8_LIMB_POSITION( -38,17 , 57,-36 , 81,0 , 70 ),
 	MAKE_G8_LIMB_POSITION( -35,26 , 51,-51 , 84,0 , 76 )
 };
 
 // The limb positions for animation number 0 Frame#3
 static const  G8_LIMB_POSITION  limbs_0_3[G8_NUM_LIMBS] = {
 	MAKE_G8_LIMB_POSITION( -57,0 , 84,0 , 123,0 , 57 ),
-	MAKE_G8_LIMB_POSITION( -57,24 , 84,-39 , 123,-36 , 51 ),
+	MAKE_G8_LIMB_POSITION( -57,27 , 84,-45 , 123,-33 , 51 ),
 	MAKE_G8_LIMB_POSITION( -57,24 , 84,-39 , 123,-36 , 51 )
 };
 
 // The limb positions for animation number 0 Frame#4
 static const  G8_LIMB_POSITION  limbs_0_4[G8_NUM_LIMBS] = {
 	MAKE_G8_LIMB_POSITION( -57,0 , 84,0 , 123,0 , 57 ),
-	MAKE_G8_LIMB_POSITION( -54,24 , 81,-33 , 123,-42 , 0 ),
+	MAKE_G8_LIMB_POSITION( -54,27 , 81,-36 , 123,-42 , 0 ),
 	MAKE_G8_LIMB_POSITION( -54,24 , 81,-33 , 123,-42 , 0 )
 };
 
 // The limb positions for animation number 0 Frame#5
 static const  G8_LIMB_POSITION  limbs_0_5[G8_NUM_LIMBS] = {
 	MAKE_G8_LIMB_POSITION( -107,114 , 114,-171 , 93,0 , 57 ),
-	MAKE_G8_LIMB_POSITION( -35,26 , 54,-27 , 81,-24 , -51 ),
+	MAKE_G8_LIMB_POSITION( -38,17 , 57,-15 , 81,-21 , -51 ),
 	MAKE_G8_LIMB_POSITION( -35,26 , 54,-27 , 81,-24 , -51 )
 };
 
 // The limb positions for animation number 0 Frame#6
 static const  G8_LIMB_POSITION  limbs_0_6[G8_NUM_LIMBS] = {
 	MAKE_G8_LIMB_POSITION( -107,114 , 207,-171 , 0,0 , 0 ),
-	MAKE_G8_LIMB_POSITION( -35,-26 , 51,51 , 84,0 , -76 ),
+	MAKE_G8_LIMB_POSITION( -38,-17 , 57,36 , 81,0 , -70 ),
 	MAKE_G8_LIMB_POSITION( -35,-26 , 51,51 , 84,0 , -76 )
 };
 
 // The limb positions for animation number 0 Frame#7
 static const  G8_LIMB_POSITION  limbs_0_7[G8_NUM_LIMBS] = {
 	MAKE_G8_LIMB_POSITION( -54,0 , 81,0 , 123,0 , -57 ),
-	MAKE_G8_LIMB_POSITION( -54,-24 , 81,39 , 123,36 , -51 ),
+	MAKE_G8_LIMB_POSITION( -54,-27 , 81,45 , 123,33 , -51 ),
 	MAKE_G8_LIMB_POSITION( -54,-24 , 81,39 , 123,36 , -51 )
 };
 
@@ -134,112 +134,112 @@ static const  G8_LIMB_POSITION  limbs_2_5[G8_NUM_LIMBS] = {
 // The limb positions for animation number 3 Frame#0
 static const  G8_LIMB_POSITION  limbs_3_0[G8_NUM_LIMBS] = {
 	MAKE_G8_LIMB_POSITION( -57,0 , 84,0 , 123,0 , -57 ),
-	MAKE_G8_LIMB_POSITION( -54,24 , 81,-33 , 123,-42 , 0 ),
+	MAKE_G8_LIMB_POSITION( -54,27 , 81,-36 , 123,-42 , 0 ),
 	MAKE_G8_LIMB_POSITION( -54,24 , 81,-33 , 123,-42 , 0 )
 };
 
 // The limb positions for animation number 3 Frame#1
 static const  G8_LIMB_POSITION  limbs_3_1[G8_NUM_LIMBS] = {
 	MAKE_G8_LIMB_POSITION( -107,-114 , 114,171 , 93,0 , -57 ),
-	MAKE_G8_LIMB_POSITION( -35,26 , 54,-27 , 81,-24 , -51 ),
+	MAKE_G8_LIMB_POSITION( -38,17 , 57,-15 , 81,-21 , -51 ),
 	MAKE_G8_LIMB_POSITION( -35,26 , 54,-27 , 81,-24 , -51 )
 };
 
 // The limb positions for animation number 3 Frame#2
 static const  G8_LIMB_POSITION  limbs_3_2[G8_NUM_LIMBS] = {
 	MAKE_G8_LIMB_POSITION( -107,-114 , 207,171 , 0,0 , 0 ),
-	MAKE_G8_LIMB_POSITION( -35,-26 , 51,51 , 84,0 , -76 ),
+	MAKE_G8_LIMB_POSITION( -38,-17 , 57,36 , 81,0 , -70 ),
 	MAKE_G8_LIMB_POSITION( -35,-26 , 51,51 , 84,0 , -76 )
 };
 
 // The limb positions for animation number 3 Frame#3
 static const  G8_LIMB_POSITION  limbs_3_3[G8_NUM_LIMBS] = {
 	MAKE_G8_LIMB_POSITION( -57,0 , 84,0 , 123,0 , 57 ),
-	MAKE_G8_LIMB_POSITION( -57,-24 , 84,39 , 123,36 , -51 ),
+	MAKE_G8_LIMB_POSITION( -57,-27 , 84,45 , 123,33 , -51 ),
 	MAKE_G8_LIMB_POSITION( -57,-24 , 84,39 , 123,36 , -51 )
 };
 
 // The limb positions for animation number 3 Frame#4
 static const  G8_LIMB_POSITION  limbs_3_4[G8_NUM_LIMBS] = {
 	MAKE_G8_LIMB_POSITION( -57,0 , 84,0 , 123,0 , 57 ),
-	MAKE_G8_LIMB_POSITION( -54,-24 , 81,33 , 123,42 , 0 ),
+	MAKE_G8_LIMB_POSITION( -54,-27 , 81,36 , 123,42 , 0 ),
 	MAKE_G8_LIMB_POSITION( -54,-24 , 81,33 , 123,42 , 0 )
 };
 
 // The limb positions for animation number 3 Frame#5
 static const  G8_LIMB_POSITION  limbs_3_5[G8_NUM_LIMBS] = {
 	MAKE_G8_LIMB_POSITION( -107,114 , 114,-171 , 93,0 , 57 ),
-	MAKE_G8_LIMB_POSITION( -35,-26 , 54,27 , 81,24 , 51 ),
+	MAKE_G8_LIMB_POSITION( -38,-17 , 57,15 , 81,21 , 51 ),
 	MAKE_G8_LIMB_POSITION( -35,-26 , 54,27 , 81,24 , 51 )
 };
 
 // The limb positions for animation number 3 Frame#6
 static const  G8_LIMB_POSITION  limbs_3_6[G8_NUM_LIMBS] = {
 	MAKE_G8_LIMB_POSITION( -107,114 , 207,-171 , 0,0 , 0 ),
-	MAKE_G8_LIMB_POSITION( -35,26 , 51,-51 , 84,0 , 76 ),
+	MAKE_G8_LIMB_POSITION( -38,17 , 57,-36 , 81,0 , 70 ),
 	MAKE_G8_LIMB_POSITION( -35,26 , 51,-51 , 84,0 , 76 )
 };
 
 // The limb positions for animation number 3 Frame#7
 static const  G8_LIMB_POSITION  limbs_3_7[G8_NUM_LIMBS] = {
 	MAKE_G8_LIMB_POSITION( -54,0 , 81,0 , 123,0 , -57 ),
-	MAKE_G8_LIMB_POSITION( -54,24 , 81,-39 , 123,-36 , 51 ),
+	MAKE_G8_LIMB_POSITION( -54,27 , 81,-45 , 123,-33 , 51 ),
 	MAKE_G8_LIMB_POSITION( -54,24 , 81,-39 , 123,-36 , 51 )
 };
 
 // The limb positions for animation number 4 Frame#0
 static const  G8_LIMB_POSITION  limbs_4_0[G8_NUM_LIMBS] = {
 	MAKE_G8_LIMB_POSITION( -57,0 , 84,0 , 123,0 , -57 ),
-	MAKE_G8_LIMB_POSITION( -54,-19 , 81,27 , 123,30 , 0 ),
+	MAKE_G8_LIMB_POSITION( -54,-22 , 81,30 , 123,36 , 0 ),
 	MAKE_G8_LIMB_POSITION( -54,-24 , 81,33 , 123,42 , 0 )
 };
 
 // The limb positions for animation number 4 Frame#1
 static const  G8_LIMB_POSITION  limbs_4_1[G8_NUM_LIMBS] = {
 	MAKE_G8_LIMB_POSITION( -107,-114 , 114,171 , 93,0 , -57 ),
-	MAKE_G8_LIMB_POSITION( -38,-20 , 57,21 , 81,18 , 38 ),
+	MAKE_G8_LIMB_POSITION( -35,-23 , 54,24 , 81,21 , 44 ),
 	MAKE_G8_LIMB_POSITION( -35,-26 , 54,27 , 81,24 , 51 )
 };
 
 // The limb positions for animation number 4 Frame#2
 static const  G8_LIMB_POSITION  limbs_4_2[G8_NUM_LIMBS] = {
 	MAKE_G8_LIMB_POSITION( -107,-114 , 207,171 , 0,0 , 0 ),
-	MAKE_G8_LIMB_POSITION( -38,20 , 57,-39 , 81,0 , 57 ),
+	MAKE_G8_LIMB_POSITION( -35,23 , 51,-45 , 84,0 , 66 ),
 	MAKE_G8_LIMB_POSITION( -35,26 , 51,-51 , 84,0 , 76 )
 };
 
 // The limb positions for animation number 4 Frame#3
 static const  G8_LIMB_POSITION  limbs_4_3[G8_NUM_LIMBS] = {
 	MAKE_G8_LIMB_POSITION( -57,0 , 84,0 , 123,0 , 57 ),
-	MAKE_G8_LIMB_POSITION( -54,19 , 81,-30 , 123,-27 , 38 ),
+	MAKE_G8_LIMB_POSITION( -57,22 , 84,-36 , 123,-30 , 44 ),
 	MAKE_G8_LIMB_POSITION( -57,24 , 84,-39 , 123,-36 , 51 )
 };
 
 // The limb positions for animation number 4 Frame#4
 static const  G8_LIMB_POSITION  limbs_4_4[G8_NUM_LIMBS] = {
 	MAKE_G8_LIMB_POSITION( -57,0 , 84,0 , 123,0 , 57 ),
-	MAKE_G8_LIMB_POSITION( -54,19 , 81,-27 , 123,-30 , 0 ),
+	MAKE_G8_LIMB_POSITION( -54,22 , 81,-30 , 123,-36 , 0 ),
 	MAKE_G8_LIMB_POSITION( -54,24 , 81,-33 , 123,-42 , 0 )
 };
 
 // The limb positions for animation number 4 Frame#5
 static const  G8_LIMB_POSITION  limbs_4_5[G8_NUM_LIMBS] = {
 	MAKE_G8_LIMB_POSITION( -107,114 , 114,-171 , 93,0 , 57 ),
-	MAKE_G8_LIMB_POSITION( -38,20 , 57,-21 , 81,-18 , -38 ),
+	MAKE_G8_LIMB_POSITION( -35,23 , 54,-24 , 81,-21 , -44 ),
 	MAKE_G8_LIMB_POSITION( -35,26 , 54,-27 , 81,-24 , -51 )
 };
 
 // The limb positions for animation number 4 Frame#6
 static const  G8_LIMB_POSITION  limbs_4_6[G8_NUM_LIMBS] = {
 	MAKE_G8_LIMB_POSITION( -107,114 , 207,-171 , 0,0 , 0 ),
-	MAKE_G8_LIMB_POSITION( -38,-20 , 57,39 , 81,0 , -57 ),
+	MAKE_G8_LIMB_POSITION( -35,-23 , 51,45 , 84,0 , -66 ),
 	MAKE_G8_LIMB_POSITION( -35,-26 , 51,51 , 84,0 , -76 )
 };
 
 // The limb positions for animation number 4 Frame#7
 static const  G8_LIMB_POSITION  limbs_4_7[G8_NUM_LIMBS] = {
 	MAKE_G8_LIMB_POSITION( -54,0 , 81,0 , 123,0 , -57 ),
-	MAKE_G8_LIMB_POSITION( -54,-19 , 81,30 , 123,27 , -38 ),
+	MAKE_G8_LIMB_POSITION( -54,-22 , 81,36 , 123,30 , -44 ),
 	MAKE_G8_LIMB_POSITION( -54,-24 , 81,39 , 123,36 , -51 )
 };
 
@@ -288,56 +288,56 @@ static const  G8_LIMB_POSITION  limbs_5_5[G8_NUM_LIMBS] = {
 // The limb positions for animation number 6 Frame#0
 static const  G8_LIMB_POSITION  limbs_6_0[G8_NUM_LIMBS] = {
 	MAKE_G8_LIMB_POSITION( -57,0 , 84,0 , 123,0 , -57 ),
-	MAKE_G8_LIMB_POSITION( -57,19 , 87,-27 , 120,-30 , 0 ),
+	MAKE_G8_LIMB_POSITION( -54,22 , 81,-30 , 123,-36 , 0 ),
 	MAKE_G8_LIMB_POSITION( -54,24 , 81,-33 , 123,-42 , 0 )
 };
 
 // The limb positions for animation number 6 Frame#1
 static const  G8_LIMB_POSITION  limbs_6_1[G8_NUM_LIMBS] = {
 	MAKE_G8_LIMB_POSITION( -107,-114 , 114,171 , 93,0 , -57 ),
-	MAKE_G8_LIMB_POSITION( -38,20 , 57,-21 , 81,-18 , -38 ),
+	MAKE_G8_LIMB_POSITION( -35,23 , 54,-24 , 81,-21 , -44 ),
 	MAKE_G8_LIMB_POSITION( -35,26 , 54,-27 , 81,-24 , -51 )
 };
 
 // The limb positions for animation number 6 Frame#2
 static const  G8_LIMB_POSITION  limbs_6_2[G8_NUM_LIMBS] = {
 	MAKE_G8_LIMB_POSITION( -107,-114 , 207,171 , 0,0 , 0 ),
-	MAKE_G8_LIMB_POSITION( -38,-20 , 57,39 , 81,0 , -57 ),
+	MAKE_G8_LIMB_POSITION( -35,-23 , 51,45 , 84,0 , -66 ),
 	MAKE_G8_LIMB_POSITION( -35,-26 , 51,51 , 84,0 , -76 )
 };
 
 // The limb positions for animation number 6 Frame#3
 static const  G8_LIMB_POSITION  limbs_6_3[G8_NUM_LIMBS] = {
 	MAKE_G8_LIMB_POSITION( -57,0 , 84,0 , 123,0 , 57 ),
-	MAKE_G8_LIMB_POSITION( -54,-19 , 81,30 , 123,27 , -38 ),
+	MAKE_G8_LIMB_POSITION( -57,-22 , 84,36 , 123,30 , -44 ),
 	MAKE_G8_LIMB_POSITION( -57,-24 , 84,39 , 123,36 , -51 )
 };
 
 // The limb positions for animation number 6 Frame#4
 static const  G8_LIMB_POSITION  limbs_6_4[G8_NUM_LIMBS] = {
 	MAKE_G8_LIMB_POSITION( -57,0 , 84,0 , 123,0 , 57 ),
-	MAKE_G8_LIMB_POSITION( -54,-19 , 81,27 , 123,30 , 0 ),
+	MAKE_G8_LIMB_POSITION( -54,-22 , 81,30 , 123,36 , 0 ),
 	MAKE_G8_LIMB_POSITION( -54,-24 , 81,33 , 123,42 , 0 )
 };
 
 // The limb positions for animation number 6 Frame#5
 static const  G8_LIMB_POSITION  limbs_6_5[G8_NUM_LIMBS] = {
 	MAKE_G8_LIMB_POSITION( -107,114 , 114,-171 , 93,0 , 57 ),
-	MAKE_G8_LIMB_POSITION( -38,-20 , 57,21 , 81,18 , 38 ),
+	MAKE_G8_LIMB_POSITION( -35,-23 , 54,24 , 81,21 , 44 ),
 	MAKE_G8_LIMB_POSITION( -35,-26 , 54,27 , 81,24 , 51 )
 };
 
 // The limb positions for animation number 6 Frame#6
 static const  G8_LIMB_POSITION  limbs_6_6[G8_NUM_LIMBS] = {
 	MAKE_G8_LIMB_POSITION( -107,114 , 207,-171 , 0,0 , 0 ),
-	MAKE_G8_LIMB_POSITION( -38,18 , 57,-36 , 81,0 , 57 ),
+	MAKE_G8_LIMB_POSITION( -35,23 , 51,-45 , 84,0 , 66 ),
 	MAKE_G8_LIMB_POSITION( -35,26 , 51,-51 , 84,0 , 76 )
 };
 
 // The limb positions for animation number 6 Frame#7
 static const  G8_LIMB_POSITION  limbs_6_7[G8_NUM_LIMBS] = {
 	MAKE_G8_LIMB_POSITION( -54,0 , 81,0 , 123,0 , -57 ),
-	MAKE_G8_LIMB_POSITION( -54,21 , 81,-33 , 123,-27 , 39 ),
+	MAKE_G8_LIMB_POSITION( -54,22 , 81,-36 , 123,-30 , 44 ),
 	MAKE_G8_LIMB_POSITION( -54,24 , 81,-39 , 123,-36 , 51 )
 };
 
