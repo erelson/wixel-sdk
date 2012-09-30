@@ -583,6 +583,14 @@ void gaitRunnerPlay(G8_RUNNER* runner, uint8 animation, int16 loopSpeed, int8 sp
 	gaitRunnerProcess(runner);
 }
 
+//Note that definitions in gait.h are: 
+//		MAKE_G8_LIMB_POSITION(cubeX,cubeY, squareX,squareY, timeX, timeY, startY)
+// Webbotlib uses Bezier curves. See:
+//  http://www.societyofrobots.com/robotforum/index.php?topic=16143.msg114405#msg114405
+//Example call: uint16 actualX = calcX(limb, distance);
+// cubeX seems to be -2/3 * squareX.
+// t1 = distance  ?
+//
 static uint16 calcX(const G8_LIMB_POSITION* limb, float t1){
 	int16 a = (int16)pgm_read_word(&limb->cubeX);
 	int16 b = (int16)pgm_read_word(&limb->squareX);
@@ -774,6 +782,7 @@ boolean gaitRunnerProcess(G8_RUNNER* runner){
 	distanceGuess = ((float)(frameTimeOffset)) / ((float)(frameEndTime-frameStartTime));
 
 	limb = (const G8_LIMB_POSITION*)pgm_read_word(&frame->limbs);
+	// For each servo ...
 	for(i = 0; i < NUM_ACTUATORS; i++, limb++){
 		float distanceMin = 0.0;
 		float distanceMax = 1.0;
