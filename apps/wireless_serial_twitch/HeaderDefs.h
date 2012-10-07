@@ -21,6 +21,9 @@
 #define PRINT_DEBUG 0
 #define PRINT_DEBUG_AGITATOR 0
 
+#define RIGHT_SERVO 62
+#define LEFT_SERVO  63
+
 #define RTN_LVL 1
 #define MY_SERVO_SPEED 300
 
@@ -91,6 +94,8 @@ int8 index_cmdr;              // -1 = waiting for new packet
 uint8 checksum_cmdr;
 // unsigned char southpaw; 
 
+/// These could be more local in scope.
+int8 buttonval;
 int8 walkV;
 int8 walkH;
 int8 lookV;
