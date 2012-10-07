@@ -397,7 +397,7 @@ uint8 CmdrReadMsgs(int8 *desiredGait, int8 *desiredDir, int8 *desiredSpeed){
 					return 0;
 				}
 				else{
-					char buttonval = vals[4];
+					buttonval = vals[4];
 					// short dowalking = TRUE;
 					
 					//rprintf("\t%d\t",(int)buttonval);
@@ -407,19 +407,19 @@ uint8 CmdrReadMsgs(int8 *desiredGait, int8 *desiredDir, int8 *desiredSpeed){
 						// turnleft = zTRUE;
 						// turnright = zFALSE;
 						
-						// dowalking = zFALSE;
+						// // dowalking = zFALSE;
 					// }
 					// else if((buttonval&0x80) > 0){ //if(buttonval & BUT_RT){
 						// // if(PRINT_DEBUG_COMMANDER){rprintf("rgt\t");}
 						// turnright = zTRUE;
 						// turnleft = zFALSE;
 						
-						// dowalking = zFALSE;
+						// // dowalking = zFALSE;
 					// }
 					// else { // Do nothing
 						// turnright = zFALSE;
 						// turnleft = zFALSE;
-						// turn = zFALSE;
+						// // turn = zFALSE;
 					// }
 					// if((buttonval&BUT_L6) > 0){
 						// gunbutton = zTRUE;
@@ -498,42 +498,90 @@ uint8 CmdrReadMsgs(int8 *desiredGait, int8 *desiredDir, int8 *desiredSpeed){
 				//Empty the packet buffer?
 				while (radioComRxAvailable() > 0) { radioComRxReceiveByte(); }
 				
-				if (lookV > 20) {			///walk forward
-					*desiredGait = G8_ANIM_WALK_STRAIGHT_SLOW;
+				///Set commands based on controller signals
+				if ( (lookV > 20 && walkV < -20) || (walkV > 20 && lookV < -20) ) {	///Conflicting directions -> STOP
+					*desiredGait = NO_GAIT;
+					*desiredDir = -1;	// Pointless; Logic chain shouldn't use desiredDir with NO_GAIT...
+					*desiredSpeed = 0;
+				//
+				} else if (lookV > 20 || walkV > 20 ) {	///walk 
+					if(buttonval&BUT_LT || buttonval&BUT_RT){
+						*desiredGait = G8_ANIM_WALK_STRAIGHT;
+					} else {
+						*desiredGait = G8_ANIM_WALK_STRAIGHT_SLOW;
+					}
 					*desiredDir = 1;
 					*desiredSpeed = 50;
-				} else if (lookV < -20) {	///walk backwards
-					*desiredGait = G8_ANIM_WALK_STRAIGHT_BACK_SLOW;
+					
+				} else if (lookV < -20 || walkV < -20) {	///walk 
+					if(buttonval&BUT_LT || buttonval&BUT_RT){
+						*desiredGait = G8_ANIM_WALK_STRAIGHT_BACK;
+					} else {
+						*desiredGait = G8_ANIM_WALK_STRAIGHT_BACK_SLOW;
+					}
 					*desiredDir = 1;
 					*desiredSpeed = 50;
-				} else if (lookH > 20) {	///Turn right
-					*desiredGait = G8_ANIM_TURN_SLOW;
-					*desiredDir = 1;
-					*desiredSpeed = 70;
-				} else if (lookH < -20) {	///Turn left
-					*desiredGait = G8_ANIM_TURN_SLOW;
-					*desiredDir = -1;
-					*desiredSpeed = -70;
+					
+				// if (lookV > 20) {			///walk forward
+					// *desiredGait = G8_ANIM_WALK_STRAIGHT_SLOW;
+					// *desiredDir = 1;
+					// *desiredSpeed = 50;
+				// } else if (lookV < -20) {	///walk backwards
+					// *desiredGait = G8_ANIM_WALK_STRAIGHT_BACK_SLOW;
+					// *desiredDir = 1;
+					// *desiredSpeed = 50;
 				/// **********************************************************
-				} else if (walkV > 20) {			///walk forward
-					*desiredGait = G8_ANIM_WALK_STRAIGHT;
-					*desiredDir = 1;
-					*desiredSpeed = 70;
-				} else if (walkV < -20) {	///walk backwards
-					*desiredGait = G8_ANIM_WALK_STRAIGHT_BACK;
-					*desiredDir = 1;
-					*desiredSpeed = 70;
-				} else if (walkH > 20) {	///Turn right
+				// // } else if (lookH > 20) {	///Turn right slow
+				// } else if((buttonval&BUT_R1) > 0){
+					// if(buttonval&BUT_LT || buttonval&BUT_RT){
+						// *desiredGait = G8_ANIM_TURN_RIGHT;
+					// } else {
+						// *desiredGait = G8_ANIM_TURN_SLOW;
+					// }
+					// *desiredDir = 1;
+					// *desiredSpeed = 70;
+				// // } else if (lookH < -20) {	///Turn left slow
+				// } else if((buttonval&BUT_L6) > 0){
+					// if(buttonval&BUT_LT || buttonval&BUT_RT){
+						// *desiredGait = G8_ANIM_TURN_RIGHT;
+					// } else {
+						// *desiredGait = G8_ANIM_TURN_SLOW;
+					// }
+					// *desiredDir = -1;
+					// *desiredSpeed = -70;
+				/// **********************************************************
+				} else if (walkH > 20) {	///Turn right fast
+				// } else if(buttonval & BUT_RT){
 					*desiredGait = G8_ANIM_TURN_RIGHT;
 					*desiredDir = 1;
 					*desiredSpeed = 70;
 				} else if (walkH < -20) {	///Turn left
+				// } else if(buttonval & BUT_LT){
 					*desiredGait = G8_ANIM_TURN_RIGHT;
 					*desiredDir = -1;
 					*desiredSpeed = -70;
+				} else if (lookH > 20) {	///Turn right fast
+				// } else if(buttonval & BUT_RT){
+					*desiredGait = G8_ANIM_TURN_SLOW;
+					*desiredDir = 1;
+					*desiredSpeed = 70;
+				} else if (lookH < -20) {	///Turn left
+				// } else if(buttonval & BUT_LT){
+					*desiredGait = G8_ANIM_TURN_SLOW;
+					*desiredDir = -1;
+					*desiredSpeed = -70;
+				/// **********************************************************
+				// } else if (walkV > 20) {			///walk forward
+					// *desiredGait = G8_ANIM_WALK_STRAIGHT;
+					// *desiredDir = 1;
+					// *desiredSpeed = 70;
+				// } else if (walkV < -20) {	///walk backwards
+					// *desiredGait = G8_ANIM_WALK_STRAIGHT_BACK;
+					// *desiredDir = 1;
+					// *desiredSpeed = 70;
 				} else {
 					*desiredGait = NO_GAIT;
-					*desiredDir = -1;	// Pointless; Logic chaing shouldn't use desiredDir with NO_GAIT...
+					*desiredDir = -1;	// Pointless; Logic chain shouldn't use desiredDir with NO_GAIT...
 					*desiredSpeed = 0;
 				}
 				return 1;
@@ -825,6 +873,46 @@ boolean gaitRunnerProcess(G8_RUNNER* runner){
 		/// Center servo should go +- 80 at most.
 		// speed = interpolateU(speed, DRIVE_SPEED_MIN, DRIVE_SPEED_MAX, 0, 1023);
 		speed = interpolateU(speed, DRIVE_SPEED_MIN, DRIVE_SPEED_MAX, 374, 650);
+		
+		/// Variable speed when walking
+		if( ( (limbNumber == 1) || (limbNumber == 2) ) && \
+			((runner->animation == G8_ANIM_WALK_STRAIGHT) || \
+			(runner->animation == G8_ANIM_WALK_STRAIGHT_SLOW) || \
+			(runner->animation == G8_ANIM_WALK_STRAIGHT_BACK) || \
+			(runner->animation == G8_ANIM_WALK_STRAIGHT_BACK_SLOW)) ){
+			
+			float speedFactor;
+			
+			if(walkV > 20 || lookV > 20) {
+				if (servo == RIGHT_SERVO && walkV > lookV){
+					if (lookV < 20) { lookV = 20; }
+					
+					speedFactor = (1.0 + (lookV - 20) / ((float) (walkV - 20)) ) / 2.0;
+					// speed = (int16)(speed * speedFactor);
+					speed = speed + (int16)( ((int16)speed - 512) * speedFactor );
+				} else if (servo == LEFT_SERVO && walkV < lookV){
+					if (walkV < 20) { walkV = 20; }
+					
+					speedFactor = (1.0 + (walkV - 20) / ((float) (lookV - 20)) ) / 2.0;
+					// speed = (int16)(speed * speedFactor);
+					speed = speed + (int16)( ((int16)speed - 512) * speedFactor );
+				}
+			} else if(walkV < -20 || lookV < -20){
+				if (servo == RIGHT_SERVO && walkV < lookV){
+					if (lookV > -20) { lookV = -20; }
+					
+					speedFactor = (1.0 + (lookV + 20) / ((float) (walkV + 20)) ) / 2.0;
+					// speed = (int16)(speed * speedFactor);
+					speed = speed + (int16)( ((int16)speed - 512) * speedFactor );
+				} else if (servo == LEFT_SERVO && walkV > lookV){
+					if (walkV > -20) { walkV = -20; }
+					
+					speedFactor = (1.0 + (walkV + 20) / ((float) (lookV + 20)) ) / 2.0;
+					// speed = (int16)(speed * speedFactor);
+					speed = speed + (int16)( ((int16)speed - 512) * speedFactor );
+				}
+			}
+		}
 		// __act_setSpeed(servo,(int8)speed);
 		ax12SetGOAL_POSITION(servo, (uint16)speed);
 		
