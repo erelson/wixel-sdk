@@ -121,7 +121,7 @@ uint8 dynamixel_calculatechecksum(volatile uint8* packet)
 // Calculate the checksum that ends every dynamixel packet.
 {
 	uint16 checksum = 0;
-	uint8 i=0; //Seems SDCC doesn't like definition within the for statement.
+	uint8 i = 0;
 	for(i = DYNAMIXEL_ID; i <= (packet[DYNAMIXEL_LENGTH] + 2); i++)
 		checksum += packet[i];
 	
