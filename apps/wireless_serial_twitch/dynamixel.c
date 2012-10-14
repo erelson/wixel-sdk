@@ -270,7 +270,7 @@ uint8 dynamixel_txrx(volatile uint8* txpacket, volatile uint8* rxpacket)
 	// return result;
 // }
 
-// / TRANSMIT STUFF
+/// TRANSMIT STUFF
 uint8 dynamixel_writebyte(uint8 id, uint8 address, uint8 value)
 {	//Call this method to setup writing a 8bit value
 	dynamixel_txpacket[DYNAMIXEL_ID]          = (uint8) id;
@@ -282,33 +282,51 @@ uint8 dynamixel_writebyte(uint8 id, uint8 address, uint8 value)
 	return dynamixel_txrx(dynamixel_txpacket, dynamixel_rxpacket);
 }
 
-uint8 dynamixel_writeword(uint8 id, uint8 address, uint16 value)
-{	//Call this method to setup writing a 16bit value
-	dynamixel_txpacket[DYNAMIXEL_ID]          = (uint8) id;
-	dynamixel_txpacket[DYNAMIXEL_LENGTH]      = (uint8) 5;
-	dynamixel_txpacket[DYNAMIXEL_INSTRUCTION] = (uint8) DYNAMIXEL_WRITE;
-	dynamixel_txpacket[DYNAMIXEL_PARAMETER]   = (uint8) address;
-	dynamixel_txpacket[DYNAMIXEL_PARAMETER+1] = (uint8) dynamixel_getlowbyte(value);
-	dynamixel_txpacket[DYNAMIXEL_PARAMETER+2] = (uint8) dynamixel_gethighbyte(value);
+// uint8 dynamixel_writeword(uint8 id, uint8 address, uint16 value)
+// {	//Call this method to setup writing a 16bit value
+	// dynamixel_txpacket[DYNAMIXEL_ID]          = (uint8) id;
+	// dynamixel_txpacket[DYNAMIXEL_LENGTH]      = (uint8) 5;
+	// dynamixel_txpacket[DYNAMIXEL_INSTRUCTION] = (uint8) DYNAMIXEL_WRITE;
+	// dynamixel_txpacket[DYNAMIXEL_PARAMETER]   = (uint8) address;
+	// dynamixel_txpacket[DYNAMIXEL_PARAMETER+1] = (uint8) dynamixel_getlowbyte(value);
+	// dynamixel_txpacket[DYNAMIXEL_PARAMETER+2] = (uint8) dynamixel_gethighbyte(value);
 	
-	return dynamixel_txrx(dynamixel_txpacket, dynamixel_rxpacket);
-}
+	// return dynamixel_txrx(dynamixel_txpacket, dynamixel_rxpacket);
+// }
 
 uint8 dynamixel_syncwrite(uint8 address, uint8 length, uint8 number, uint8* param)
-{	//Call this method to ????
+{	//Call this method to write a series of commands at once. Is a faster approach.
+	// See AX-12 Manual for packet format.
 	uint8 i;
 	
 	dynamixel_txpacket[DYNAMIXEL_ID]          = (uint8) DYNAMIXEL_BROADCAST_ID;
+	dynamixel_txpacket[DYNAMIXEL_LENGTH]      = (uint8) ((length + 1) * number + 4);
 	dynamixel_txpacket[DYNAMIXEL_INSTRUCTION] = (uint8) DYNAMIXEL_SYNC_WRITE;
 	dynamixel_txpacket[DYNAMIXEL_PARAMETER]   = (uint8) address;
 	dynamixel_txpacket[DYNAMIXEL_PARAMETER+1] = (uint8) length; // The length of the packet where its value is “Number of parameters (N) +2”
-	dynamixel_txpacket[DYNAMIXEL_LENGTH]      = (uint8) ((length + 1) * number + 4);
 
 	for(i = 0; i < ((length + 1) * number); i++){
 		dynamixel_txpacket[DYNAMIXEL_PARAMETER + 2 + i] = (uint8) param[i];
 	}
 	return dynamixel_txrx(dynamixel_txpacket, dynamixel_rxpacket);
 }
+
+// uint8 dynamixel_threewrite(uint8 address, uint8 length, uint8 number, uint8* param)
+// {	//Call this method to write a series of commands at once. Is a faster approach.
+	// // See AX-12 Manual for packet format.
+	// uint8 i;
+	
+	// dynamixel_txpacket[DYNAMIXEL_ID]          = (uint8) DYNAMIXEL_BROADCAST_ID;
+	// dynamixel_txpacket[DYNAMIXEL_INSTRUCTION] = (uint8) DYNAMIXEL_SYNC_WRITE;
+	// dynamixel_txpacket[DYNAMIXEL_PARAMETER]   = (uint8) address;
+	// dynamixel_txpacket[DYNAMIXEL_PARAMETER+1] = (uint8) length; // The length of the packet where its value is “Number of parameters (N) +2”
+	// dynamixel_txpacket[DYNAMIXEL_LENGTH]      = (uint8) ((length + 1) * number + 4);
+
+	// for(i = 0; i < ((length + 1) * number); i++){
+		// dynamixel_txpacket[DYNAMIXEL_PARAMETER + 2 + i] = (uint8) param[i];
+	// }
+	// return dynamixel_txrx(dynamixel_txpacket, dynamixel_rxpacket);
+// }
 
 // uint8 dynamixel_reset(uint8 id)
 // {

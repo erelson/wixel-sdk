@@ -85,8 +85,9 @@
 #define BUT_RT      0x40
 #define BUT_LT      0x80
 
+/// NOTE: void return type for CmdrReadMsgs does not save any memory
 uint8 CmdrReadMsgs(int8 *desiredGait, int8 *desiredDir, int8 *desiredSpeed);
-void UseSouthPaw();
+// void UseSouthPaw();
 
 // variables used for reading messages
 unsigned char vals[7];  // temporary values, moved after we confirm checksum_cmdr
@@ -95,10 +96,11 @@ uint8 checksum_cmdr;
 // unsigned char southpaw; 
 
 /// These could be more local in scope.
-int8 buttonval;
+// int8 buttonval; //moved to be local
 int8 walkV;
 int8 walkH;
 int8 lookV;
 int8 lookH;
+
 // int walkSPD;
 // float walkDIR;
