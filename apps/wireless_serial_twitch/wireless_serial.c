@@ -42,7 +42,7 @@
 
 #include "dynamixel.h"
 #include "ax.h"
-#define ax12SetGOAL_POSITION(servo,val) 	dynamixel_writeword(servo,AX_GOAL_POSITION_L,CLAMP(val,0,1023))	
+// #define ax12SetGOAL_POSITION(servo,val) 	dynamixel_writeword(servo,AX_GOAL_POSITION_L,CLAMP(val,0,1023))	
 #define ax12LED(servo,val)					dynamixel_writebyte(servo,AX_LED,CLAMP(val,0,1))
 
 #include "GaitRunner.h"
@@ -359,7 +359,7 @@ void uartToRadioService()
 /* process messages coming from Commander 
  *  format = 0xFF RIGHT_H RIGHT_V LEFT_H LEFT_V BUTTONS EXT checksum_cmdr */
 uint8 CmdrReadMsgs(int8 *desiredGait, int8 *desiredDir, int8 *desiredSpeed){
-	
+	int8 buttonval;
 	while(radioComRxAvailable() > 0){
 		if(index_cmdr == -1){         // looking for new packet
 			if(radioComRxReceiveByte() == 0xff){ //read until packet start
@@ -589,7 +589,7 @@ uint8 CmdrReadMsgs(int8 *desiredGait, int8 *desiredDir, int8 *desiredSpeed){
 		}
 	}
 	return 0;
-}
+}	// End of CmdrReadMsgs
 
 
 
@@ -861,6 +861,7 @@ boolean gaitRunnerProcess(G8_RUNNER* runner){
 	// Set all the servo speeds in quick succession
 	{
 	uint16 limbNumber = 0;
+	uint8 speeds [8]; // = {512,512,512}
 	for(limbNumber = 0; limbNumber < NUM_ACTUATORS; limbNumber++){
 		// __ACTUATOR* servo = (__ACTUATOR*)pgm_read_word(&runner->actuators[limbNumber]);
 		// uint8 servo = (uint8)(runner->ids[limbNumber]);
@@ -882,6 +883,7 @@ boolean gaitRunnerProcess(G8_RUNNER* runner){
 			(runner->animation == G8_ANIM_WALK_STRAIGHT_BACK_SLOW)) ){
 			
 			float speedFactor;
+			float oldspeedFactor;
 			
 			if(walkV > 20 || lookV > 20) {
 				if (servo == RIGHT_SERVO && walkV > lookV){
@@ -914,9 +916,13 @@ boolean gaitRunnerProcess(G8_RUNNER* runner){
 			}
 		}
 		// __act_setSpeed(servo,(int8)speed);
-		ax12SetGOAL_POSITION(servo, (uint16)speed);
+		// ax12SetGOAL_POSITION(servo, (uint16)speed);
+		speeds[3*limbNumber] = servo;
+		speeds[3*limbNumber+1] = (uint8) dynamixel_getlowbyte(speed);
+		speeds[3*limbNumber+2] = (uint8) dynamixel_gethighbyte(speed);
 		
 	}
+	dynamixel_syncwrite(AX_GOAL_POSITION_L, 2, 3, speeds);
 	}
 #endif
 
