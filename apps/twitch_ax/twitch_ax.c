@@ -860,13 +860,13 @@ boolean gaitRunnerProcess(G8_RUNNER* runner){
 #ifndef DEBUG
 	// Set all the servo speeds in quick succession
 	{
-	uint16 limbNumber = 0;
+	uint8 limbNumber = 0;
 	uint8 speeds [8]; // = {512,512,512}
 	for(limbNumber = 0; limbNumber < NUM_ACTUATORS; limbNumber++){
 		// __ACTUATOR* servo = (__ACTUATOR*)pgm_read_word(&runner->actuators[limbNumber]);
 		// uint8 servo = (uint8)(runner->ids[limbNumber]);
 		///Note servo 1 = 61, servo 2 = 62, servo3 = 63, 61 is center servo.  62 is right servo, with wixel board on it. 
-		uint8 servo = (uint8)(61+limbNumber); // Using IDs 61, 62, 63
+		// uint8 servo = (uint8)(61+limbNumber); // Using IDs 61, 62, 63
 		int16 speed = (int16)(runner->speeds[limbNumber]);// + (int16)(runner->delta[limbNumber]);
 		speed = CLAMP(speed,DRIVE_SPEED_MIN,DRIVE_SPEED_MAX);
 		
@@ -886,13 +886,13 @@ boolean gaitRunnerProcess(G8_RUNNER* runner){
 			float oldspeedFactor;
 			
 			if(walkV > 20 || lookV > 20) {
-				if (servo == RIGHT_SERVO && walkV > lookV){
+				if ((61+limbNumber) == RIGHT_SERVO && walkV > lookV){
 					if (lookV < 20) { lookV = 20; }
 					
 					speedFactor = (1.0 + (lookV - 20) / ((float) (walkV - 20)) ) / 2.0;
 					// speed = (int16)(speed * speedFactor);
 					speed = speed + (int16)( ((int16)speed - 512) * speedFactor );
-				} else if (servo == LEFT_SERVO && walkV < lookV){
+				} else if ((61+limbNumber) == LEFT_SERVO && walkV < lookV){
 					if (walkV < 20) { walkV = 20; }
 					
 					speedFactor = (1.0 + (walkV - 20) / ((float) (lookV - 20)) ) / 2.0;
@@ -900,13 +900,13 @@ boolean gaitRunnerProcess(G8_RUNNER* runner){
 					speed = speed + (int16)( ((int16)speed - 512) * speedFactor );
 				}
 			} else if(walkV < -20 || lookV < -20){
-				if (servo == RIGHT_SERVO && walkV < lookV){
+				if ((61+limbNumber) == RIGHT_SERVO && walkV < lookV){
 					if (lookV > -20) { lookV = -20; }
 					
 					speedFactor = (1.0 + (lookV + 20) / ((float) (walkV + 20)) ) / 2.0;
 					// speed = (int16)(speed * speedFactor);
 					speed = speed + (int16)( ((int16)speed - 512) * speedFactor );
-				} else if (servo == LEFT_SERVO && walkV > lookV){
+				} else if ((61+limbNumber) == LEFT_SERVO && walkV > lookV){
 					if (walkV > -20) { walkV = -20; }
 					
 					speedFactor = (1.0 + (walkV + 20) / ((float) (lookV + 20)) ) / 2.0;
@@ -917,7 +917,7 @@ boolean gaitRunnerProcess(G8_RUNNER* runner){
 		}
 		// __act_setSpeed(servo,(int8)speed);
 		// ax12SetGOAL_POSITION(servo, (uint16)speed);
-		speeds[3*limbNumber] = servo;
+		speeds[3*limbNumber] = (61+limbNumber);
 		speeds[3*limbNumber+1] = (uint8) dynamixel_getlowbyte(speed);
 		speeds[3*limbNumber+2] = (uint8) dynamixel_gethighbyte(speed);
 		
