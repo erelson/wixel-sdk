@@ -86,7 +86,7 @@
 #define BUT_LT      0x80
 
 /// NOTE: void return type for CmdrReadMsgs does not save any memory
-uint8 CmdrReadMsgs(int8 *desiredGait, int8 *desiredDir, int8 *desiredSpeed);
+uint8 CmdrReadMsgs();
 // void UseSouthPaw();
 
 // variables used for reading messages
