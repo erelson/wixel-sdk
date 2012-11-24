@@ -30,6 +30,7 @@
 #include <radio_com.h>
 #include <radio_link.h>
 
+#include <uart0.h>
 #include <uart1.h>
 
 #include <malloc.h>
