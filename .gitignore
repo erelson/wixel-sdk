@@ -21,10 +21,13 @@ apps/*/*
 *.omf
 *.swp
 *.rel
-*.rst
+#*.rst
 *.py~
 *.sym
 *.wxl
+*.?~
+*.??~
+*.???~
 
 # Ignore eclipse files
 .cproject
