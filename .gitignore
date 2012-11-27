@@ -21,13 +21,19 @@ apps/*/*
 *.omf
 *.swp
 *.rel
-#*.rst
 *.py~
 *.sym
 *.wxl
 *.?~
 *.??~
 *.???~
+
+# Special handling of .rst format
+*.rst
+!readme.rst
+!README.rst
+!ReadMe.rst
+!Readme.rst
 
 # Ignore eclipse files
 .cproject
