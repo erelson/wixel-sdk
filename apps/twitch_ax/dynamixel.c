@@ -337,10 +337,10 @@ uint8 dynamixel_syncwrite(uint8 address, uint8 length, uint8 number, uint8* para
 	// return dynamixel_txrx(dynamixel_txpacket, dynamixel_rxpacket);
 // }
 
-uint16 dynamixel_makeword(uint8 lowbyte, uint8 highbyte)
-{
-	return ((highbyte << 8) + lowbyte);
-}
+// uint16 dynamixel_makeword(uint8 lowbyte, uint8 highbyte)
+// {
+	// return ((highbyte << 8) + lowbyte);
+// }
 
 uint8 dynamixel_getlowbyte(uint16 word)
 {
