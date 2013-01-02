@@ -27,9 +27,10 @@
 #include <usb_com.h>
 #endif
 
-#include <radio_com.h>
-#include <radio_link.h>
+// #include <radio_com.h>
+// #include <radio_link.h>
 
+#include <uart0.h>
 #include <uart1.h>
 
 #include <malloc.h>
@@ -67,6 +68,7 @@ int32 CODE param_serial_mode = SERIAL_MODE_UART_RADIO;
 // This is the baud rate used by UART
 // Note: Wixel maximum UART sbaud rate is 1.5 Mbaud.
 int32 CODE param_baud_rate = DYNAMIXEL_BAUDRATE;
+int32 CODE param_baud_rate_UART = 115200;
 
 int32 CODE param_nDTR_pin = 10;
 int32 CODE param_nRTS_pin = 11;
@@ -107,6 +109,20 @@ uint8 lastErrorTime;
 
 #define START_SPEED 75
 
+///////////////////////
+/////TURRET////////////
+///////////////////////
+#define PAN_CENTER 511
+#define TILT_CENTER 511 + 95
+#define PAN_SPEED 100
+#define TILT_SPEED 100
+// 4*52 -> 60 degrees?
+#define servo74Min PAN_CENTER - 4 * (52+30)
+#define servo74Max PAN_CENTER + 4 * (52+30)
+#define servo75Min 511 - 4 * 31
+#define servo75Max 511 + 4 * 65
+
+
 #define START_POS   100
 #define SIT_POS     101
 #define MOVING_POS  102
@@ -119,8 +135,12 @@ uint16 g8speed = 25;
 int8 g8playbackDir = 1; // value should only ever be -1 or 1.
 int8 g8repeatCount = 0;
 
+
 uint8 currentPos = SIT_POS;
 
+
+uint8 pan_pos;
+uint8 tilt_pos;
 
 // volatile const uint8 *all;
 
@@ -143,45 +163,45 @@ void updateLeds()
         // // The radio is not being used, so turn off the yellow LED.
         // LED_YELLOW(0);
     // }
-    if (!radioLinkConnected())
-    {
-        // We have not connected to another device wirelessly yet, so do a
-        // 50% blink with a period of 1024 ms.
-        LED_YELLOW(now & 0x200 ? 1 : 0);
-    }
-    else
-    {
-        // We have connected.
+    // if (!radioLinkConnected())
+    // {
+        // // We have not connected to another device wirelessly yet, so do a
+        // // 50% blink with a period of 1024 ms.
+        // LED_YELLOW(now & 0x200 ? 1 : 0);
+    // }
+    // else
+    // {
+        // // We have connected.
 
-        if ((now & 0x3FF) <= 20)
-        {
-            // Do a heartbeat every 1024ms for 21ms.
-            LED_YELLOW(1);
-        }
-        else if (dimYellowLed)
-        {
-            static uint8 DATA count;
-            count++;
-            LED_YELLOW((count & 0x7)==0);
-        }
-        else
-        {
-            LED_YELLOW(0);
-        }
-    }
+        // if ((now & 0x3FF) <= 20)
+        // {
+            // // Do a heartbeat every 1024ms for 21ms.
+            // LED_YELLOW(1);
+        // }
+        // else if (dimYellowLed)
+        // {
+            // static uint8 DATA count;
+            // count++;
+            // LED_YELLOW((count & 0x7)==0);
+        // }
+        // else
+        // {
+            // LED_YELLOW(0);
+        // }
+    // }
 
-    if (radioLinkActivityOccurred)
-    {
-        radioLinkActivityOccurred = 0;
-        dimYellowLed ^= 1;
-        //dimYellowLed = 1;
-        lastRadioActivityTime = now;
-    }
+    // if (radioLinkActivityOccurred)
+    // {
+        // radioLinkActivityOccurred = 0;
+        // dimYellowLed ^= 1;
+        // //dimYellowLed = 1;
+        // lastRadioActivityTime = now;
+    // }
 
-    if ((uint16)(now - lastRadioActivityTime) > 32)
-    {
-        dimYellowLed = 0;
-    }
+    // if ((uint16)(now - lastRadioActivityTime) > 32)
+    // {
+        // dimYellowLed = 0;
+    // }
 
     if ((uint8)(now - lastErrorTime) > 100)
     {
@@ -311,10 +331,14 @@ void errorService()
 void uartToRadioService()
 {
     // Data
-    while(uart1RxAvailable() && radioComTxAvailable())
+    while(uart1RxAvailable() && uart0TxAvailable())
     {
-        radioComTxSendByte(uart1RxReceiveByte());
+        uart0TxSendByte(uart1RxReceiveByte());
     }
+    // while(uart1RxAvailable() && radioComTxAvailable())
+    // {
+        // radioComTxSendByte(uart1RxReceiveByte());
+    // }
 	
 	//Read radio's buffer
     // CmdrReadMsgs(); //In this case, CmdrReadMsgs() does the reading.
@@ -325,9 +349,9 @@ void uartToRadioService()
 //        uart1TxSendByte(radioComRxReceiveByte());
 //    }
 
-    // Control Signals.
-    ioTxSignals(radioComRxControlSignals());
-    radioComTxControlSignals(ioRxSignals());
+    // // Control Signals.
+    // ioTxSignals(radioComRxControlSignals());
+    // radioComTxControlSignals(ioRxSignals());
 }
 
 // void usbToUartService()
@@ -360,15 +384,16 @@ void uartToRadioService()
  *  format = 0xFF RIGHT_H RIGHT_V LEFT_H LEFT_V BUTTONS EXT checksum_cmdr */
 uint8 CmdrReadMsgs(int8 *desiredGait, int8 *desiredDir, int8 *desiredSpeed){
 	int8 buttonval;
-	while(radioComRxAvailable() > 0){
+	// while(radioComRxAvailable() > 0){
+	while(uart0RxAvailable() > 0){
 		if(index_cmdr == -1){         // looking for new packet
-			if(radioComRxReceiveByte() == 0xff){ //read until packet start
+			if(uart0RxReceiveByte() == 0xff){ //read until packet start
 				index_cmdr = 0;
 				checksum_cmdr = 0;
 			}
 		}else if(index_cmdr == 0){
 			// add next byte to vals
-			vals[index_cmdr] = (unsigned char) radioComRxReceiveByte();
+			vals[index_cmdr] = (unsigned char) uart0RxReceiveByte();
 			// look for first real byte (non 0xFF)
 			// if(checksum_cmdr == 0) { ax12LED(61,0);}
 			if(vals[index_cmdr] != 0xff){
@@ -376,7 +401,7 @@ uint8 CmdrReadMsgs(int8 *desiredGait, int8 *desiredDir, int8 *desiredSpeed){
 				index_cmdr++;
 			}
 		}else{ //for bytes after the 0th byte
-			vals[index_cmdr] = (unsigned char) radioComRxReceiveByte(); 
+			vals[index_cmdr] = (unsigned char) uart0RxReceiveByte(); 
 			//loops will sequentially read bytes and store them here
 
 			checksum_cmdr += (uint8) vals[index_cmdr];
@@ -397,6 +422,8 @@ uint8 CmdrReadMsgs(int8 *desiredGait, int8 *desiredDir, int8 *desiredSpeed){
 					return 0;
 				}
 				else{
+					int16 add_var;
+					
 					buttonval = vals[4];
 					// short dowalking = TRUE;
 					
@@ -439,11 +466,11 @@ uint8 CmdrReadMsgs(int8 *desiredGait, int8 *desiredDir, int8 *desiredSpeed){
 					// }
 					// else{infobutton = zFALSE;}
 					
-					// if((buttonval&BUT_R2) > 0){
-						// pan_pos = PAN_CENTER;
-						// tilt_pos = TILT_CENTER;
-						// // if(PRINT_DEBUG_COMMANDER){rprintf("look\t");}
-					// }
+					if((buttonval&BUT_R2) > 0){ // TURRET CENTERING
+						pan_pos = PAN_CENTER;
+						tilt_pos = TILT_CENTER;
+						// if(PRINT_DEBUG_COMMANDER){rprintf("look\t");}
+					}
 					// else{infobutton = zFALSE;}
 					
 					// if((buttonval&BUT_R1) > 0){
@@ -470,16 +497,13 @@ uint8 CmdrReadMsgs(int8 *desiredGait, int8 *desiredDir, int8 *desiredSpeed){
 						// tilt_pos = interpolateU( (int)vals[0],128-102,128,servo52Min,TILT_CENTER);
 					// }
 					
-					// int pan_add = (-(float)lookH)/17;
-					// int tilt_add = (-(float)lookV)/25;
-					// pan_add = (-(float)lookH)/17;
-					// tilt_add = (-(float)lookV)/25;
+					add_var = (-(float)lookH)/17;
+					
+					pan_pos = CLAMP(pan_pos + add_var, servo74Min, servo74Max);
 					
 					
-					// pan_pos = interpolate( (int)vals[1],0,255,servo51Max,servo51Min);
-					
-					// pan_pos = CLAMP(pan_pos + pan_add, servo51Min, servo51Max);
-					// tilt_pos = CLAMP(tilt_pos + tilt_add, servo52Min, servo52Max);
+					add_var = (-(float)lookV)/25;
+					tilt_pos = CLAMP(tilt_pos + add_var, servo75Min, servo75Max);
 					
 					//Default handling in original Commander.c - sets to range of -127 to 127 or so...
 					walkV = (signed char)( (int8)vals[2]-128 );
@@ -496,7 +520,7 @@ uint8 CmdrReadMsgs(int8 *desiredGait, int8 *desiredDir, int8 *desiredSpeed){
 				// uartFlushReceiveBuffer(LISTEN);
 				//Doesn't seem to be an equivalent method for Wixels.
 				//Empty the packet buffer?
-				while (radioComRxAvailable() > 0) { radioComRxReceiveByte(); }
+				while (uart0RxAvailable() > 0) { uart0RxReceiveByte(); }
 				
 				///Set commands based on controller signals
 				if ( (lookV > 20 && walkV < -20) || (walkV > 20 && lookV < -20) ) {	///Conflicting directions -> STOP
@@ -866,7 +890,7 @@ boolean gaitRunnerProcess(G8_RUNNER* runner){
 		// __ACTUATOR* servo = (__ACTUATOR*)pgm_read_word(&runner->actuators[limbNumber]);
 		// uint8 servo = (uint8)(runner->ids[limbNumber]);
 		///Note servo 1 = 61, servo 2 = 62, servo3 = 63, 61 is center servo.  62 is right servo, with wixel board on it. 
-		uint8 servo = (uint8)(61+limbNumber); // Using IDs 61, 62, 63
+		uint8 servo = (uint8)(71+limbNumber); // Using IDs 61, 62, 63
 		int16 speed = (int16)(runner->speeds[limbNumber]);// + (int16)(runner->delta[limbNumber]);
 		speed = CLAMP(speed,DRIVE_SPEED_MIN,DRIVE_SPEED_MAX);
 		
@@ -1019,19 +1043,22 @@ void main()
 	//Among other things, allocates byte arrays for sending commands.
 	dynamixel_init();
 
-    setDigitalOutput(param_arduino_DTR_pin, LOW);
-    ioTxSignals(0);
+	//????
+    // setDigitalOutput(param_arduino_DTR_pin, LOW);
+    // ioTxSignals(0);
 
     // usbInit();
+    uart0Init();
+    uart0SetBaudRate(param_baud_rate_UART);
     uart1Init();
     uart1SetBaudRate(param_baud_rate);
 	index_cmdr = -1;
 
-    if (param_serial_mode != SERIAL_MODE_USB_UART)
-    {
-        radioComRxEnforceOrdering = 1;
-        radioComInit();
-    }
+    // if (param_serial_mode != SERIAL_MODE_USB_UART)
+    // {
+        // radioComRxEnforceOrdering = 1;
+        // radioComInit();
+    // }
 	
 #ifdef GAIT_ENABLE
 	gaitRunnerInit(&gait);
@@ -1072,10 +1099,10 @@ void main()
         updateLeds();
         errorService();
 
-        if (param_serial_mode != SERIAL_MODE_USB_UART)
-        {
-            radioComTxService();
-        }
+        // if (param_serial_mode != SERIAL_MODE_USB_UART)
+        // {
+            // radioComTxService();
+        // }
 		
 		
 		{
