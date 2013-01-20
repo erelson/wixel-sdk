@@ -21,8 +21,8 @@
 #define PRINT_DEBUG 0
 #define PRINT_DEBUG_AGITATOR 0
 
-#define RIGHT_SERVO 62
-#define LEFT_SERVO  63
+#define RIGHT_SERVO 72
+#define LEFT_SERVO  73
 
 #define RTN_LVL 1
 #define MY_SERVO_SPEED 300
@@ -38,18 +38,18 @@
 
 // extern void initServoLims();
 
-// extern uint16_t s61pos;
-// extern uint16_t s62pos;
-// extern uint16_t s63pos;
+// extern uint16_t s71pos;
+// extern uint16_t s72pos;
+// extern uint16_t s73pos;
 
 // //Servo position limits, range from 0 to 1023
 
-// extern uint16_t servo61Min;
-// extern uint16_t servo61Max;
-// extern uint16_t servo62Min;
-// extern uint16_t servo62Max;
-// extern uint16_t servo63Min;
-// extern uint16_t servo63Max;
+// extern uint16_t servo71Min;
+// extern uint16_t servo71Max;
+// extern uint16_t servo72Min;
+// extern uint16_t servo72Max;
+// extern uint16_t servo73Min;
+// extern uint16_t servo73Max;
 
 
 // short turnright;
