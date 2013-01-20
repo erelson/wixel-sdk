@@ -890,30 +890,25 @@ boolean gaitRunnerProcess(G8_RUNNER* runner){
 					if (lookV < 20) { lookV = 20; }
 					
 					speedFactor = (1.0 + (lookV - 20) / ((float) (walkV - 20)) ) / 2.0;
-					// speed = (int16)(speed * speedFactor);
-					speed = speed + (int16)( ((int16)speed - 512) * speedFactor );
 				} else if ((61+limbNumber) == LEFT_SERVO && walkV < lookV){
 					if (walkV < 20) { walkV = 20; }
 					
 					speedFactor = (1.0 + (walkV - 20) / ((float) (lookV - 20)) ) / 2.0;
-					// speed = (int16)(speed * speedFactor);
-					speed = speed + (int16)( ((int16)speed - 512) * speedFactor );
 				}
 			} else if(walkV < -20 || lookV < -20){
 				if ((61+limbNumber) == RIGHT_SERVO && walkV < lookV){
 					if (lookV > -20) { lookV = -20; }
 					
 					speedFactor = (1.0 + (lookV + 20) / ((float) (walkV + 20)) ) / 2.0;
-					// speed = (int16)(speed * speedFactor);
-					speed = speed + (int16)( ((int16)speed - 512) * speedFactor );
 				} else if ((61+limbNumber) == LEFT_SERVO && walkV > lookV){
 					if (walkV > -20) { walkV = -20; }
 					
 					speedFactor = (1.0 + (walkV + 20) / ((float) (lookV + 20)) ) / 2.0;
-					// speed = (int16)(speed * speedFactor);
-					speed = speed + (int16)( ((int16)speed - 512) * speedFactor );
 				}
 			}
+			// speed = (int16)(speed * speedFactor);
+			// We combine (1) speed; and (2) speedFactor times the offset from center that is speed.
+			speed = speed + (int16)( ((int16)speed - 512) * speedFactor );
 		}
 		// __act_setSpeed(servo,(int8)speed);
 		// ax12SetGOAL_POSITION(servo, (uint16)speed);
