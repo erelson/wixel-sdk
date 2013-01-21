@@ -39,7 +39,7 @@
 #include "HeaderDefs.h"
 
 // #include "Commander.h"
-#include "Interpolate.h"
+// #include "Interpolate.h"
 
 #include "dynamixel.h"
 #include "ax.h"
@@ -104,7 +104,7 @@ BIT uartRxDisabled = 0;
 BIT framingErrorActive = 0;
 
 BIT errorOccurredRecently = 0;
-uint8 lastErrorTime;
+// uint8 lastErrorTime;
 
 
 #define START_SPEED 75
@@ -133,14 +133,15 @@ uint8 lastErrorTime;
 const uint16 g8loopSpeed = 1000;
 uint16 g8speed = 25;
 int8 g8playbackDir = 1; // value should only ever be -1 or 1.
-int8 g8repeatCount = 0;
+// int8 g8repeatCount = 0;
 
 
 uint8 currentPos = SIT_POS;
 
 
-uint8 pan_pos;
-uint8 tilt_pos;
+uint16 pan_pos;
+uint16 tilt_pos;
+
 
 // volatile const uint8 *all;
 
@@ -190,48 +191,35 @@ void updateLeds()
         // }
     // }
 
-    // if (radioLinkActivityOccurred)
+    // if ((uint8)(now - lastErrorTime) > 100)
     // {
-        // radioLinkActivityOccurred = 0;
-        // dimYellowLed ^= 1;
-        // //dimYellowLed = 1;
-        // lastRadioActivityTime = now;
+        // errorOccurredRecently = 0;
     // }
 
-    // if ((uint16)(now - lastRadioActivityTime) > 32)
-    // {
-        // dimYellowLed = 0;
-    // }
-
-    if ((uint8)(now - lastErrorTime) > 100)
-    {
-        errorOccurredRecently = 0;
-    }
-
-    LED_RED(errorOccurredRecently || uartRxDisabled);
+    // LED_RED(errorOccurredRecently || uartRxDisabled);
 }
 
 /* Returns the logical values of the input control signal pins.
    Bit 0 is DSR.
    Bit 1 is CD. */
-uint8 ioRxSignals()
-{
-    uint8 signals = 0;
+// uint8 ioRxSignals()
+// {
+    // uint8 signals = 0;
 
-    if ((param_CD_pin >= 0 && isPinHigh(param_CD_pin)) ||
-            (param_nCD_pin >= 0 && !isPinHigh(param_nCD_pin)))
-    {
-        signals |= 2;
-    }
+    // if ((param_CD_pin >= 0 && isPinHigh(param_CD_pin)) ||
+            // (param_nCD_pin >= 0 && !isPinHigh(param_nCD_pin)))
+    // {
+        // signals |= 2;
+    // }
 
-    if ((param_DSR_pin >= 0 && isPinHigh(param_DSR_pin)) ||
-            (param_nDSR_pin >= 0 && !isPinHigh(param_nDSR_pin)))
-    {
-        signals |= 1;
-    }
+    // if ((param_DSR_pin >= 0 && isPinHigh(param_DSR_pin)) ||
+            // (param_nDSR_pin >= 0 && !isPinHigh(param_nDSR_pin)))
+    // {
+        // signals |= 1;
+    // }
 
-    return signals;
-}
+    // return signals;
+// }
 
 /* Sets the logical values of the output control signal pins.
    This should be called frequently (not just when the values change).
@@ -268,7 +256,7 @@ void ioTxSignals(uint8 signals)
 
 void errorOccurred()
 {
-    lastErrorTime = (uint8)getMs();
+    // lastErrorTime = (uint8)getMs();
     errorOccurredRecently = 1;
 }
 
@@ -422,8 +410,6 @@ uint8 CmdrReadMsgs(int8 *desiredGait, int8 *desiredDir, int8 *desiredSpeed){
 					return 0;
 				}
 				else{
-					int16 add_var;
-					
 					buttonval = vals[4];
 					// short dowalking = TRUE;
 					
@@ -468,7 +454,9 @@ uint8 CmdrReadMsgs(int8 *desiredGait, int8 *desiredDir, int8 *desiredSpeed){
 					
 					if((buttonval&BUT_R2) > 0){ // TURRET CENTERING
 						pan_pos = PAN_CENTER;
+						dynamixel_writeword(71, AX_GOAL_POSITION_L, pan_pos);
 						tilt_pos = TILT_CENTER;
+						dynamixel_writeword(72, AX_GOAL_POSITION_L, tilt_pos);
 						// if(PRINT_DEBUG_COMMANDER){rprintf("look\t");}
 					}
 					// else{infobutton = zFALSE;}
@@ -497,14 +485,6 @@ uint8 CmdrReadMsgs(int8 *desiredGait, int8 *desiredDir, int8 *desiredSpeed){
 						// tilt_pos = interpolateU( (int)vals[0],128-102,128,servo52Min,TILT_CENTER);
 					// }
 					
-					add_var = (-(float)lookH)/17;
-					
-					pan_pos = CLAMP(pan_pos + add_var, servo74Min, servo74Max);
-					
-					
-					add_var = (-(float)lookV)/25;
-					tilt_pos = CLAMP(tilt_pos + add_var, servo75Min, servo75Max);
-					
 					//Default handling in original Commander.c - sets to range of -127 to 127 or so...
 					walkV = (signed char)( (int8)vals[2]-128 );
 					walkH = (signed char)( (int8)vals[3]-128 );
@@ -519,7 +499,7 @@ uint8 CmdrReadMsgs(int8 *desiredGait, int8 *desiredDir, int8 *desiredSpeed){
 				//LISTEN.flush(); //flush after reading an entire packet... why?
 				// uartFlushReceiveBuffer(LISTEN);
 				//Doesn't seem to be an equivalent method for Wixels.
-				//Empty the packet buffer?
+				///Empty the packet buffer?
 				while (uart0RxAvailable() > 0) { uart0RxReceiveByte(); }
 				
 				///Set commands based on controller signals
@@ -527,7 +507,26 @@ uint8 CmdrReadMsgs(int8 *desiredGait, int8 *desiredDir, int8 *desiredSpeed){
 					*desiredGait = NO_GAIT;
 					*desiredDir = -1;	// Pointless; Logic chain shouldn't use desiredDir with NO_GAIT...
 					*desiredSpeed = 0;
-				//
+					
+				/// Turret mode on
+				} else if ((buttonval&BUT_L4) > 0){
+					int16 add_var;
+					
+					*desiredGait = NO_GAIT;
+					*desiredDir = -1;	// Pointless; Logic chain shouldn't use desiredDir with NO_GAIT...
+					*desiredSpeed = 0;
+					
+					// Move turret
+					
+					add_var = (-(float)lookH)/17;
+					pan_pos = CLAMP(pan_pos + add_var, servo74Min, servo74Max);
+					dynamixel_writeword(74, AX_GOAL_POSITION_L, pan_pos);
+					
+					add_var = (-(float)lookV)/25;
+					tilt_pos = CLAMP(tilt_pos + add_var, servo75Min, servo75Max);
+					dynamixel_writeword(75, AX_GOAL_POSITION_L, tilt_pos);
+					
+				///Walk
 				} else if (lookV > 20 || walkV > 20 ) {	///walk 
 					if(buttonval&BUT_LT || buttonval&BUT_RT){
 						*desiredGait = G8_ANIM_WALK_STRAIGHT;
@@ -537,6 +536,7 @@ uint8 CmdrReadMsgs(int8 *desiredGait, int8 *desiredDir, int8 *desiredSpeed){
 					*desiredDir = 1;
 					*desiredSpeed = 50;
 					
+				///Walk
 				} else if (lookV < -20 || walkV < -20) {	///walk 
 					if(buttonval&BUT_LT || buttonval&BUT_RT){
 						*desiredGait = G8_ANIM_WALK_STRAIGHT_BACK;
@@ -689,7 +689,7 @@ static int8 calcY(const G8_LIMB_POSITION* limb, float t1){
 // Call it from your main loop or via the scheduler to do it in the background
 // NB There is no point scheduling any faster than 20ms as that is the servo refresh rate
 // Return true if an animation is playing
-boolean gaitRunnerProcess(G8_RUNNER* runner){
+void gaitRunnerProcess(G8_RUNNER* runner){
 
 	uint32 now;
 	// int16_t  interval = (now - runner->startTime)>>16; //original
@@ -718,14 +718,14 @@ boolean gaitRunnerProcess(G8_RUNNER* runner){
 #ifdef	LED_DEBUG_GAITPROCESS
 		ax12LED(61,led);
 #endif
-		return FALSE;
+		return; // FALSE;
 	}
 	
 	if(runner->animation == NO_GAIT){
 #ifdef	LED_DEBUG_GAITPROCESS
 		ax12LED(61,led);
 #endif
-		return FALSE;
+		return; // FALSE;
 	}
 
 	if(interval == 0){		//Happens if ....
@@ -750,7 +750,7 @@ boolean gaitRunnerProcess(G8_RUNNER* runner){
 #ifdef	LED_DEBUG_GAITPROCESS
 		ax12LED(61,led);
 #endif
-		return TRUE;
+		return; // TRUE;
 	}
 	
 	// led = 1;
@@ -897,7 +897,7 @@ boolean gaitRunnerProcess(G8_RUNNER* runner){
 		/// Min goal position for ends is 374... -> 650 max, aka +-	138
 		/// Center servo should go +- 80 at most.
 		// speed = interpolateU(speed, DRIVE_SPEED_MIN, DRIVE_SPEED_MAX, 0, 1023);
-		speed = interpolateU(speed, DRIVE_SPEED_MIN, DRIVE_SPEED_MAX, 374, 650);
+		speed = interpolateU(speed, DRIVE_SPEED_MIN, DRIVE_SPEED_MAX, 4* 374, 4*650);
 		
 		/// Variable speed when walking
 		if( ( (limbNumber == 1) || (limbNumber == 2) ) && \
@@ -906,38 +906,34 @@ boolean gaitRunnerProcess(G8_RUNNER* runner){
 			(runner->animation == G8_ANIM_WALK_STRAIGHT_BACK) || \
 			(runner->animation == G8_ANIM_WALK_STRAIGHT_BACK_SLOW)) ){
 			
+			// speedFactor is ???? than 1
 			float speedFactor;
-			float oldspeedFactor;
+			// float oldspeedFactor;
 			
 			if(walkV > 20 || lookV > 20) {
 				if (servo == RIGHT_SERVO && walkV > lookV){
 					if (lookV < 20) { lookV = 20; }
 					
 					speedFactor = (1.0 + (lookV - 20) / ((float) (walkV - 20)) ) / 2.0;
-					// speed = (int16)(speed * speedFactor);
-					speed = speed + (int16)( ((int16)speed - 512) * speedFactor );
 				} else if (servo == LEFT_SERVO && walkV < lookV){
 					if (walkV < 20) { walkV = 20; }
 					
 					speedFactor = (1.0 + (walkV - 20) / ((float) (lookV - 20)) ) / 2.0;
-					// speed = (int16)(speed * speedFactor);
-					speed = speed + (int16)( ((int16)speed - 512) * speedFactor );
 				}
 			} else if(walkV < -20 || lookV < -20){
 				if (servo == RIGHT_SERVO && walkV < lookV){
 					if (lookV > -20) { lookV = -20; }
 					
 					speedFactor = (1.0 + (lookV + 20) / ((float) (walkV + 20)) ) / 2.0;
-					// speed = (int16)(speed * speedFactor);
-					speed = speed + (int16)( ((int16)speed - 512) * speedFactor );
 				} else if (servo == LEFT_SERVO && walkV > lookV){
 					if (walkV > -20) { walkV = -20; }
 					
 					speedFactor = (1.0 + (walkV + 20) / ((float) (lookV + 20)) ) / 2.0;
-					// speed = (int16)(speed * speedFactor);
-					speed = speed + (int16)( ((int16)speed - 512) * speedFactor );
 				}
 			}
+			// speed = (int16)(speed * speedFactor);
+			// We combine (1) speed; and (2) speedFactor times the offset from center that is speed.
+			speed = speed + (int16)( ((int16)speed - 512) * speedFactor );
 		}
 		// __act_setSpeed(servo,(int8)speed);
 		// ax12SetGOAL_POSITION(servo, (uint16)speed);
@@ -972,7 +968,9 @@ boolean gaitRunnerProcess(G8_RUNNER* runner){
 	ax12LED(61,led);
 #endif
 	
-	return gaitRunnerIsPlaying(runner);
+	return;
+	// return runner->playing;
+	// return gaitRunnerIsPlaying(runner);
 }
 
 // void gaitReverse(G8_RUNNER* runner){
@@ -1109,7 +1107,7 @@ void main()
 		int8 currentGait; 
 		// int8 currentDir;
 		int8 currentSpeed;
-		int8 led = 0;
+		// int8 led = 0;
 		
 		
 		CmdrReadMsgs(&desiredGait, &desiredDir, &desiredSpeed);
@@ -1166,7 +1164,7 @@ void main()
 				currentPos = START_POS;
 			///below this level, currentGait == NO_GAIT
 			} else if (currentPos == SIT_POS) { //No other gait is running, and currently in sit pos. Run START animation.
-				led = 1;
+				// led = 1;
 				g8playbackDir = 1;				//6
 				g8speed = START_SPEED; //unnecessary?
 				gaitRunnerPlay(&gait, G8_ANIM_START, g8loopSpeed, g8playbackDir*g8speed, g8playbackDir * 1);

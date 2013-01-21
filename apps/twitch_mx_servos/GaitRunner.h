@@ -168,7 +168,7 @@ static __inline__ void gaitRunnerStop(G8_RUNNER* runner){
 // Call it from your main loop or via the scheduler to do it in the background
 // NB There is no point scheduling any faster than 20ms as that is the servo refresh rate
 // Return true if an animation is playing
-boolean gaitRunnerProcess(G8_RUNNER* runner);
+void gaitRunnerProcess(G8_RUNNER* runner);
 
 
 static __inline__ boolean gaitRunnerIsPlaying(const G8_RUNNER* runner){
