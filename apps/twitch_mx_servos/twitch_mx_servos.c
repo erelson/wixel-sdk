@@ -383,7 +383,7 @@ uint8 CmdrReadMsgs(int8 *desiredGait, int8 *desiredDir, int8 *desiredSpeed){
 			// add next byte to vals
 			vals[index_cmdr] = (unsigned char) uart0RxReceiveByte();
 			// look for first real byte (non 0xFF)
-			// if(checksum_cmdr == 0) { ax12LED(61,0);}
+			// if(checksum_cmdr == 0) { ax12LED(71,0);}
 			if(vals[index_cmdr] != 0xff){
 				checksum_cmdr += (uint8) vals[index_cmdr];
 				index_cmdr++;
@@ -401,7 +401,7 @@ uint8 CmdrReadMsgs(int8 *desiredGait, int8 *desiredDir, int8 *desiredSpeed){
 			
 			if(index_cmdr == 7){ // packet complete
 				// if(vals[0] == 0xff) {
-					// ax12LED(61,1);
+					// ax12LED(71,1);
 				// }
 				if(checksum_cmdr%256 != 255){
 					// packet error!
@@ -454,9 +454,9 @@ uint8 CmdrReadMsgs(int8 *desiredGait, int8 *desiredDir, int8 *desiredSpeed){
 					
 					if((buttonval&BUT_R2) > 0){ // TURRET CENTERING
 						pan_pos = PAN_CENTER;
-						dynamixel_writeword(71, AX_GOAL_POSITION_L, pan_pos);
+						dynamixel_writeword(74, AX_GOAL_POSITION_L, pan_pos);
 						tilt_pos = TILT_CENTER;
-						dynamixel_writeword(72, AX_GOAL_POSITION_L, tilt_pos);
+						dynamixel_writeword(75, AX_GOAL_POSITION_L, tilt_pos);
 						// if(PRINT_DEBUG_COMMANDER){rprintf("look\t");}
 					}
 					// else{infobutton = zFALSE;}
@@ -636,7 +636,7 @@ void gaitRunnerPlay(G8_RUNNER* runner, uint8 animation, int16 loopSpeed, int8 sp
 	// updated under interrupts
 	uint32 now = getMs();
 #ifdef LED_DEBUG_GAITRUN
-	ax12LED(61,1);
+	ax12LED(71,1);
 #endif
 	// CRITICAL_SECTION {
 	__critical {
@@ -716,14 +716,14 @@ void gaitRunnerProcess(G8_RUNNER* runner){
 	
 	if(!gaitRunnerIsPlaying(runner) || (runner->speeds)==null){
 #ifdef	LED_DEBUG_GAITPROCESS
-		ax12LED(61,led);
+		ax12LED(71, led);
 #endif
 		return; // FALSE;
 	}
 	
 	if(runner->animation == NO_GAIT){
 #ifdef	LED_DEBUG_GAITPROCESS
-		ax12LED(61,led);
+		ax12LED(71, led);
 #endif
 		return; // FALSE;
 	}
@@ -748,7 +748,7 @@ void gaitRunnerProcess(G8_RUNNER* runner){
 	// Re-check as drive speed could be zero
 	if(interval == 0){
 #ifdef	LED_DEBUG_GAITPROCESS
-		ax12LED(61,led);
+		ax12LED(71, led);
 #endif
 		return; // TRUE;
 	}
@@ -889,8 +889,8 @@ void gaitRunnerProcess(G8_RUNNER* runner){
 	for(limbNumber = 0; limbNumber < NUM_ACTUATORS; limbNumber++){
 		// __ACTUATOR* servo = (__ACTUATOR*)pgm_read_word(&runner->actuators[limbNumber]);
 		// uint8 servo = (uint8)(runner->ids[limbNumber]);
-		///Note servo 1 = 61, servo 2 = 62, servo3 = 63, 61 is center servo.  62 is right servo, with wixel board on it. 
-		uint8 servo = (uint8)(71+limbNumber); // Using IDs 61, 62, 63
+		///Note servo 1 = 71, servo 2 = 72, servo3 = 73, 71 is center servo.  72 is right servo, with wixel board on it. 
+		uint8 servo = (uint8)(71+limbNumber); // Using IDs 71, 72, 73
 		int16 speed = (int16)(runner->speeds[limbNumber]);// + (int16)(runner->delta[limbNumber]);
 		speed = CLAMP(speed,DRIVE_SPEED_MIN,DRIVE_SPEED_MAX);
 		
@@ -965,7 +965,7 @@ void gaitRunnerProcess(G8_RUNNER* runner){
 		}
 	}
 #ifdef	LED_DEBUG_GAITPROCESS
-	ax12LED(61,led);
+	ax12LED(71, led);
 #endif
 	
 	return;
@@ -1113,7 +1113,7 @@ void main()
 		CmdrReadMsgs(&desiredGait, &desiredDir, &desiredSpeed);
 		
 		// if (desiredGait == G8_ANIM_WALK_STRAIGHT) {
-			// ax12LED(61,1);
+			// ax12LED(71,1);
 		// }
 		// currentGait = pgm_read_byte(&gait->animation);
 		// currentDir = pgm_read_byte(&gait->backwards);
@@ -1123,7 +1123,7 @@ void main()
 		currentSpeed = gait.speed;
 		// CmdrReadMsgs();
 #ifdef LED_DEBUG_GAITRUN
-		ax12LED(61,0);
+		ax12LED(71,0);
 #endif
 		// if (currentGait == G8_ANIM_WALK_STRAIGHT) {
 		// if (currentGait == G8_ANIM_START) {
@@ -1217,7 +1217,7 @@ void main()
 		}
 		
 #ifdef LED_DEBUG_CONTROLOGIC
-		ax12LED(61,led);
+		ax12LED(71, led);
 #endif
 
 		}
