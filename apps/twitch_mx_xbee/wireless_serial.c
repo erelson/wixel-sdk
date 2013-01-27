@@ -27,8 +27,8 @@
 #include <usb_com.h>
 #endif
 
-#include <radio_com.h>
-#include <radio_link.h>
+// #include <radio_com.h>
+// #include <radio_link.h>
 
 #include <uart1.h>
 
@@ -60,7 +60,9 @@ int32 CODE param_serial_mode = SERIAL_MODE_UART_RADIO;
 
 // This is the baud rate used by UART
 // Note: Wixel maximum UART sbaud rate is 1.5 Mbaud.
-int32 CODE param_baud_rate = 115200; // DYNAMIXEL_BAUDRATE;
+// int32 CODE param_baud_rate_DYNA = DYNAMIXEL_BAUDRATE;
+int32 CODE param_baud_rate_XBEE = 38400;
+int32 CODE param_baud_rate_UART = 115200;
 
 int32 CODE param_nDTR_pin = 10;
 int32 CODE param_nRTS_pin = 11;
@@ -131,40 +133,40 @@ void updateLeds()
         // // The radio is not being used, so turn off the yellow LED.
         // LED_YELLOW(0);
     // }
-    if (!radioLinkConnected())
-    {
-        // We have not connected to another device wirelessly yet, so do a
-        // 50% blink with a period of 1024 ms.
-        LED_YELLOW(now & 0x200 ? 1 : 0);
-    }
-    else
-    {
-        // We have connected.
+    // if (!radioLinkConnected())
+    // {
+        // // We have not connected to another device wirelessly yet, so do a
+        // // 50% blink with a period of 1024 ms.
+        // LED_YELLOW(now & 0x200 ? 1 : 0);
+    // }
+    // else
+    // {
+        // // We have connected.
 
-        if ((now & 0x3FF) <= 20)
-        {
-            // Do a heartbeat every 1024ms for 21ms.
-            LED_YELLOW(1);
-        }
-        else if (dimYellowLed)
-        {
-            static uint8 DATA count;
-            count++;
-            LED_YELLOW((count & 0x7)==0);
-        }
-        else
-        {
-            LED_YELLOW(0);
-        }
-    }
+        // if ((now & 0x3FF) <= 20)
+        // {
+            // // Do a heartbeat every 1024ms for 21ms.
+            // LED_YELLOW(1);
+        // }
+        // else if (dimYellowLed)
+        // {
+            // static uint8 DATA count;
+            // count++;
+            // LED_YELLOW((count & 0x7)==0);
+        // }
+        // else
+        // {
+            // LED_YELLOW(0);
+        // }
+    // }
 
-    if (radioLinkActivityOccurred)
-    {
-        radioLinkActivityOccurred = 0;
-        dimYellowLed ^= 1;
-        //dimYellowLed = 1;
-        lastRadioActivityTime = now;
-    }
+    // if (radioLinkActivityOccurred)
+    // {
+        // radioLinkActivityOccurred = 0;
+        // dimYellowLed ^= 1;
+        // //dimYellowLed = 1;
+        // lastRadioActivityTime = now;
+    // }
 
     if ((uint16)(now - lastRadioActivityTime) > 32)
     {
@@ -296,27 +298,27 @@ void errorService()
 }
 
 
-void uartToRadioService()
-{
-    // Data
-    while(uart1RxAvailable() && radioComTxAvailable())
-    {
-        radioComTxSendByte(uart1RxReceiveByte());
-    }
+// void uartToRadioService()
+// {
+    // // Data
+    // while(uart1RxAvailable() && radioComTxAvailable())
+    // {
+        // radioComTxSendByte(uart1RxReceiveByte());
+    // }
 	
-	//Read radio's buffer
-    // CmdrReadMsgs(); //In this case, CmdrReadMsgs() does the reading.
-	///We handle CmdrReadMsgs() elsewhere since it has parameters now.
+	// //Read radio's buffer
+    // // CmdrReadMsgs(); //In this case, CmdrReadMsgs() does the reading.
+	// ///We handle CmdrReadMsgs() elsewhere since it has parameters now.
 	
-	//    while(radioComRxAvailable() && uart1TxAvailable())
-//    {
-//        uart1TxSendByte(radioComRxReceiveByte());
-//    }
+	// //    while(radioComRxAvailable() && uart1TxAvailable())
+// //    {
+// //        uart1TxSendByte(radioComRxReceiveByte());
+// //    }
 
-    // Control Signals.
-    ioTxSignals(radioComRxControlSignals());
-    radioComTxControlSignals(ioRxSignals());
-}
+    // // Control Signals.
+    // ioTxSignals(radioComRxControlSignals());
+    // radioComTxControlSignals(ioRxSignals());
+// }
 
 // void usbToUartService()
 // {
@@ -348,23 +350,28 @@ void uartToRadioService()
  *  format = 0xFF RIGHT_H RIGHT_V LEFT_H LEFT_V BUTTONS EXT checksum_cmdr */
 uint8 CmdrReadMsgs(){
 	int8 buttonval;
-	while(radioComRxAvailable() > 0){
+	while(uart1RxAvailable() > 0){
 		if(index_cmdr == -1){         // looking for new packet
-			if(radioComRxReceiveByte() == 0xff){ //read until packet start
+			if(uart1RxReceiveByte() == 0xff){ //read until packet start
 				index_cmdr = 0;
 				checksum_cmdr = 0;
+				// forward byte to other wixel
+				uart0TxSendByte(0xff);
 			}
 		}else if(index_cmdr == 0){
 			// add next byte to vals
-			vals[index_cmdr] = (unsigned char) radioComRxReceiveByte();
+			vals[index_cmdr] = (unsigned char) uart1RxReceiveByte();
+			// forward byte to other wixel
+			uart0TxSendByte(vals[index_cmdr]);
 			// look for first real byte (non 0xFF)
-			// if(checksum_cmdr == 0) { ax12LED(61,0);}
 			if(vals[index_cmdr] != 0xff){
 				checksum_cmdr += (uint8) vals[index_cmdr];
-				index_cmdr++;
+				index_cmdr++;  // will now save subsequent bytes
 			}
 		}else{ //for bytes after the 0th byte
-			vals[index_cmdr] = (unsigned char) radioComRxReceiveByte(); 
+			vals[index_cmdr] = (unsigned char) uart1RxReceiveByte(); 
+			// forward byte to other wixel
+			uart0TxSendByte(vals[index_cmdr]);
 			//loops will sequentially read bytes and store them here
 
 			checksum_cmdr += (uint8) vals[index_cmdr];
@@ -484,7 +491,7 @@ uint8 CmdrReadMsgs(){
 				// uartFlushReceiveBuffer(LISTEN);
 				//Doesn't seem to be an equivalent method for Wixels.
 				//Empty the packet buffer?
-				while (radioComRxAvailable() > 0) { radioComRxReceiveByte(); }
+				while (uart1RxAvailable() > 0) { uart1RxReceiveByte(); }
 				
 				return 1;
 			}
@@ -516,15 +523,17 @@ void main()
     ioTxSignals(0);
 
     // usbInit();
+    uart0Init();
+    uart0SetBaudRate(param_baud_rate_UART);
     uart1Init();
-    uart1SetBaudRate(param_baud_rate);
+    uart1SetBaudRate(param_baud_rate_XBEE);
 	index_cmdr = -1;
 
-    if (param_serial_mode != SERIAL_MODE_USB_UART)
-    {
-        radioComRxEnforceOrdering = 1;
-        radioComInit();
-    }
+    // if (param_serial_mode != SERIAL_MODE_USB_UART)
+    // {
+        // radioComRxEnforceOrdering = 1;
+        // radioComInit();
+    // }
 	
 	
 	// Initial setting of serial mode
@@ -554,10 +563,10 @@ void main()
         updateLeds();
         errorService();
 
-        if (param_serial_mode != SERIAL_MODE_USB_UART)
-        {
-            radioComTxService();
-        }
+        // if (param_serial_mode != SERIAL_MODE_USB_UART)
+        // {
+            // radioComTxService();
+        // }
 		
 		
 		{

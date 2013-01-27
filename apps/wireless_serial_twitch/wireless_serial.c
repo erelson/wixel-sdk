@@ -67,7 +67,7 @@ int32 CODE param_serial_mode = SERIAL_MODE_UART_RADIO;
 
 // This is the baud rate used by UART
 // Note: Wixel maximum UART sbaud rate is 1.5 Mbaud.
-int32 CODE param_baud_rate = DYNAMIXEL_BAUDRATE;
+int32 CODE param_baud_rate_DYNA = DYNAMIXEL_BAUDRATE;
 int32 CODE param_baud_rate_UART = 115200;
 
 int32 CODE param_nDTR_pin = 10;
@@ -386,7 +386,7 @@ uint8 CmdrReadMsgs(int8 *desiredGait, int8 *desiredDir, int8 *desiredSpeed){
 			// if(checksum_cmdr == 0) { ax12LED(71,0);}
 			if(vals[index_cmdr] != 0xff){
 				checksum_cmdr += (uint8) vals[index_cmdr];
-				index_cmdr++;
+				index_cmdr++;  // will now save subsequent bytes
 			}
 		}else{ //for bytes after the 0th byte
 			vals[index_cmdr] = (unsigned char) uart0RxReceiveByte(); 
@@ -1049,7 +1049,7 @@ void main()
     uart0Init();
     uart0SetBaudRate(param_baud_rate_UART);
     uart1Init();
-    uart1SetBaudRate(param_baud_rate);
+    uart1SetBaudRate(param_baud_rate_DYNA);
 	index_cmdr = -1;
 
     // if (param_serial_mode != SERIAL_MODE_USB_UART)
