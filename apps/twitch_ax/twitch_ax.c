@@ -861,13 +861,14 @@ boolean gaitRunnerProcess(G8_RUNNER* runner){
 	// Set all the servo speeds in quick succession
 	{
 	uint8 limbNumber = 0;
-	uint8 speeds [8]; // = {512,512,512}
+	uint8 speeds [9];
 	for(limbNumber = 0; limbNumber < NUM_ACTUATORS; limbNumber++){
 		// __ACTUATOR* servo = (__ACTUATOR*)pgm_read_word(&runner->actuators[limbNumber]);
 		// uint8 servo = (uint8)(runner->ids[limbNumber]);
 		///Note servo 1 = 61, servo 2 = 62, servo3 = 63, 61 is center servo.  62 is right servo, with wixel board on it. 
 		// uint8 servo = (uint8)(61+limbNumber); // Using IDs 61, 62, 63
 		int16 speed = (int16)(runner->speeds[limbNumber]);// + (int16)(runner->delta[limbNumber]);
+		/// DRIVE_SPEED_MIN/MAX are -/+ 127
 		speed = CLAMP(speed,DRIVE_SPEED_MIN,DRIVE_SPEED_MAX);
 		
 		/// Min goal position for ends is 374... -> 650 max, aka +-	138
@@ -884,6 +885,8 @@ boolean gaitRunnerProcess(G8_RUNNER* runner){
 			
 			float speedFactor;
 			float oldspeedFactor;
+			
+			speedFactor = 0.0;
 			
 			if(walkV > 20 || lookV > 20) {
 				if ((61+limbNumber) == RIGHT_SERVO && walkV > lookV){
