@@ -884,9 +884,9 @@ boolean gaitRunnerProcess(G8_RUNNER* runner){
 			(runner->animation == G8_ANIM_WALK_STRAIGHT_BACK_SLOW)) ){
 			
 			float speedFactor;
-			float oldspeedFactor;
+			// float oldspeedFactor;
 			
-			speedFactor = 0.0;
+			speedFactor = 1.0;
 			
 			if(walkV > 20 || lookV > 20) {
 				if ((61+limbNumber) == RIGHT_SERVO && walkV > lookV){
@@ -910,8 +910,10 @@ boolean gaitRunnerProcess(G8_RUNNER* runner){
 				}
 			}
 			// speed = (int16)(speed * speedFactor);
-			// We combine (1) speed; and (2) speedFactor times the offset from center that is speed.
-			speed = speed + (int16)( ((int16)speed - 512) * speedFactor );
+			// /// We combine (1) speed; and (2) speedFactor times the offset from center that is speed.
+			// speed = speed + (int16)( ((int16)speed - 512) * speedFactor );
+			/// We combine (1) center position; and (2) speedFactor times the offset from center that is speed.
+			speed = 512 + (int16)( ((int16)speed - 512) * speedFactor );
 		}
 		// __act_setSpeed(servo,(int8)speed);
 		// ax12SetGOAL_POSITION(servo, (uint16)speed);
