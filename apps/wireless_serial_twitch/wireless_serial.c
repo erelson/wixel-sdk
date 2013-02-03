@@ -885,19 +885,21 @@ void gaitRunnerProcess(G8_RUNNER* runner){
 	// Set all the servo speeds in quick succession
 	{
 	uint16 limbNumber = 0;
-	uint8 speeds [8]; // = {512,512,512}
+	uint8 speeds [9];
 	for(limbNumber = 0; limbNumber < NUM_ACTUATORS; limbNumber++){
 		// __ACTUATOR* servo = (__ACTUATOR*)pgm_read_word(&runner->actuators[limbNumber]);
 		// uint8 servo = (uint8)(runner->ids[limbNumber]);
-		///Note servo 1 = 71, servo 2 = 72, servo3 = 73, 71 is center servo.  72 is right servo, with wixel board on it. 
+		///Note servo 1 = 71, servo 2 = 72, servo3 = 73, 71 is center servo.  72 is right servo.
 		uint8 servo = (uint8)(71+limbNumber); // Using IDs 71, 72, 73
 		int16 speed = (int16)(runner->speeds[limbNumber]);// + (int16)(runner->delta[limbNumber]);
 		speed = CLAMP(speed,DRIVE_SPEED_MIN,DRIVE_SPEED_MAX);
 		
-		/// Min goal position for ends is 374... -> 650 max, aka +-	138
+		/// Min goal position for ends is 374... -> 650 max, aka +-	138(40deg)
 		/// Center servo should go +- 80 at most.
 		// speed = interpolateU(speed, DRIVE_SPEED_MIN, DRIVE_SPEED_MAX, 0, 1023);
-		speed = interpolateU(speed, DRIVE_SPEED_MIN, DRIVE_SPEED_MAX, 4* 374, 4*650);
+		// For MX servos, 40deg/179deg*2048 -> +-457.7 -> 1590 to 2506
+		// speed = interpolateU(speed, DRIVE_SPEED_MIN, DRIVE_SPEED_MAX, 374, 650);
+		speed = interpolateU(speed, DRIVE_SPEED_MIN, DRIVE_SPEED_MAX, 1590, 2506);
 		
 		/// Variable speed when walking
 		if( ( (limbNumber == 1) || (limbNumber == 2) ) && \
@@ -909,6 +911,8 @@ void gaitRunnerProcess(G8_RUNNER* runner){
 			// speedFactor is ???? than 1
 			float speedFactor;
 			// float oldspeedFactor;
+			
+			speedFactor = 1.0;
 			
 			if(walkV > 20 || lookV > 20) {
 				if (servo == RIGHT_SERVO && walkV > lookV){
@@ -932,8 +936,11 @@ void gaitRunnerProcess(G8_RUNNER* runner){
 				}
 			}
 			// speed = (int16)(speed * speedFactor);
-			// We combine (1) speed; and (2) speedFactor times the offset from center that is speed.
-			speed = speed + (int16)( ((int16)speed - 512) * speedFactor );
+			/// We combine (1) speed; and (2) speedFactor times the offset from center that is speed.
+			// speed = speed + (int16)( ((int16)speed - 512) * speedFactor );
+			// speed = speed + (int16)( ((int16)speed - 2048) * speedFactor );
+			/// We combine (1) center position; and (2) speedFactor times the offset from center that is speed.
+			speed = 2048 + (int16)( ((int16)speed - 2048) * speedFactor );
 		}
 		// __act_setSpeed(servo,(int8)speed);
 		// ax12SetGOAL_POSITION(servo, (uint16)speed);
