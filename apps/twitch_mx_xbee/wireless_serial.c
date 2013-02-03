@@ -435,8 +435,6 @@ uint8 CmdrReadMsgs(){
 					// else{infobutton = zFALSE;}
 					
 					// if((buttonval&BUT_R2) > 0){
-						// pan_pos = PAN_CENTER;
-						// tilt_pos = TILT_CENTER;
 						// // if(PRINT_DEBUG_COMMANDER){rprintf("look\t");}
 					// }
 					// else{infobutton = zFALSE;}
@@ -465,17 +463,6 @@ uint8 CmdrReadMsgs(){
 						// tilt_pos = interpolateU( (int)vals[0],128-102,128,servo52Min,TILT_CENTER);
 					// }
 					
-					// int pan_add = (-(float)lookH)/17;
-					// int tilt_add = (-(float)lookV)/25;
-					// pan_add = (-(float)lookH)/17;
-					// tilt_add = (-(float)lookV)/25;
-					
-					
-					// pan_pos = interpolate( (int)vals[1],0,255,servo51Max,servo51Min);
-					
-					// pan_pos = CLAMP(pan_pos + pan_add, servo51Min, servo51Max);
-					// tilt_pos = CLAMP(tilt_pos + tilt_add, servo52Min, servo52Max);
-					
 					//Default handling in original Commander.c - sets to range of -127 to 127 or so...
 					walkV = (signed char)( (int8)vals[2]-128 );
 					walkH = (signed char)( (int8)vals[3]-128 );
@@ -501,10 +488,6 @@ uint8 CmdrReadMsgs(){
 }	// End of CmdrReadMsgs
 
 
-
-
-
-
 void main()
 {
 
@@ -522,39 +505,19 @@ void main()
     setDigitalOutput(param_arduino_DTR_pin, LOW);
     ioTxSignals(0);
 
-    // usbInit();
+    // Initialize UARTs
     uart0Init();
     uart0SetBaudRate(param_baud_rate_UART);
     uart1Init();
     uart1SetBaudRate(param_baud_rate_XBEE);
+	
+	// Initialize other stuff
 	index_cmdr = -1;
-
-    // if (param_serial_mode != SERIAL_MODE_USB_UART)
-    // {
-        // radioComRxEnforceOrdering = 1;
-        // radioComInit();
-    // }
-	
-	
-	// Initial setting of serial mode
-	// // updateSerialMode();
-	// currentSerialMode = SERIAL_MODE_UART_RADIO;
-	
-
-    // Set up P1_5 to be the radio's TX debug signal.
-    // P1DIR |= (1<<5);
-    // IOCFG0 = 0b011011; // P1_5 = PA_PD (TX mode)
-
-	// P1DIR |= 0x20; //Enable pin P1_5
-	
-	
 
 ///MATHEMATICA CODE
 ///loopSpeed = 1000;
 ///Plot[65.536*loopSpeed/speed, {speed, 0, 128}, PlotRange -> {500, 4000}]
 				
-	// gaitRunnerPlay(&gait,    G8_ANIM_TURN_LEFT,       g8loopSpeed, g8playbackDir * g8speed, g8playbackDir * g8repeatCount);
-
     while(1)
     {
 		
@@ -562,24 +525,12 @@ void main()
         boardService();
         updateLeds();
         errorService();
-
-        // if (param_serial_mode != SERIAL_MODE_USB_UART)
-        // {
-            // radioComTxService();
-        // }
-		
 		
 		{
 		
-		
 		CmdrReadMsgs();
 		
-		
 		}
-#ifdef INCL_USB
-		//Unneeded?
-        usbComService();
-#endif
 
 		// ms = getMs();		// Get current time in ms
 		// now = ms % (uint32)10000; 	// 10 sec for a full swing
@@ -588,7 +539,6 @@ void main()
 		// }
 		// speed = interpolate(now, 0, 5000, 100, 900);
 		
-		// ax12SetGOAL_POSITION(32, speed);
 	
 		
 	

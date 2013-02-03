@@ -1010,9 +1010,6 @@ void gaitRunnerProcess(G8_RUNNER* runner){
 
 void main()
 {
-
-	//
-	
 	// uint8 nextGait;
 	int8 desiredGait = NO_GAIT;
 	int8 desiredDir;
@@ -1048,22 +1045,15 @@ void main()
 	//Among other things, allocates byte arrays for sending commands.
 	dynamixel_init();
 
-	//????
-    // setDigitalOutput(param_arduino_DTR_pin, LOW);
-    // ioTxSignals(0);
-
-    // usbInit();
+    // Initialize UARTs
     uart0Init();
     uart0SetBaudRate(param_baud_rate_UART);
     uart1Init();
     uart1SetBaudRate(param_baud_rate_DYNA);
+	
+	// Initialize other stuff
 	index_cmdr = -1;
-
-    // if (param_serial_mode != SERIAL_MODE_USB_UART)
-    // {
-        // radioComRxEnforceOrdering = 1;
-        // radioComInit();
-    // }
+	
 	
 #ifdef GAIT_ENABLE
 	gaitRunnerInit(&gait);
@@ -1071,22 +1061,12 @@ void main()
 	gait.animation = NO_GAIT;
 #endif
 	
-	// Initial setting of serial mode
-	// // updateSerialMode();
-	// currentSerialMode = SERIAL_MODE_UART_RADIO;
-	
-
-    // Set up P1_5 to be the radio's TX debug signal.
-    // P1DIR |= (1<<5);
-    // IOCFG0 = 0b011011; // P1_5 = PA_PD (TX mode)
-
-	// P1DIR |= 0x20; //Enable pin P1_5
-	
-	
+	delayMs(200);
 
 ///MATHEMATICA CODE
 ///loopSpeed = 1000;
 ///Plot[65.536*loopSpeed/speed, {speed, 0, 128}, PlotRange -> {500, 4000}]
+
 // void gaitRunnerPlay(G8_RUNNER* runner, uint8 animation, int16 loopSpeed, int8 speed, int16 repeatCount)
 	// gaitRunnerPlay(&gait,    G8_ANIM_DEFAULT,       g8loopSpeed, g8playbackDir * g8speed, g8playbackDir * g8repeatCount);
 	// gaitRunnerPlay(&gait,    G8_ANIM_WALK_STRAIGHT, g8loopSpeed, g8playbackDir * g8speed, g8playbackDir * g8repeatCount);
@@ -1095,6 +1075,12 @@ void main()
 	gaitRunnerPlay(&gait,    G8_ANIM_START,       g8loopSpeed, START_SPEED, 1);
 				
 	// gaitRunnerPlay(&gait,    G8_ANIM_TURN_LEFT,       g8loopSpeed, g8playbackDir * g8speed, g8playbackDir * g8repeatCount);
+
+	pan_pos = PAN_CENTER;
+	dynamixel_writeword(74, AX_GOAL_POSITION_L, pan_pos);
+	delayMs(10);
+	tilt_pos = TILT_CENTER;
+	dynamixel_writeword(75, AX_GOAL_POSITION_L, tilt_pos);
 
     while(1)
     {
