@@ -1039,18 +1039,9 @@ void main()
 	gait.animation = NO_GAIT;
 #endif
 	
-	// Initial setting of serial mode
-	// // updateSerialMode();
-	// currentSerialMode = SERIAL_MODE_UART_RADIO;
-	
-
-    // Set up P1_5 to be the radio's TX debug signal.
-    // P1DIR |= (1<<5);
-    // IOCFG0 = 0b011011; // P1_5 = PA_PD (TX mode)
-
-	// P1DIR |= 0x20; //Enable pin P1_5
 	
 	
+	delayMs(200);
 
 ///MATHEMATICA CODE
 ///loopSpeed = 1000;
