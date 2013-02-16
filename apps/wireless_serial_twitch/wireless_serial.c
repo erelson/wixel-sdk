@@ -885,7 +885,7 @@ void gaitRunnerProcess(G8_RUNNER* runner){
 	// Set all the servo speeds in quick succession
 	{
 	uint16 limbNumber = 0;
-	uint8 speeds [9];
+	uint8 speeds [12];
 	for(limbNumber = 0; limbNumber < NUM_ACTUATORS; limbNumber++){
 		// __ACTUATOR* servo = (__ACTUATOR*)pgm_read_word(&runner->actuators[limbNumber]);
 		// uint8 servo = (uint8)(runner->ids[limbNumber]);
@@ -942,6 +942,10 @@ void gaitRunnerProcess(G8_RUNNER* runner){
 			/// We combine (1) center position; and (2) speedFactor times the offset from center that is speed.
 			speed = 2048 + (int16)( ((int16)speed - 2048) * speedFactor );
 		}
+		
+		/// Turret panning during walking
+		
+		
 		// __act_setSpeed(servo,(int8)speed);
 		// ax12SetGOAL_POSITION(servo, (uint16)speed);
 		speeds[3*limbNumber] = servo;
@@ -949,7 +953,7 @@ void gaitRunnerProcess(G8_RUNNER* runner){
 		speeds[3*limbNumber+2] = (uint8) dynamixel_gethighbyte(speed);
 		
 	}
-	dynamixel_syncwrite(AX_GOAL_POSITION_L, 2, 3, speeds);
+	dynamixel_syncwrite(AX_GOAL_POSITION_L, 2, NUM_ACTUATORS, speeds);
 	}
 #endif
 

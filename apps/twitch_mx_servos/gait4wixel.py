@@ -1,3 +1,4 @@
+#! /usr/bin/env python
 
 from tempfile import mkstemp
 from shutil import move
@@ -20,7 +21,7 @@ def replace(file, pattern, subst):
     #Move new file
     move(abs_path, file)
 
-myFile = "C:/wixel-sdk/apps/wireless_serial_twitch/gait.h"
+myFile = "C:/wixel-sdk/apps/twitch_mx_servos/gait.h"
 fileAtt = os.stat(myFile)[0]
 
 if (not fileAtt & stat.S_IWRITE):
