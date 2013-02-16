@@ -88,6 +88,9 @@
 /// NOTE: void return type for CmdrReadMsgs does not save any memory
 uint8 CmdrReadMsgs();
 // void UseSouthPaw();
+boolean clockHasElapsed(uint16 usStart, uint16 usWait);
+
+boolean clockHasElapsedGetOverflow(uint16 usStart, uint16 usWait, uint16* overflow);
 
 // variables used for reading messages
 unsigned char vals[7];  // temporary values, moved after we confirm checksum_cmdr
@@ -104,3 +107,8 @@ int8 lookH;
 
 // int walkSPD;
 // float walkDIR;
+
+short guns_firing = zFALSE;
+uint16 guns_firing_start_time;
+uint16 guns_firing_duration;
+short gunbutton;
