@@ -488,14 +488,41 @@ uint8 CmdrReadMsgs(){
 }	// End of CmdrReadMsgs
 
 
+boolean clockHasElapsed(uint16 usStart, uint16 usWait){
+	return clockHasElapsedGetOverflow(usStart,usWait,NULL);
+}
+
+boolean clockHasElapsedGetOverflow(uint16 usStart, uint16 usWait, uint16* overflow){
+	boolean rtn=zFALSE;
+	uint16 now = (uint16)getMs();
+	uint16 elapsed = now;
+	elapsed -= usStart;					// The actual delay that has happened
+
+	if( elapsed >= usWait){
+		// We have exceeded the delay
+		if(overflow){
+			uint16 ovr = elapsed - usWait;
+			*overflow = ovr;
+		}
+		rtn = zTRUE;
+	}else{
+		if(overflow){
+			uint16 ovr = usWait - elapsed;
+			*overflow = ovr;
+		}
+	}
+	return rtn;
+}
+
+
 void main()
 {
 
 	//
 	
-	// uint8 nextGait;
+	// // uint8 nextGait;
 	// uint32 ms;
-	// uint16 now;
+	uint16 now;
 	// uint16 speed;
 	
 	// static uint8 all[3] = {42,43,12};
@@ -533,14 +560,30 @@ void main()
 		}
 
 		// ms = getMs();		// Get current time in ms
+		now = (uint16)getMs();
 		// now = ms % (uint32)10000; 	// 10 sec for a full swing
 		// if(now >= (uint16)5000){				// Goes from 0ms...5000ms
 			// now = (uint16)10000 - now;			// then 5000ms...0ms
 		// }
 		// speed = interpolate(now, 0, 5000, 100, 900);
 		
-	
+		//FIRE THE GUNS!!!!!
+		if (gunbutton){
+			guns_firing = zTRUE;
+			// act_setSpeed(&LeftGun,-65); 	//NOTE: (7.2 / 12.6) * 127 = 72.5714286
+			// act_setSpeed(&RightGun,-65); 	//NOTE: (7.2 / 12.6) * 127 = 72.5714286
+			guns_firing_start_time = (uint16)getMs();
+		}
 		
+		
+		//Check whether to stop firing guns
+		if (guns_firing && clockHasElapsed(guns_firing_start_time, guns_firing_duration)){
+			guns_firing_duration = 0;
+			guns_firing = zFALSE;
+			// act_setSpeed(&LeftGun,0); 	//NOTE: (7.2 / 12.6) * 127 = 72.5714286
+			// act_setSpeed(&RightGun,0); 	//NOTE: (7.2 / 12.6) * 127 = 72.5714286
+			guns_firing_start_time = (uint16)getMs();
+		}
 	
 		delayMs(10);
     }
