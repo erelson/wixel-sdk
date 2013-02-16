@@ -60,7 +60,7 @@ extern "C" {
 #define DRIVE_SPEED_MIN   ((int8)-127)
 #define DRIVE_SPEED_MAX ((int8) 127)
 
-#define NUM_ACTUATORS 3
+#define NUM_ACTUATORS 4
 #define NO_GAIT 100
 
 // Define forward references
