@@ -899,7 +899,10 @@ void gaitRunnerProcess(G8_RUNNER* runner){
 		// speed = interpolateU(speed, DRIVE_SPEED_MIN, DRIVE_SPEED_MAX, 0, 1023);
 		// For MX servos, 40deg/179deg*2048 -> +-457.7 -> 1590 to 2506
 		// speed = interpolateU(speed, DRIVE_SPEED_MIN, DRIVE_SPEED_MAX, 374, 650);
-		speed = interpolateU(speed, DRIVE_SPEED_MIN, DRIVE_SPEED_MAX, 1590, 2506);
+		// MX in Twitch config +- 458
+		// speed = interpolateU(speed, DRIVE_SPEED_MIN, DRIVE_SPEED_MAX, 1590, 2506);
+		// MX in TwitchMX config: +- 357
+		speed = interpolateU(speed, DRIVE_SPEED_MIN, DRIVE_SPEED_MAX, 1691, 2405);
 		
 		/// Variable speed when walking
 		if( ( (limbNumber == 1) || (limbNumber == 2) ) && \
