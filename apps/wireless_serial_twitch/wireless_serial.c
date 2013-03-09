@@ -122,6 +122,19 @@ BIT errorOccurredRecently = 0;
 #define servo75Min 511 - 4 * 21
 #define servo75Max 511 + 4 * 44
 
+#define gaitMin71  1590
+#define gaitMin72  1691
+#define gaitMin73  1691
+#define gaitMin74  2000
+
+#define gaitMax71  2506
+#define gaitMax72  2405
+#define gaitMax73  2405
+#define gaitMax74  2100
+
+uint16 CODE gaitMinPos[4] = {gaitMin71, gaitMin72, gaitMin73, gaitMin74};
+uint16 CODE gaitMaxPos[4] = {gaitMax71, gaitMax72, gaitMax73, gaitMax74};
+
 
 #define START_POS   100
 #define SIT_POS     101
@@ -892,17 +905,19 @@ void gaitRunnerProcess(G8_RUNNER* runner){
 		///Note servo 1 = 71, servo 2 = 72, servo3 = 73, 71 is center servo.  72 is right servo.
 		uint8 servo = (uint8)(71+limbNumber); // Using IDs 71, 72, 73
 		int16 speed = (int16)(runner->speeds[limbNumber]);// + (int16)(runner->delta[limbNumber]);
-		speed = CLAMP(speed,DRIVE_SPEED_MIN,DRIVE_SPEED_MAX);
+		speed = CLAMP(speed, DRIVE_SPEED_MIN, DRIVE_SPEED_MAX); // [+/- 127]
 		
 		/// Min goal position for ends is 374... -> 650 max, aka +-	138(40deg)
 		/// Center servo should go +- 80 at most.
-		// speed = interpolateU(speed, DRIVE_SPEED_MIN, DRIVE_SPEED_MAX, 0, 1023);
+		//speed = interpolateU(speed, DRIVE_SPEED_MIN, DRIVE_SPEED_MAX, 0, 1023);
 		// For MX servos, 40deg/179deg*2048 -> +-457.7 -> 1590 to 2506
-		// speed = interpolateU(speed, DRIVE_SPEED_MIN, DRIVE_SPEED_MAX, 374, 650);
+		//speed = interpolateU(speed, DRIVE_SPEED_MIN, DRIVE_SPEED_MAX, 374, 650);
 		// MX in Twitch config +- 458
-		// speed = interpolateU(speed, DRIVE_SPEED_MIN, DRIVE_SPEED_MAX, 1590, 2506);
+		//speed = interpolateU(speed, DRIVE_SPEED_MIN, DRIVE_SPEED_MAX, 1590, 2506);
 		// MX in TwitchMX config: +- 357
-		speed = interpolateU(speed, DRIVE_SPEED_MIN, DRIVE_SPEED_MAX, 1691, 2405);
+		// speed = interpolateU(speed, DRIVE_SPEED_MIN, DRIVE_SPEED_MAX, 1691, 2405);
+		speed = interpolateU(speed, DRIVE_SPEED_MIN, DRIVE_SPEED_MAX, \
+								gaitMinPos[limbNumber], gaitMaxPos[limbNumber]);
 		
 		/// Variable speed when walking
 		if( ( (limbNumber == 1) || (limbNumber == 2) ) && \
@@ -916,7 +931,7 @@ void gaitRunnerProcess(G8_RUNNER* runner){
 			// float oldspeedFactor;
 			
 			speedFactor = 1.0;
-			
+			/// Logic for curved walking via ratios of left/right joysticks
 			if(walkV > 20 || lookV > 20) {
 				if (servo == RIGHT_SERVO && walkV > lookV){
 					if (lookV < 20) { lookV = 20; }
@@ -943,7 +958,10 @@ void gaitRunnerProcess(G8_RUNNER* runner){
 			// speed = speed + (int16)( ((int16)speed - 512) * speedFactor );
 			// speed = speed + (int16)( ((int16)speed - 2048) * speedFactor );
 			/// We combine (1) center position; and (2) speedFactor times the offset from center that is speed.
-			speed = 2048 + (int16)( ((int16)speed - 2048) * speedFactor );
+			// AX - Add
+			//speed = 2048 + (int16)( ((int16)speed - 2048) * speedFactor );
+			// MX - Subtract
+			speed = 2048 - (int16)( ((int16)speed - 2048) * speedFactor );
 		}
 		
 		/// Turret panning during walking
