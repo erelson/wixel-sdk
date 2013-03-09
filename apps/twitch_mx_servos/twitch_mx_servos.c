@@ -113,14 +113,14 @@ BIT errorOccurredRecently = 0;
 /////TURRET////////////
 ///////////////////////
 #define PAN_CENTER 511
-#define TILT_CENTER 511 + 95
+#define TILT_CENTER 511 //+ 95
 #define PAN_SPEED 100
 #define TILT_SPEED 100
-// 4*52 -> 60 degrees?
-#define servo74Min PAN_CENTER - 4 * (52+30)
-#define servo74Max PAN_CENTER + 4 * (52+30)
-#define servo75Min 511 - 4 * 31
-#define servo75Max 511 + 4 * 65
+// 4*52 -> 60 degrees? for AX-12
+#define servo74Min PAN_CENTER - 4 * (52+20)
+#define servo74Max PAN_CENTER + 4 * (52+20)
+#define servo75Min 511 - 4 * 21
+#define servo75Max 511 + 4 * 44
 
 
 #define START_POS   100
@@ -518,15 +518,15 @@ uint8 CmdrReadMsgs(int8 *desiredGait, int8 *desiredDir, int8 *desiredSpeed){
 					
 					// Move turret
 					
-					add_var = (-(float)lookH)/17;
+					add_var = ((float)lookH)/17;
 					pan_pos = CLAMP(pan_pos + add_var, servo74Min, servo74Max);
 					dynamixel_writeword(74, AX_GOAL_POSITION_L, pan_pos);
 					
-					add_var = (-(float)lookV)/25;
+					add_var = ((float)lookV)/25;
 					tilt_pos = CLAMP(tilt_pos + add_var, servo75Min, servo75Max);
 					dynamixel_writeword(75, AX_GOAL_POSITION_L, tilt_pos);
 					
-				///Walk
+				/// Walk mode
 				} else if (lookV > 20 || walkV > 20 ) {	///walk 
 					if(buttonval&BUT_LT || buttonval&BUT_RT){
 						*desiredGait = G8_ANIM_WALK_STRAIGHT;
