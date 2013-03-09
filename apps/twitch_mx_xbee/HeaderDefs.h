@@ -93,7 +93,7 @@ boolean clockHasElapsed(uint16 usStart, uint16 usWait);
 boolean clockHasElapsedGetOverflow(uint16 usStart, uint16 usWait, uint16* overflow);
 
 // variables used for reading messages
-unsigned char vals[7];  // temporary values, moved after we confirm checksum_cmdr
+unsigned char vals[7];  // 7 temporary values, moved after we confirm checksum_cmdr
 int8 index_cmdr;              // -1 = waiting for new packet
 uint8 checksum_cmdr;
 // unsigned char southpaw; 
