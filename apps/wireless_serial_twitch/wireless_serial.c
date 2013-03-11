@@ -135,7 +135,25 @@ BIT errorOccurredRecently = 0;
 uint16 CODE gaitMinPos[4] = {gaitMin71, gaitMin72, gaitMin73, gaitMin74};
 uint16 CODE gaitMaxPos[4] = {gaitMax71, gaitMax72, gaitMax73, gaitMax74};
 
+#define clampMin71  1848
+#define clampMin72  1691
+#define clampMin73  1691
+#define clampMin74  2000
 
+#define clampMax71  2248
+#define clampMax72  2405
+#define clampMax73  2405
+#define clampMax74  2100
+
+
+uint16 CODE clampMinPos[4] = {clampMin71, clampMin72, clampMin73, clampMin74};
+uint16 CODE clampMaxPos[4] = {clampMax71, clampMax72, clampMax73, clampMax74};
+
+// turndir: 1 if using AX, -1 if using MX
+#define turndir -1
+
+
+// Integers corresponding with "positions" used for logic.
 #define START_POS   100
 #define SIT_POS     101
 #define MOVING_POS  102
@@ -143,7 +161,7 @@ uint16 CODE gaitMaxPos[4] = {gaitMax71, gaitMax72, gaitMax73, gaitMax74};
 ///MATHEMATICA CODE
 ///loopSpeed = 1000;
 ///Plot[65.536*loopSpeed/speed, {speed, 0, 128}, PlotRange -> {500, 4000}]
-const uint16 g8loopSpeed = 1000;
+const uint16 g8loopSpeed = 2500;
 uint16 g8speed = 25;
 int8 g8playbackDir = 1; // value should only ever be -1 or 1.
 // int8 g8repeatCount = 0;
@@ -587,22 +605,22 @@ uint8 CmdrReadMsgs(int8 *desiredGait, int8 *desiredDir, int8 *desiredSpeed){
 					// *desiredDir = -1;
 					// *desiredSpeed = -70;
 				/// **********************************************************
-				} else if (walkH > 20) {	///Turn right fast
+				} else if (walkH * turndir > 20) {	///Turn right fast
 				// } else if(buttonval & BUT_RT){
 					*desiredGait = G8_ANIM_TURN_RIGHT;
 					*desiredDir = 1;
 					*desiredSpeed = 70;
-				} else if (walkH < -20) {	///Turn left
+				} else if (walkH * turndir < -20) {	///Turn left
 				// } else if(buttonval & BUT_LT){
 					*desiredGait = G8_ANIM_TURN_RIGHT;
 					*desiredDir = -1;
 					*desiredSpeed = -70;
-				} else if (lookH > 20) {	///Turn right fast
+				} else if (lookH * turndir > 20) {	///Turn right fast
 				// } else if(buttonval & BUT_RT){
 					*desiredGait = G8_ANIM_TURN_SLOW;
 					*desiredDir = 1;
 					*desiredSpeed = 70;
-				} else if (lookH < -20) {	///Turn left
+				} else if (lookH * turndir < -20) {	///Turn left
 				// } else if(buttonval & BUT_LT){
 					*desiredGait = G8_ANIM_TURN_SLOW;
 					*desiredDir = -1;
@@ -967,6 +985,8 @@ void gaitRunnerProcess(G8_RUNNER* runner){
 		/// Turret panning during walking
 		
 		
+		/// Clamp all speeds to safe ranges
+		speed = CLAMP(speed, clampMinPos[limbNumber], clampMaxPos[limbNumber]);
 		// __act_setSpeed(servo,(int8)speed);
 		// ax12SetGOAL_POSITION(servo, (uint16)speed);
 		speeds[3*limbNumber] = servo;
