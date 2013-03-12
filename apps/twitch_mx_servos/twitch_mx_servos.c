@@ -122,15 +122,15 @@ BIT errorOccurredRecently = 0;
 #define servo75Min 511 - 4 * 21
 #define servo75Max 511 + 4 * 44
 
-#define gaitMin71  1590
+#define gaitMin71  1590 - 50
 #define gaitMin72  1691
 #define gaitMin73  1691
-#define gaitMin74  2000
+#define gaitMin74  462
 
-#define gaitMax71  2506
+#define gaitMax71  2506 + 50
 #define gaitMax72  2405
 #define gaitMax73  2405
-#define gaitMax74  2100
+#define gaitMax74  562
 
 uint16 CODE gaitMinPos[4] = {gaitMin71, gaitMin72, gaitMin73, gaitMin74};
 uint16 CODE gaitMaxPos[4] = {gaitMax71, gaitMax72, gaitMax73, gaitMax74};
@@ -138,12 +138,12 @@ uint16 CODE gaitMaxPos[4] = {gaitMax71, gaitMax72, gaitMax73, gaitMax74};
 #define clampMin71  1848
 #define clampMin72  1691
 #define clampMin73  1691
-#define clampMin74  2000
+#define clampMin74  462
 
 #define clampMax71  2248
 #define clampMax72  2405
 #define clampMax73  2405
-#define clampMax74  2100
+#define clampMax74  562
 
 
 uint16 CODE clampMinPos[4] = {clampMin71, clampMin72, clampMin73, clampMin74};
@@ -161,11 +161,13 @@ uint16 CODE clampMaxPos[4] = {clampMax71, clampMax72, clampMax73, clampMax74};
 ///MATHEMATICA CODE
 ///loopSpeed = 1000;
 ///Plot[65.536*loopSpeed/speed, {speed, 0, 128}, PlotRange -> {500, 4000}]
-const uint16 g8loopSpeed = 2500;
+const uint16 g8loopSpeed = 2000;
 uint16 g8speed = 25;
 int8 g8playbackDir = 1; // value should only ever be -1 or 1.
 // int8 g8repeatCount = 0;
 
+#define FAST_TURN_SPEED  50
+#define SLOW_TURN_SPEED  70
 
 uint8 currentPos = SIT_POS;
 
@@ -609,22 +611,22 @@ uint8 CmdrReadMsgs(int8 *desiredGait, int8 *desiredDir, int8 *desiredSpeed){
 				// } else if(buttonval & BUT_RT){
 					*desiredGait = G8_ANIM_TURN_RIGHT;
 					*desiredDir = 1;
-					*desiredSpeed = 70;
+					*desiredSpeed = FAST_TURN_SPEED;
 				} else if (walkH * turndir < -20) {	///Turn left
 				// } else if(buttonval & BUT_LT){
 					*desiredGait = G8_ANIM_TURN_RIGHT;
 					*desiredDir = -1;
-					*desiredSpeed = -70;
+					*desiredSpeed = -1 * FAST_TURN_SPEED;
 				} else if (lookH * turndir > 20) {	///Turn right fast
 				// } else if(buttonval & BUT_RT){
 					*desiredGait = G8_ANIM_TURN_SLOW;
 					*desiredDir = 1;
-					*desiredSpeed = 70;
+					*desiredSpeed = SLOW_TURN_SPEED;
 				} else if (lookH * turndir < -20) {	///Turn left
 				// } else if(buttonval & BUT_LT){
 					*desiredGait = G8_ANIM_TURN_SLOW;
 					*desiredDir = -1;
-					*desiredSpeed = -70;
+					*desiredSpeed = -1 * SLOW_TURN_SPEED;
 				/// **********************************************************
 				// } else if (walkV > 20) {			///walk forward
 					// *desiredGait = G8_ANIM_WALK_STRAIGHT;
