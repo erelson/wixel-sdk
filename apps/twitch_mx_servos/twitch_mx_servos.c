@@ -113,7 +113,7 @@ BIT errorOccurredRecently = 0;
 /////TURRET////////////
 ///////////////////////
 #define PAN_CENTER 511
-#define TILT_CENTER 511 //+ 95
+#define TILT_CENTER 531 //+ 95
 #define PAN_SPEED 100
 #define TILT_SPEED 100
 // 4*52 -> 60 degrees? for AX-12
@@ -124,13 +124,13 @@ BIT errorOccurredRecently = 0;
 
 #define gaitMin71  1590 - 50
 #define gaitMin72  1691
-#define gaitMin73  1691
-#define gaitMin74  462
+#define gaitMin73  1691 + 35
+#define gaitMin74  457
 
 #define gaitMax71  2506 + 50
 #define gaitMax72  2405
-#define gaitMax73  2405
-#define gaitMax74  562
+#define gaitMax73  2405 - 35
+#define gaitMax74  567
 
 uint16 CODE gaitMinPos[4] = {gaitMin71, gaitMin72, gaitMin73, gaitMin74};
 uint16 CODE gaitMaxPos[4] = {gaitMax71, gaitMax72, gaitMax73, gaitMax74};
@@ -138,12 +138,12 @@ uint16 CODE gaitMaxPos[4] = {gaitMax71, gaitMax72, gaitMax73, gaitMax74};
 #define clampMin71  1848
 #define clampMin72  1691
 #define clampMin73  1691
-#define clampMin74  462
+#define clampMin74  452
 
 #define clampMax71  2248
 #define clampMax72  2405
 #define clampMax73  2405
-#define clampMax74  562
+#define clampMax74  572
 
 
 uint16 CODE clampMinPos[4] = {clampMin71, clampMin72, clampMin73, clampMin74};
@@ -161,7 +161,7 @@ uint16 CODE clampMaxPos[4] = {clampMax71, clampMax72, clampMax73, clampMax74};
 ///MATHEMATICA CODE
 ///loopSpeed = 1000;
 ///Plot[65.536*loopSpeed/speed, {speed, 0, 128}, PlotRange -> {500, 4000}]
-const uint16 g8loopSpeed = 2000;
+const uint16 g8loopSpeed = 1800;
 uint16 g8speed = 25;
 int8 g8playbackDir = 1; // value should only ever be -1 or 1.
 // int8 g8repeatCount = 0;
@@ -641,6 +641,12 @@ uint8 CmdrReadMsgs(int8 *desiredGait, int8 *desiredDir, int8 *desiredSpeed){
 					*desiredDir = -1;	// Pointless; Logic chain shouldn't use desiredDir with NO_GAIT...
 					*desiredSpeed = 0;
 				}
+				
+				// Reset pan_pos when movement is being done.
+				if (*desiredGait != NO_GAIT) {
+					pan_pos = PAN_CENTER;
+				}
+				
 				return 1;
 			}
 		}
