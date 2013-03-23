@@ -152,6 +152,7 @@ uint16 CODE clampMaxPos[4] = {clampMax71, clampMax72, clampMax73, clampMax74};
 // turndir: 1 if using AX, -1 if using MX
 #define turndir -1
 
+#define DEADZONE 20	
 
 // Integers corresponding with "positions" used for logic.
 #define START_POS   100
@@ -433,9 +434,6 @@ uint8 CmdrReadMsgs(int8 *desiredGait, int8 *desiredDir, int8 *desiredSpeed){
 			// rprintf("x%u ",index_cmdr);
 			
 			if(index_cmdr == 7){ // packet complete
-				// if(vals[0] == 0xff) {
-					// ax12LED(71,1);
-				// }
 				if(checksum_cmdr%256 != 255){
 					// packet error!
 					// rprintf("\npacket error!\n");
@@ -500,27 +498,16 @@ uint8 CmdrReadMsgs(int8 *desiredGait, int8 *desiredDir, int8 *desiredSpeed){
 					// }
 					// else{agitbutton = zFALSE;}
 					
-					// if((southpaw&0x01) > 0){     // SouthPaw
-						// walkV = (signed char)( (int)vals[0]-128 );
-						// walkH = (signed char)( (int)vals[1]-128 );
-						// // lookV = (signed char)( (int)vals[2]-128 );
-						// // lookH = (signed char)( (int)vals[3]-128 );
-					// }
-					// else if (dowalking){
 					// if (dowalking){
-						// vals - 128 gives look a vlaue in the range from -128 to 127?
+					
+					// vals - 128 gives look a vlaue in the range from -128 to 127?
 					lookV = (signed char)( (int8)vals[0]-128 );
 					lookH = (signed char)( (int8)vals[1]-128 );
-					// if( (int)vals[0] >= 128){
-						// tilt_pos = interpolateU( (int)vals[0],128,128+102,TILT_CENTER,servo52Max);
-					// }
-					// else {
-						// tilt_pos = interpolateU( (int)vals[0],128-102,128,servo52Min,TILT_CENTER);
-					// }
 					
 					//Default handling in original Commander.c - sets to range of -127 to 127 or so...
 					walkV = (signed char)( (int8)vals[2]-128 );
 					walkH = (signed char)( (int8)vals[3]-128 );
+					
 					// }
 					// pan = (vals[0]<<8) + vals[1];
 					// tilt = (vals[2]<<8) + vals[3];
@@ -529,14 +516,14 @@ uint8 CmdrReadMsgs(int8 *desiredGait, int8 *desiredDir, int8 *desiredSpeed){
 				}
 				index_cmdr = -1;
 				
-				//LISTEN.flush(); //flush after reading an entire packet... why?
-				// uartFlushReceiveBuffer(LISTEN);
-				//Doesn't seem to be an equivalent method for Wixels.
-				///Empty the packet buffer?
+				///Empty the packet buffer
 				while (uart0RxAvailable() > 0) { uart0RxReceiveByte(); }
 				
+				///////////////////////////////////////////
 				///Set commands based on controller signals
-				if ( (lookV > 20 && walkV < -20) || (walkV > 20 && lookV < -20) ) {	///Conflicting directions -> STOP
+				
+				/// Conflicting directions -> STOP
+				if ( (lookV > DEADZONE && walkV < -DEADZONE) || (walkV > DEADZONE && lookV < -DEADZONE) ) {
 					*desiredGait = NO_GAIT;
 					*desiredDir = -1;	// Pointless; Logic chain shouldn't use desiredDir with NO_GAIT...
 					*desiredSpeed = 0;
@@ -560,7 +547,7 @@ uint8 CmdrReadMsgs(int8 *desiredGait, int8 *desiredDir, int8 *desiredSpeed){
 					dynamixel_writeword(75, AX_GOAL_POSITION_L, tilt_pos);
 					
 				/// Walk mode
-				} else if (lookV > 20 || walkV > 20 ) {	///walk 
+				} else if (lookV > DEADZONE || walkV > DEADZONE ) {	///walk 
 					if(buttonval&BUT_LT || buttonval&BUT_RT){
 						*desiredGait = G8_ANIM_WALK_STRAIGHT;
 					} else {
@@ -570,7 +557,7 @@ uint8 CmdrReadMsgs(int8 *desiredGait, int8 *desiredDir, int8 *desiredSpeed){
 					*desiredSpeed = 50;
 					
 				///Walk
-				} else if (lookV < -20 || walkV < -20) {	///walk 
+				} else if (lookV < -DEADZONE || walkV < -DEADZONE) {	///walk 
 					if(buttonval&BUT_LT || buttonval&BUT_RT){
 						*desiredGait = G8_ANIM_WALK_STRAIGHT_BACK;
 					} else {
@@ -579,16 +566,16 @@ uint8 CmdrReadMsgs(int8 *desiredGait, int8 *desiredDir, int8 *desiredSpeed){
 					*desiredDir = 1;
 					*desiredSpeed = 50;
 					
-				// if (lookV > 20) {			///walk forward
+				// if (lookV > DEADZONE) {			///walk forward
 					// *desiredGait = G8_ANIM_WALK_STRAIGHT_SLOW;
 					// *desiredDir = 1;
 					// *desiredSpeed = 50;
-				// } else if (lookV < -20) {	///walk backwards
+				// } else if (lookV < -DEADZONE) {	///walk backwards
 					// *desiredGait = G8_ANIM_WALK_STRAIGHT_BACK_SLOW;
 					// *desiredDir = 1;
 					// *desiredSpeed = 50;
 				/// **********************************************************
-				// // } else if (lookH > 20) {	///Turn right slow
+				// // } else if (lookH > DEADZONE) {	///Turn right slow
 				// } else if((buttonval&BUT_R1) > 0){
 					// if(buttonval&BUT_LT || buttonval&BUT_RT){
 						// *desiredGait = G8_ANIM_TURN_RIGHT;
@@ -597,7 +584,7 @@ uint8 CmdrReadMsgs(int8 *desiredGait, int8 *desiredDir, int8 *desiredSpeed){
 					// }
 					// *desiredDir = 1;
 					// *desiredSpeed = 70;
-				// // } else if (lookH < -20) {	///Turn left slow
+				// // } else if (lookH < -DEADZONE) {	///Turn left slow
 				// } else if((buttonval&BUT_L6) > 0){
 					// if(buttonval&BUT_LT || buttonval&BUT_RT){
 						// *desiredGait = G8_ANIM_TURN_RIGHT;
@@ -607,32 +594,32 @@ uint8 CmdrReadMsgs(int8 *desiredGait, int8 *desiredDir, int8 *desiredSpeed){
 					// *desiredDir = -1;
 					// *desiredSpeed = -70;
 				/// **********************************************************
-				} else if (walkH * turndir > 20) {	///Turn right fast
+				} else if (walkH * turndir > DEADZONE) {	///Turn right fast
 				// } else if(buttonval & BUT_RT){
 					*desiredGait = G8_ANIM_TURN_RIGHT;
 					*desiredDir = 1;
 					*desiredSpeed = FAST_TURN_SPEED;
-				} else if (walkH * turndir < -20) {	///Turn left
+				} else if (walkH * turndir < -DEADZONE) {	///Turn left
 				// } else if(buttonval & BUT_LT){
 					*desiredGait = G8_ANIM_TURN_RIGHT;
 					*desiredDir = -1;
 					*desiredSpeed = -1 * FAST_TURN_SPEED;
-				} else if (lookH * turndir > 20) {	///Turn right fast
+				} else if (lookH * turndir > DEADZONE) {	///Turn right fast
 				// } else if(buttonval & BUT_RT){
 					*desiredGait = G8_ANIM_TURN_SLOW;
 					*desiredDir = 1;
 					*desiredSpeed = SLOW_TURN_SPEED;
-				} else if (lookH * turndir < -20) {	///Turn left
+				} else if (lookH * turndir < -DEADZONE) {	///Turn left
 				// } else if(buttonval & BUT_LT){
 					*desiredGait = G8_ANIM_TURN_SLOW;
 					*desiredDir = -1;
 					*desiredSpeed = -1 * SLOW_TURN_SPEED;
 				/// **********************************************************
-				// } else if (walkV > 20) {			///walk forward
+				// } else if (walkV > DEADZONE) {			///walk forward
 					// *desiredGait = G8_ANIM_WALK_STRAIGHT;
 					// *desiredDir = 1;
 					// *desiredSpeed = 70;
-				// } else if (walkV < -20) {	///walk backwards
+				// } else if (walkV < -DEADZONE) {	///walk backwards
 					// *desiredGait = G8_ANIM_WALK_STRAIGHT_BACK;
 					// *desiredDir = 1;
 					// *desiredSpeed = 70;
