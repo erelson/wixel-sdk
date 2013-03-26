@@ -44,7 +44,7 @@ static volatile uint8 pwmPinsOnPort1;
 // Call back - for when the speed has been set
 // static void setSpeed(__ACTUATOR *actuator, DRIVE_SPEED speed){
 /// speed ranges from -127 to 127.
-static void setMotorSpeed(MOTOR *motor, int8 speed){
+void setMotorSpeed(MOTOR *motor, int8 speed){
 	// MOTOR* motor = (MOTOR*)actuator;
 	// const TimerCompare* channel = compareFromIOPin(motor->pwm);
 	// const Timer* timer = compareGetTimer(channel);
@@ -349,4 +349,4 @@ ISR(T1, 0)
 
         break;
     }
-}
+} // end of ISR(T
