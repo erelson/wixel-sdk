@@ -37,6 +37,7 @@
 
 
 #include "HeaderDefs.h"
+#include "MotorDriver.h"
 
 // #include "Commander.h"
 #include "Interpolate.h"
@@ -527,6 +528,17 @@ void main()
 	// uint16 speed;
 	
 	// static uint8 all[3] = {42,43,12};
+	
+	MOTOR *ptrGunMotor;
+	MOTOR gunMotor = MAKE_MOTOR_3_PIN((uint8)12, 0x02, 0x08);  //(PWM, B, A)
+	ptrGunMotor = &gunMotor;
+	
+	// Here we define what pins we will be using for PWM.  Our choice is
+	// to just use one pin, P1_2, and designate it as servo 0.
+	// uint8 CODE pwmPins[] = {ptrGunMotor->pwm->pin};
+	
+	// pwmStart((uint8 XDATA *)pwmPins, sizeof(pwmPins));
+	
 	
     systemInit();
 
