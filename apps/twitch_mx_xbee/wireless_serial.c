@@ -580,9 +580,11 @@ void main()
 		// speed = interpolate(now, 0, 5000, 100, 900);
 		
 		//FIRE THE GUNS!!!!!
+		//Resets timer while button is held down.
 		if (gunbutton){
 			guns_firing = zTRUE;
 			// setMotorSpeed(&LeftGun,-65); 	//NOTE: (7.2 / 12.6) * 127 = 72.5714286
+			setMotorSpeed(ptrGunMotor, -65);
 			guns_firing_start_time = (uint16)getMs();
 		}
 		
@@ -592,6 +594,7 @@ void main()
 			guns_firing_duration = 0;
 			guns_firing = zFALSE;
 			// setMotorSpeed(&LeftGun,0); 	//NOTE: (7.2 / 12.6) * 127 = 72.5714286
+			setMotorSpeed(ptrGunMotor, 0);
 			guns_firing_start_time = (uint16)getMs();
 		}
 	
