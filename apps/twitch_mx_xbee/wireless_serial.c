@@ -75,8 +75,6 @@ int32 CODE param_RTS_pin = -1;
 int32 CODE param_DSR_pin = -1;
 int32 CODE param_CD_pin = -1;
 
-int32 CODE param_arduino_DTR_pin = 0;
-
 // Approximate number of milliseconds to disable UART's receiver for after a
 // framing error is encountered.
 // Valid values are 0-250.
@@ -84,6 +82,8 @@ int32 CODE param_arduino_DTR_pin = 0;
 // The actual number of milliseconds that the receiver is disabled for will be
 // between param_framing_error_ms and param_framing_error_ms + 1.
 int32 CODE param_framing_error_ms = 0;
+
+int32 CODE param_arduino_DTR_pin = 0;
 
 /** Global Variables **********************************************************/
 
@@ -528,15 +528,19 @@ void main()
 	
 	// static uint8 all[3] = {42,43,12};
 	
-	MOTOR *ptrGunMotor;
+	// MOTOR *ptrGunMotor;
+	// MOTOR gunMotor = MAKE_MOTOR_3_PIN((uint8)12, 0x02, 0x08);  //(PWM, B, A)
+	// ptrGunMotor = &gunMotor;
+	
 	MOTOR gunMotor = MAKE_MOTOR_3_PIN((uint8)12, 0x02, 0x08);  //(PWM, B, A)
-	ptrGunMotor = &gunMotor;
+	MOTOR *ptrGunMotor = &gunMotor;
 	
 	// Here we define what pins we will be using for PWM.  Our choice is
 	// to just use one pin, P1_2, and designate it as servo 0.
-	// uint8 CODE pwmPins[] = {ptrGunMotor->pwm->pin};
+	// uint8 CODE pwmPins[] = {ptrGunMotor->pwmpin};
+	uint8 pwmPins[] = {ptrGunMotor->pwmpin};
 	
-	// pwmStart((uint8 XDATA *)pwmPins, sizeof(pwmPins));
+	pwmStart((uint8 XDATA *)pwmPins, sizeof(pwmPins));
 	
 	
     systemInit();
