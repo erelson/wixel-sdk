@@ -418,11 +418,11 @@ uint8 CmdrReadMsgs(){
 						// turnleft = zFALSE;
 						// // turn = zFALSE;
 					// }
-					// if((buttonval&BUT_L6) > 0){
-						// gunbutton = zTRUE;
-						// // if(PRINT_DEBUG_COMMANDER){rprintf("guns\t");}
-					// }
-					// else{gunbutton = zFALSE;}
+					if((buttonval&BUT_L6) > 0){
+						gunbutton = zTRUE;
+						// if(PRINT_DEBUG_COMMANDER){rprintf("guns\t");}
+					}
+					else{gunbutton = zFALSE;}
 
 					// if((buttonval&BUT_R3) > 0){
 						// panicbutton = zTRUE;
@@ -582,8 +582,9 @@ void main()
 		
 		//FIRE THE GUNS!!!!!
 		//Resets timer while button is held down.
-		if (gunbutton){
+		if (gunbutton == zTRUE){
 			guns_firing = zTRUE;
+			uart0TxSendByte('Z');
 			// setMotorSpeed(&LeftGun,-65); 	//NOTE: (7.2 / 12.6) * 127 = 72.5714286
 			setMotorSpeed(ptrGunMotor, -65);
 			guns_firing_start_time = (uint16)getMs();
