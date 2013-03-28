@@ -60,16 +60,20 @@ void setMotorSpeed(MOTOR *motor, int8 speed){
 		// Set direction1 high, direction2 low
 		// pin_make_output(motor->direction1,TRUE);
 		// pin_make_output(motor->direction2,FALSE);
-		P1DIR |= (motor->direction1); //Enable pin P1_1
-		P1DIR &= ~(motor->direction2); //Disable pin P1_3
+		// P1DIR |= (motor->direction1); //Enable pin P1_1
+		// P1DIR &= ~(motor->direction2); //Disable pin P1_3
+		setDigitalOutput(11, HIGH);
+		setDigitalOutput(13, LOW);
 	}else if(speed < 0){
 		delay = interpolateU(speed, 0, DRIVE_SPEED_MIN,  0 , top);
 
 		// Set direction1 low, direction2 high low
 		// pin_make_output(motor->direction1,FALSE);
 		// pin_make_output(motor->direction2,TRUE);
-		P1DIR &= ~motor->direction1; //Disable pin P1_1
-		P1DIR |= motor->direction2; //Enable pin P1_3
+		// P1DIR &= ~motor->direction1; //Disable pin P1_1
+		// P1DIR |= motor->direction2; //Enable pin P1_3
+		setDigitalOutput(11, LOW);
+		setDigitalOutput(13, HIGH);
 	}else{
 		// brake
 
@@ -77,13 +81,16 @@ void setMotorSpeed(MOTOR *motor, int8 speed){
 			// There are two direction pins - so set both to same value
 			// pin_make_output(motor->direction1,FALSE);
 			// pin_make_output(motor->direction2,FALSE);
-			P1DIR &= ~motor->direction1; //Disable pin P1_1
-			P1DIR &= ~motor->direction2; //Disable pin P1_3
+			// P1DIR &= ~motor->direction1; //Disable pin P1_1
+			// P1DIR &= ~motor->direction2; //Disable pin P1_3
+			setDigitalOutput(11, LOW);
+			setDigitalOutput(13, LOW);
 		}else{
 			// Only has one direction pin
 			// Set direction1 to an input with no pullup ie disconnect
 			// pin_make_input(motor->direction1,FALSE);
 			P1DIR &= ~motor->direction1; //Disable pin P1_1
+			setDigitalOutput(11, LOW);
 		}
 	}
 

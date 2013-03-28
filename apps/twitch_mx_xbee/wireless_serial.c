@@ -75,6 +75,11 @@ int32 CODE param_RTS_pin = -1;
 int32 CODE param_DSR_pin = -1;
 int32 CODE param_CD_pin = -1;
 
+
+int32 CODE param_laser_pin = 15;
+
+int32 CODE param_arduino_DTR_pin = 0;
+
 // Approximate number of milliseconds to disable UART's receiver for after a
 // framing error is encountered.
 // Valid values are 0-250.
@@ -82,8 +87,6 @@ int32 CODE param_CD_pin = -1;
 // The actual number of milliseconds that the receiver is disabled for will be
 // between param_framing_error_ms and param_framing_error_ms + 1.
 int32 CODE param_framing_error_ms = 0;
-
-int32 CODE param_arduino_DTR_pin = 0;
 
 /** Global Variables **********************************************************/
 
@@ -208,34 +211,34 @@ uint8 ioRxSignals()
    This should be called frequently (not just when the values change).
    Bit 0 is DTR.
    Bit 1 is RTS. */
-void ioTxSignals(uint8 signals)
-{
-    static uint8 nTrstPulseStartTime;
-    static uint8 lastSignals;
+// void ioTxSignals(uint8 signals)
+// {
+    // static uint8 nTrstPulseStartTime;
+    // static uint8 lastSignals;
 
-    // Inverted outputs
-    setDigitalOutput(param_nDTR_pin, (signals & ACM_CONTROL_LINE_DTR) ? 0 : 1);
-    setDigitalOutput(param_nRTS_pin, (signals & ACM_CONTROL_LINE_RTS) ? 0 : 1);
+    // // Inverted outputs
+    // setDigitalOutput(param_nDTR_pin, (signals & ACM_CONTROL_LINE_DTR) ? 0 : 1);
+    // setDigitalOutput(param_nRTS_pin, (signals & ACM_CONTROL_LINE_RTS) ? 0 : 1);
 
-    // Non-inverted outputs.
-    setDigitalOutput(param_DTR_pin, (signals & ACM_CONTROL_LINE_DTR) ? 1 : 0);
-    setDigitalOutput(param_RTS_pin, (signals & ACM_CONTROL_LINE_RTS) ? 1 : 0);
+    // // Non-inverted outputs.
+    // setDigitalOutput(param_DTR_pin, (signals & ACM_CONTROL_LINE_DTR) ? 1 : 0);
+    // setDigitalOutput(param_RTS_pin, (signals & ACM_CONTROL_LINE_RTS) ? 1 : 0);
 
-    // Arduino DTR pin.
-    if (!(lastSignals & ACM_CONTROL_LINE_DTR) && (signals & ACM_CONTROL_LINE_DTR))
-    {
-        // We just made a falling edge on the nDTR line, so start a 1-2ms high pulse
-        // on the nTRST line.
-        setDigitalOutput(param_arduino_DTR_pin, HIGH);
-        nTrstPulseStartTime = getMs();
-    }
-    else if ((uint8)(getMs() - nTrstPulseStartTime) >= 2)
-    {
-        setDigitalOutput(param_arduino_DTR_pin, LOW);
-    }
+    // // Arduino DTR pin.
+    // if (!(lastSignals & ACM_CONTROL_LINE_DTR) && (signals & ACM_CONTROL_LINE_DTR))
+    // {
+        // // We just made a falling edge on the nDTR line, so start a 1-2ms high pulse
+        // // on the nTRST line.
+        // setDigitalOutput(param_arduino_DTR_pin, HIGH);
+        // nTrstPulseStartTime = getMs();
+    // }
+    // else if ((uint8)(getMs() - nTrstPulseStartTime) >= 2)
+    // {
+        // setDigitalOutput(param_arduino_DTR_pin, LOW);
+    // }
 
-    lastSignals = signals;
-}
+    // lastSignals = signals;
+// }
 
 void errorOccurred()
 {
@@ -545,8 +548,8 @@ void main()
 	
     systemInit();
 
-    setDigitalOutput(param_arduino_DTR_pin, LOW);
-    ioTxSignals(0);
+    // setDigitalOutput(param_arduino_DTR_pin, LOW);
+    // ioTxSignals(0);
 
     // Initialize UARTs
     uart0Init();
@@ -588,6 +591,7 @@ void main()
 		if (gunbutton == zTRUE){
 			guns_firing = zTRUE;
 			uart0TxSendByte('Z');
+			setDigitalOutput(param_laser_pin, HIGH);
 			// setMotorSpeed(&LeftGun,-65); 	//NOTE: (7.2 / 12.6) * 127 = 72.5714286
 			setMotorSpeed(ptrGunMotor, -65);
 			guns_firing_start_time = (uint16)getMs();
@@ -598,6 +602,7 @@ void main()
 		if (guns_firing && clockHasElapsed(guns_firing_start_time, guns_firing_duration)){
 			guns_firing_duration = 0;
 			guns_firing = zFALSE;
+			setDigitalOutput(param_laser_pin, LOW);
 			// setMotorSpeed(&LeftGun,0); 	//NOTE: (7.2 / 12.6) * 127 = 72.5714286
 			setMotorSpeed(ptrGunMotor, 0);
 			guns_firing_start_time = (uint16)getMs();
