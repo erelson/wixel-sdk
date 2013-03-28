@@ -183,8 +183,8 @@ void pwmStart(uint8 XDATA * pins, uint8 numPins)
         }
 
         // Set all the pins being used to be general-purpose outputs driving low for now.
-        P0SEL &= ~pwmPinsOnPort0;
-        P0DIR |= pwmPinsOnPort0;
+        P0SEL &= ~pwmPinsOnPort0; // ????
+        P0DIR |= pwmPinsOnPort0; // ????
         P1SEL &= ~pwmPinsOnPort1;
         P1DIR |= pwmPinsOnPort1;
 
