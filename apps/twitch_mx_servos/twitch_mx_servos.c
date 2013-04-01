@@ -1116,6 +1116,13 @@ void main()
 				
 	// gaitRunnerPlay(&gait,    G8_ANIM_TURN_LEFT,       g8loopSpeed, g8playbackDir * g8speed, g8playbackDir * g8repeatCount);
 
+    // Set turret servo speed limits
+    dynamixel_writeword(74, AX_GOAL_SPEED_L, MY_TURRET_SERVO_SPEED);
+	delayMs(10);
+    dynamixel_writeword(75, AX_GOAL_SPEED_L, MY_TURRET_SERVO_SPEED);
+	delayMs(10);
+    
+    // Center turret
 	pan_pos = PAN_CENTER;
 	dynamixel_writeword(74, AX_GOAL_POSITION_L, pan_pos);
 	delayMs(10);
