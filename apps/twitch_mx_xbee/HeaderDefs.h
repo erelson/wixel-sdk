@@ -15,41 +15,16 @@
 
 // defines for turning various bits of output on/off
 #define PRINT_IR_RANGE 0
-#define PRINT_DEBUG_COMMANDER 1
+#define PRINT_DEBUG_COMMANDER 0
 #define PRINT_DEBUG_IK 0
 #define PRINT_DEBUG_LOOP 0
 #define PRINT_DEBUG 0
 #define PRINT_DEBUG_AGITATOR 0
 
-#define RIGHT_SERVO 62
-#define LEFT_SERVO  63
-
-#define RTN_LVL 1
-#define MY_SERVO_SPEED 300
-
 #define zTRUE 1
 #define zFALSE 0
 
 #define LISTEN UART2toXbee38400
-
-
-// The scaling factor used in GaitDesigner when generating the gait
-#define SCALE_X 1000
-
-// extern void initServoLims();
-
-// extern uint16_t s61pos;
-// extern uint16_t s62pos;
-// extern uint16_t s63pos;
-
-// //Servo position limits, range from 0 to 1023
-
-// extern uint16_t servo61Min;
-// extern uint16_t servo61Max;
-// extern uint16_t servo62Min;
-// extern uint16_t servo62Max;
-// extern uint16_t servo63Min;
-// extern uint16_t servo63Max;
 
 
 // short turnright;
@@ -59,14 +34,6 @@
 // short infobutton;
 // short agitbutton;
 
-// extern uint16_t loopLengthList[];
-
-// extern short walk;
-// extern short turn;
-// extern short light;
-// extern short kneeling;
-// extern short flopCnt;
-// extern short panic;
 
 ////////////////
 // The former contents of Commander.h
@@ -98,16 +65,7 @@ int8 index_cmdr;              // -1 = waiting for new packet
 uint8 checksum_cmdr;
 // unsigned char southpaw; 
 
-/// These could be more local in scope.
-// int8 buttonval; //moved to be local
-int8 walkV;
-int8 walkH;
-int8 lookV;
-int8 lookH;
-
-// int walkSPD;
-// float walkDIR;
-
+// Variables for gun motor control
 short guns_firing = zFALSE;
 uint16 guns_firing_start_time;
 uint16 guns_firing_duration;
