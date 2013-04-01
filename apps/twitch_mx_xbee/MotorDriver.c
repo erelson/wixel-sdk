@@ -10,9 +10,9 @@
 // Keeps track of whether the library has been enabled or not.
 static BIT pwmStartedFlag = 0;
 
-// Keeps track of whether there are motors moving or not (position != target).
-// This is updated in the ISR.
-static volatile BIT motorsMovingFlag = 0;
+// // Keeps track of whether there are motors moving or not (position != target).
+// // This is updated in the ISR.
+// static volatile BIT motorsMovingFlag = 0;
 
 volatile uint8 DATA pwmCounter = 0;
 
@@ -36,7 +36,7 @@ static volatile struct PWM_DATA XDATA pwmData[MAX_PWM_PINS];
 // A 1 bit indicates that the pin is a servo pulse output pin.
 // A 0 but indicates that the pin will be used for something else and
 // this library should not touch it.
-// static volatile uint8 pwmPinsOnPort0;
+static volatile uint8 pwmPinsOnPort0;
 static volatile uint8 pwmPinsOnPort1;
 
 
@@ -69,7 +69,8 @@ void setMotorSpeed(MOTOR *motor, int8 speed){
 		setDigitalOutput(motor->direction2, HIGH);
 	}else{
 		// brake
-
+        ticks_on = 0;
+        
 		if(motor->direction2){
 			// There are two direction pins - so set both to same value
 			setDigitalOutput(motor->direction1, LOW);
@@ -101,7 +102,7 @@ void pwmSetTargetHighRes(uint8 pinNum, uint16 target)
 
     // TODO: return here if "target" is out of the valid range
 
-    T1IE = 0; // Make sure we don't get interrupted in the middle of an update.
+    // T1IE = 0; // Make sure we don't get interrupted in the middle of an update.
 
     // Make this function have an immediate effect, if necessary.
     // if (d->speed == 0 || d->target == 0 || target == 0)
@@ -117,25 +118,25 @@ void pwmSetTargetHighRes(uint8 pinNum, uint16 target)
 
     d->target = target;
 
-    T1IE = pwmStartedFlag; //Enable if PWM is enabled.
+    // T1IE = pwmStartedFlag; //Enable if PWM is enabled.
 }
 
-/// Copied from servo.c
+/// Because we are using Modulo mode, pins P0_4 and P1_2 are not usable for PWM
 static uint8 pinToInternalChannelNumber(uint8 pin)
 {
     switch(pin)
     {
     case 2: return 0;
     case 3: return 1;
-    case 4: return 2;
-    case 12: return 3;
+    // case 4: return 2;
+    // case 12: return 3;
     case 11: return 4;
     case 10: return 5;
     default: return 0;
     }
 }
 
-void pwmStart(uint8 XDATA * pins, uint8 numPins, uint16)
+void pwmStart(uint8 XDATA * pins, uint8 numPins, uint16 frequency)
 {
     uint8 i;
 
@@ -167,8 +168,8 @@ void pwmStart(uint8 XDATA * pins, uint8 numPins, uint16)
                 {
                 case 0: P0_2 = 0; pwmPinsOnPort0 |= (1<<2); break;
                 case 1: P0_3 = 0; pwmPinsOnPort0 |= (1<<3); break;
-                case 2: P0_4 = 0; pwmPinsOnPort0 |= (1<<4); break;
-                case 3: P1_2 = 0; pwmPinsOnPort1 |= (1<<2); break;
+                // case 2: P0_4 = 0; pwmPinsOnPort0 |= (1<<4); break;
+                // case 3: P1_2 = 0; pwmPinsOnPort1 |= (1<<2); break;
                 case 4: P1_1 = 0; pwmPinsOnPort1 |= (1<<1); break;
                 case 5: P1_0 = 0; pwmPinsOnPort1 |= (1<<0); break;
                 }
@@ -190,7 +191,7 @@ void pwmStart(uint8 XDATA * pins, uint8 numPins, uint16)
         }
     }
 
-    //// Configure Timer 1 and interrupts ////
+    /// Configure Timer 1 and interrupts ///
 
     // Turn off the timer and reset the counters.
     T1CTL = 0; // control register; 
@@ -203,25 +204,26 @@ void pwmStart(uint8 XDATA * pins, uint8 numPins, uint16)
     // as long as N > 1.
     // We can set the register to -1 or 0 to disable the pulse.
     // T1CCTL0 = T1CCTL1 = T1CCTL2 = 0b00011100;
-    T1CCTL1 = T1CCTL2 = 0b00011100;
+    T1CCTL1 = T1CCTL2 = 0b00100100;
 
     // Turn off all the pulses at first.
 	// i.e.: t1cch0 = t1ccl0 = 0xff -> no compare?
     // T1CC0 = T1CC1 = T1CC2 = 0xFFFF;
-    T1CC1 = T1CC2 = 0xFFFF;
+    T1CC1 = T1CC2 = 0x0000;
 
     // // Timer 1: Start free-running mode, counting from 0x0000 to 0xFFFF.
     // T1CTL = 0b00000001; // control register; 
     // Timer 1: Start modulo mode, counting from 0x0000 to T1CC0.
     T1CTL = 0b00000010; // control register; 
-    // Convert the frequency to T1CC0 by equation T1CC0=2.4*10^7/frequency
-    T1CC0 = 24000/
+    // Convert the frequency to T1CC0 by equation
+    //    T1CC0=2.4*10^4/(frequency/1000)
+    T1CC0 = 24000 / (frequency / 1000);
     
-    // Set the Timer 1 interrupt priority to 2, the second highest.
-    IP0 &= ~(1<<1);
-    IP1 |= (1<<1);
-    T1IE = 1; // Enable the Timer 1 interrupt.
-    EA = 1;   // Enable interrupts in general.
+    // // Set the Timer 1 interrupt priority to 2, the second highest.
+    // IP0 &= ~(1<<1);
+    // IP1 |= (1<<1);
+    // T1IE = 1; // Enable the Timer 1 interrupt.
+    // EA = 1;   // Enable interrupts in general.
 
     pwmStartedFlag = 1;
 }
@@ -234,16 +236,16 @@ void pwmStop(void)
         return;
     }
 
-    T1IE = 0;
+    // T1IE = 0;
 
     // Wait for the timer to overflow.
     while(!T1IF){};
 
     // Assuming that there were fewer than (2730 - MAX_SERVO_TARGET_MICROSECONDS) worth of
-    // interrupts the time when T1IF was read as true and now, the timer has just
+    // interrupts, the time when T1IF was read as true and now, the timer has just
     // overflowed and the next servo pulses have not started yet.
     // Make the pins revert to GPIO outputs driving low:
-    // P0SEL &= ~pwmPinsOnPort0;
+    P0SEL &= ~pwmPinsOnPort0;
     P1SEL &= ~pwmPinsOnPort1;
 
     // Turn off Timer 1.
@@ -251,105 +253,3 @@ void pwmStop(void)
 
     pwmStartedFlag = 0;
 }
-
-
-
-// ISR(T1, 0)
-// {
-    // uint8 i;
-
-    // // The pulses on port 1 just finished, so assign the pins to be GPIO (driving low) again.
-    // P1SEL &= ~pwmPinsOnPort1;
-
-    // // switch(pwmCounter++)
-    // // {
-    // // case 0:
-        // // PERCFG &= ~(1<<6);  // PERCFG.T1CFG = 0:  Move Timer 1 to Alt. 1 location (P0_2, P0_3, P0_4)
-        // // P0SEL |= pwmPinsOnPort0;
-        // // T1CC0 = pwmData[0].positionReg;  // NOTE: T1CCx is buffered, so these commands
-        // // T1CC1 = pwmData[1].positionReg;  // don't take effect until the next timer period.
-        // // T1CC2 = pwmData[2].positionReg;
-        // // break;
-
-    // // case 3:
-        // // PERCFG |= (1<<6);  // PERCFG.T1CFG = 1:  Move Timer 1 to Alt. 2 location (P1_2, P1_1, P1_0)
-        // // P1SEL |= pwmPinsOnPort1;
-        // // T1CC0 = pwmData[3].positionReg;
-        // // T1CC1 = pwmData[4].positionReg;
-        // // T1CC2 = pwmData[5].positionReg;
-        // // break;
-
-    // // case 1:
-    // // case 4:
-        // // // We are producing pulses during THIS period, so disable the pulses for the next timer period.
-        // // T1CC0 = T1CC1 = T1CC2 = 0xFFFF;
-        // // break;
-
-    // // case 2:
-        // // // The pulses on port 0 just finished, so assign the pins to be GPIO (driving low) again.
-        // // P0SEL &= ~pwmPinsOnPort0;
-        // // break;
-
-    // // case 5:
-        // // // The pulses on port 1 just finished, so assign the pins to be GPIO (driving low) again.
-        // // P1SEL &= ~pwmPinsOnPort1;
-        // // break;
-
-    // // case 6:
-        // // // Set the counter back to zero so that next time we will start over at the beginning.
-        // // pwmCounter = 0;
-
-        // // // Update the positions of all the servos according to their speed limits,
-        // // // and update motorsMovingFlag.
-
-        // // // David measured how long these updates take, and it is only about 70us even if there is
-        // // // a speed limit enabled for all channels.
-        // // // WARNING: The SDCC manual warns that 16-bit division, multiplication, and modulus are implemented
-        // // // using external support routines that are not reentrant, so we can't do any of those operations here!
-        // // // The assembly generated by this ISR in servo.lst should be checked whenever making changes to the ISR.
-
-        // // motorsMovingFlag = 0;
-
-        // // for(i = 0; i < MAX_PWM_PINS; i++)
-        // // {
-            // // volatile struct PWM_DATA XDATA * d = pwmData + i;
-            // // uint16 pos = d->position;
-
-            // // if (d->speed && pos)
-            // // {
-                // // if (d->target > pos)
-                // // {
-                    // // if (d->target - pos < d->speed)
-                    // // {
-                        // // pos = d->target;
-                    // // }
-                    // // else
-                    // // {
-                        // // pos += d->speed;
-                        // // motorsMovingFlag = 1;
-                    // // }
-                // // }
-                // // else
-                // // {
-                    // // if (pos - d->target < d->speed)
-                    // // {
-                        // // pos = d->target;
-                    // // }
-                    // // else
-                    // // {
-                        // // pos -= d->speed;
-                        // // motorsMovingFlag = 1;
-                    // // }
-                // // }
-            // // }
-            // // else
-            // // {
-                // // pos = d->target;
-            // // }
-            // // d->position = pos;
-            // // d->positionReg = ~pos + 1;
-        // // }
-
-        // // break;
-    // // }
-// } // end of ISR(T
