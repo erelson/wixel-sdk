@@ -543,7 +543,7 @@ void main()
 	// uint8 CODE pwmPins[] = {ptrGunMotor->pwmpin};
 	uint8 pwmPins[] = {ptrGunMotor->pwmpin};
 	
-	pwmStart((uint8 XDATA *)pwmPins, sizeof(pwmPins));
+	pwmStart((uint8 XDATA *)pwmPins, sizeof(pwmPins), 10000);
 	
 	
     systemInit();

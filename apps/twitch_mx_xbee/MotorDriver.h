@@ -153,10 +153,10 @@ void setMotorSpeed(MOTOR* motor, int8 speed);
  *   immediately regardless of the speed limit for the servo.
  *
 */
-void pwmSetTarget(uint8 pinNum, uint32 targetMicroseconds);
+void pwmSetTarget(uint8 pinNum, uint16 targetMicroseconds);
 
 //! target is in clock cycles
-void pwmSetTargetHighRes(uint8 pinNum, uint32 target);
+void pwmSetTargetHighRes(uint8 pinNum, uint16 target);
 
 
 /*! This function starts the library;
@@ -205,7 +205,7 @@ servoSetTarget(0, 1500);       // Affects pin P1_0
 servoSetTarget(1, 1500);       // Affects pin P1_2
  * \endcode
  */
-void pwmStart(uint8 XDATA * pins, uint8 numPins);
+void pwmStart(uint8 XDATA * pins, uint8 numPins, uint16 frequency);
 
 /*! Stops the library; stops sending servo pulses and turns off Timer 1.
  * After this function runs, the pins that were used for servo pulses will
