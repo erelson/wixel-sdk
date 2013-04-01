@@ -458,8 +458,8 @@ uint8 CmdrReadMsgs(){
 					// else if (dowalking){
 					// if (dowalking){
 						// vals - 128 gives look a vlaue in the range from -128 to 127?
-					lookV = (signed char)( (int8)vals[0]-128 );
-					lookH = (signed char)( (int8)vals[1]-128 );
+					// lookV = (signed char)( (int8)vals[0]-128 );
+					// lookH = (signed char)( (int8)vals[1]-128 );
 					// if( (int)vals[0] >= 128){
 						// tilt_pos = interpolateU( (int)vals[0],128,128+102,TILT_CENTER,servo52Max);
 					// }
@@ -468,8 +468,8 @@ uint8 CmdrReadMsgs(){
 					// }
 					
 					//Default handling in original Commander.c - sets to range of -127 to 127 or so...
-					walkV = (signed char)( (int8)vals[2]-128 );
-					walkH = (signed char)( (int8)vals[3]-128 );
+					// walkV = (signed char)( (int8)vals[2]-128 );
+					// walkH = (signed char)( (int8)vals[3]-128 );
 					// }
 					// pan = (vals[0]<<8) + vals[1];
 					// tilt = (vals[2]<<8) + vals[3];
