@@ -82,7 +82,7 @@ typedef struct s_motor{
 	// const IOPin *pwm;		
 	// const IOPin *direction1;
 	// const IOPin *direction2;
-	uint32 pwmval;			// The PWM IO pin the motor is connected to - must be a timer compare pin
+	uint16 pwmval;			// The PWM IO pin the motor is connected to - must be a timer compare pin
 	uint8 pwmpin;			// uint8 CODE pins[] = {10, 12};  // Use P1_0 and P1_2 for servos.
 	
 	// directions are bitmask, i.e. integer powers of two, e.g. hexadecimal values from 2^0 to 2^7
