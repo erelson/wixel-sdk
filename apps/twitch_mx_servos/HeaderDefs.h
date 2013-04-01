@@ -26,6 +26,7 @@
 
 #define RTN_LVL 1
 #define MY_SERVO_SPEED 300
+#define MY_TURRET_SERVO_SPEED 200
 
 #define zTRUE 1
 #define zFALSE 0
