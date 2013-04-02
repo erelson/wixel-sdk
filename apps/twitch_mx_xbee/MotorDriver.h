@@ -51,47 +51,35 @@
 // #include "actuators.h"
 
 /** ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~From servo.h~~~~~~~~~~~~~~~~~~~~~~~~~~~~~**/
-/*! The maximum allowed target of a servo, in microseconds. */
-#define SERVO_MAX_TARGET_MICROSECONDS  2500
-
 /*! This defines the units used by the high resolution functions in this library
  * to represent positions and targets. */
-#define SERVO_TICKS_PER_MICROSECOND    24
+#define TICKS_PER_MICROSECOND    24
 
 
 /** ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~From actuators.h~~~~~~~~~~~~~~~~~~~~~~~~~~~~~**/
 #define DRIVE_SPEED_MIN   ((int8)-127)
 #define DRIVE_SPEED_MAX ((int8) 127)
 
-/// IOPin is an integer power of two, i.e. hexadecimal values from 2^0 to 2^7
-// #define IOPin uint8
-
 // #ifdef __cplusplus
 // /* ===================== C Code ===============================================*/
 // extern "C" {
 // #endif
 
-// typedef struct s_pwmpin{
-	// //
-	// uint8 pin; //Should be a pin value from the set [0,1,2,10,11,12] ??
-	// uint32 val; // Pulse width in ticks (cycles; 1/24 us)
-// } PWMPin;
 
 typedef struct s_motor{
 	// __ACTUATOR 	actuator;		// has all the common stuff
 	// const IOPin *pwm;		
 	// const IOPin *direction1;
 	// const IOPin *direction2;
-	uint16 pwmval;			// The PWM IO pin the motor is connected to - must be a timer compare pin
-	uint8 pwmpin;			// uint8 CODE pins[] = {10, 12};  // Use P1_0 and P1_2 for servos.
-	
-	// directions are bitmask, i.e. integer powers of two, e.g. hexadecimal values from 2^0 to 2^7
+
+	// The PWM IO pin the motor is connected to - must be a timer compare pin
+	uint8 pwmpin;			// valid values are 3, 4, 10, 11
+	   
 	uint8 direction1;	// The compulsory IO pin used to set the direction of the motor
 	uint8 direction2;	// The optional IO pin that is normally NOT(direction1) unless breaking or coasting
 } MOTOR;
 
 
-// #define MAKE_IOPIN(pin, val) {pin, val}
 // Define the standard constructor for a dc motor - default to 2 pin
 // #define MAKE_MOTOR_3_PIN(inverted, motorPin, directionPin1, directionPin2)  { MAKE_ACTUATOR(inverted),motorPin,directionPin1,directionPin2}
 // #define MAKE_MOTOR_2_PIN(inverted, motorPin, directionPin)  MAKE_MOTOR_3_PIN(inverted,motorPin,directionPin,NULL)
@@ -104,19 +92,18 @@ typedef struct s_motor{
 // #define MAKE_MOTOR(inverted, motorPin, directionPin)  MAKE_MOTOR_2_PIN(inverted, motorPin, directionPin)
 
 ///Simple case for now; Don't need motor driver abstraction
-// typedef MOTOR* /*PROGMEM*/  MOTOR_LIST;
+typedef MOTOR* XDATA MOTOR_LIST;
 
-// typedef struct s_motor_driver{
-	// const MOTOR_LIST* const motors;		// The motors
-	// uint8_t num_motors; 			// The total number of motors
-// } MOTOR_DRIVER;
+typedef struct s_motor_driver{
+	const MOTOR_LIST* const motors;		// The motors
+	uint8 num_motors; 			// The total number of motors
+} MOTOR_DRIVER;
 
-/*
+
 #define MAKE_MOTOR_DRIVER(motorlst) { \
 	motorlst, \
-	(uint8_t)(sizeof(motorlst)/sizeof(MOTOR*)) \
+	(uint8)(sizeof(motorlst)/sizeof(MOTOR*)) \
 }
-*/
 
 
 // Use PWM output

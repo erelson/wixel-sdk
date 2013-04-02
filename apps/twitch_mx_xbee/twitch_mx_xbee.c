@@ -479,10 +479,7 @@ uint8 CmdrReadMsgs(){
 				}
 				index_cmdr = -1;
 				
-				//LISTEN.flush(); //flush after reading an entire packet... why?
-				// uartFlushReceiveBuffer(LISTEN);
-				//Doesn't seem to be an equivalent method for Wixels.
-				//Empty the packet buffer?
+				//Empty the packet buffer
 				while (uart1RxAvailable() > 0) { uart1RxReceiveByte(); }
 				
 				return 1;
@@ -523,20 +520,10 @@ boolean clockHasElapsedGetOverflow(uint16 usStart, uint16 usWait, uint16* overfl
 void main()
 {
 
-	//
-	
-	// // uint8 nextGait;
 	// uint32 ms;
 	uint16 now;
-	// uint16 speed;
 	
-	// static uint8 all[3] = {42,43,12};
-	
-	// MOTOR *ptrGunMotor;
-	// MOTOR gunMotor = MAKE_MOTOR_3_PIN((uint8)12, 0x02, 0x08);  //(PWM, B, A)
-	// ptrGunMotor = &gunMotor;
-	
-	MOTOR gunMotor = MAKE_MOTOR_3_PIN((uint8)12, 0x02, 0x08);  //(PWM, B, A)
+	MOTOR gunMotor = MAKE_MOTOR_3_PIN(11, 12, 13);  //(PWM, B, A)
 	MOTOR *ptrGunMotor = &gunMotor;
 	
 	// Here we define what pins we will be using for PWM.  Our choice is
@@ -609,6 +596,6 @@ void main()
 			guns_firing_start_time = (uint16)getMs();
 		}
 	
-		delayMs(10);
+		delayMs(5);
     }
 }
