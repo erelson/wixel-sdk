@@ -10,12 +10,6 @@
 // Keeps track of whether the library has been enabled or not.
 static BIT pwmStartedFlag = 0;
 
-// // Keeps track of whether there are motors moving or not (position != target).
-// // This is updated in the ISR.
-// static volatile BIT motorsMovingFlag = 0;
-
-volatile uint8 DATA pwmCounter = 0;
-
 // Associates external channel number (the number picked by the user) to the
 // internal channel number.
 static uint8 XDATA pwmAssignment[MAX_PWM_PINS];
@@ -26,7 +20,6 @@ struct PWM_DATA
 {
     uint16 target;       /*!< Chosen duty cycle, measured in ticks. */
     uint16 targetReg;  /*!< The value to be written to the duty cycle register. */
-    uint16 freq;         /*!< The PWM frequency*/
 };
 
 // Array of 
@@ -86,19 +79,20 @@ void setMotorSpeed(MOTOR *motor, int8 speed){
 	// compareSetThreshold(channel,delay);
 	// servoSetTarget();
 	pwmSetTargetHighRes(motor->pwmpin, ticks_on);
-	motor->pwmval = ticks_on;
+	// motor->pwmval = ticks_on;
 }
 
 void pwmSetTarget(uint8 pinNum, uint16 targetMicroseconds)
 {
     // Convert the units of target from microseconds to timer ticks.
-    pwmSetTargetHighRes(pinNum, targetMicroseconds * SERVO_TICKS_PER_MICROSECOND);
+    pwmSetTargetHighRes(pinNum, targetMicroseconds * TICKS_PER_MICROSECOND);
 }
 
 void pwmSetTargetHighRes(uint8 pinNum, uint16 target)
 {
-	///?????
-    volatile struct PWM_DATA XDATA * d = pwmData + pwmAssignment[pinNum];
+	// ///Pointer to PWM_DATA struct corresponding with pinNum
+    // ///starts from memory address of pwmData, and adds 
+    // volatile struct PWM_DATA XDATA * d = pwmData + pwmAssignment[pinNum];
 
     // TODO: return here if "target" is out of the valid range
 
@@ -116,25 +110,38 @@ void pwmSetTargetHighRes(uint8 pinNum, uint16 target)
         // motorsMovingFlag = 1;
     // }
 
-    d->target = target;
+    // d->target = target;
 
     // T1IE = pwmStartedFlag; //Enable if PWM is enabled.
-}
+    if (pwmStartedFlag) {
+        // NOTE: T1CCx is buffered, so these commands
+        // don't take effect until the next timer period.
+        switch(pinNum) {
+        case 3:
+        case 11:
+            T1CC1 = target;  break;
 
-/// Because we are using Modulo mode, pins P0_4 and P1_2 are not usable for PWM
-static uint8 pinToInternalChannelNumber(uint8 pin)
-{
-    switch(pin)
-    {
-    case 2: return 0;
-    case 3: return 1;
-    // case 4: return 2;
-    // case 12: return 3;
-    case 11: return 4;
-    case 10: return 5;
-    default: return 0;
+        case 4:
+        case 10:
+            T1CC2 = target; break;
+        }
     }
 }
+
+// /// Because we are using Modulo mode, pins P0_4 and P1_2 are not usable for PWM
+// static uint8 pinToInternalChannelNumber(uint8 pin)
+// {
+    // switch(pin)
+    // {
+    // // case 2: return 0;
+    // case 3: return 1;
+    // case 4: return 2;
+    // // case 12: return 3;
+    // case 11: return 4;
+    // case 10: return 5;
+    // default: return 0;
+    // }
+// }
 
 void pwmStart(uint8 XDATA * pins, uint8 numPins, uint16 frequency)
 {
@@ -145,7 +152,7 @@ void pwmStart(uint8 XDATA * pins, uint8 numPins, uint16 frequency)
         pwmStop();
     }
 
-    //// Configure the pins and initialize the internal data structures. ////
+    /// Configure the pins and initialize the internal data structures. ///
 
     // The user passes a null argument for pins, then don't reinitialize the pins.
     // This allows us to temporarily start and stop the servos without losing track
@@ -160,18 +167,25 @@ void pwmStart(uint8 XDATA * pins, uint8 numPins, uint16 frequency)
             
             if (i < numPins)
             {
-                uint8 internalChannelNumber = pinToInternalChannelNumber(pins[i]);
+                // uint8 internalChannelNumber = pinToInternalChannelNumber(pins[i]);
 
-                pwmAssignment[i] = internalChannelNumber;
+                // pwmAssignment[i] = internalChannelNumber;
 
-                switch(internalChannelNumber)
-                {
-                case 0: P0_2 = 0; pwmPinsOnPort0 |= (1<<2); break;
-                case 1: P0_3 = 0; pwmPinsOnPort0 |= (1<<3); break;
+                // switch(internalChannelNumber)
+                // {
+                // // case 0: P0_2 = 0; pwmPinsOnPort0 |= (1<<2); break;
+                // case 1: P0_3 = 0; pwmPinsOnPort0 |= (1<<3); break;
                 // case 2: P0_4 = 0; pwmPinsOnPort0 |= (1<<4); break;
-                // case 3: P1_2 = 0; pwmPinsOnPort1 |= (1<<2); break;
-                case 4: P1_1 = 0; pwmPinsOnPort1 |= (1<<1); break;
-                case 5: P1_0 = 0; pwmPinsOnPort1 |= (1<<0); break;
+                // // case 3: P1_2 = 0; pwmPinsOnPort1 |= (1<<2); break;
+                // case 4: P1_1 = 0; pwmPinsOnPort1 |= (1<<1); break;
+                // case 5: P1_0 = 0; pwmPinsOnPort1 |= (1<<0); break;
+                // }
+                
+                switch(pins[i]) {
+                case 3: P0_3 = 0; pwmPinsOnPort0 |= (1<<3); break;
+                case 4: P0_4 = 0; pwmPinsOnPort0 |= (1<<4); break;
+                case 11: P1_1 = 0; pwmPinsOnPort1 |= (1<<1); break;
+                case 10: P1_0 = 0; pwmPinsOnPort1 |= (1<<0); break;
                 }
             }
         }
@@ -191,18 +205,17 @@ void pwmStart(uint8 XDATA * pins, uint8 numPins, uint16 frequency)
         }
     }
 
+
     /// Configure Timer 1 and interrupts ///
 
     // Turn off the timer and reset the counters.
     T1CTL = 0; // control register; 
     T1CNTL = 0;  // resets high and low bytes that store the time
-    pwmCounter = 0;
 
-    // Configure Timer 1 Channels 0-2 to be in compare mode.  Set output on compare-up, clear on 0.
-    // This means all three pulses will start at different times but end at the same time.
-    // With this configuration, we can set T1CC0, T1CC1, or T1CC2 to -N to get a pulse of with N,
-    // as long as N > 1.
-    // We can set the register to -1 or 0 to disable the pulse.
+    // Configure Timer 1 Channels 0-2 to be in compare mode.  Clear output on compare-up, set on 0.
+    // // With this configuration, we can set T1CC0, T1CC1, or T1CC2 to -N to get a pulse of with N,
+    // // as long as N > 1.
+    // // We can set the register to -1 or 0 to disable the pulse.
     // T1CCTL0 = T1CCTL1 = T1CCTL2 = 0b00011100;
     T1CCTL1 = T1CCTL2 = 0b00100100;
 
@@ -214,7 +227,8 @@ void pwmStart(uint8 XDATA * pins, uint8 numPins, uint16 frequency)
     // // Timer 1: Start free-running mode, counting from 0x0000 to 0xFFFF.
     // T1CTL = 0b00000001; // control register; 
     // Timer 1: Start modulo mode, counting from 0x0000 to T1CC0.
-    T1CTL = 0b00000010; // control register; 
+    T1CTL = 0b00000010; // control register;
+    
     // Convert the frequency to T1CC0 by equation
     //    T1CC0=2.4*10^4/(frequency/1000)
     T1CC0 = 24000 / (frequency / 1000);
