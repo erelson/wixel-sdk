@@ -577,7 +577,6 @@ void main()
 		//Resets timer while button is held down.
 		if (gunbutton == zTRUE){
 			guns_firing = zTRUE;
-			uart0TxSendByte('Z');
 			setDigitalOutput(param_laser_pin, HIGH);
 			// setMotorSpeed(&LeftGun,-65); 	//NOTE: (7.2 / 12.6) * 127 = 72.5714286
 			setMotorSpeed(ptrGunMotor, -65);

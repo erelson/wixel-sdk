@@ -67,11 +67,6 @@
 
 
 typedef struct s_motor{
-	// __ACTUATOR 	actuator;		// has all the common stuff
-	// const IOPin *pwm;		
-	// const IOPin *direction1;
-	// const IOPin *direction2;
-
 	// The PWM IO pin the motor is connected to - must be a timer compare pin
 	uint8 pwmpin;			// valid values are 3, 4, 10, 11
 	   
@@ -80,16 +75,9 @@ typedef struct s_motor{
 } MOTOR;
 
 
-// Define the standard constructor for a dc motor - default to 2 pin
-// #define MAKE_MOTOR_3_PIN(inverted, motorPin, directionPin1, directionPin2)  { MAKE_ACTUATOR(inverted),motorPin,directionPin1,directionPin2}
-// #define MAKE_MOTOR_2_PIN(inverted, motorPin, directionPin)  MAKE_MOTOR_3_PIN(inverted,motorPin,directionPin,NULL)
-// #define MAKE_MOTOR_3_PIN(pwmpin, dir1pin, dir2pin) { MAKE_IOPIN(pwmpin,0), dir1pin, dir2pin }
-// #define MAKE_MOTOR_2_PIN(pwmpin, dir1pin) { MAKE_IOPIN(pwmpin,0), dir1pin, 0 }
+// Define the standard constructor for a dc motor driver setup
 #define MAKE_MOTOR_3_PIN(pwmpin, dir1pin, dir2pin) { pwmpin, dir1pin, dir2pin }
 #define MAKE_MOTOR_2_PIN(pwmpin, dir1pin) { pwmpin, dir1pin, 0 }
-
-// // For backwards compatibility
-// #define MAKE_MOTOR(inverted, motorPin, directionPin)  MAKE_MOTOR_2_PIN(inverted, motorPin, directionPin)
 
 ///Simple case for now; Don't need motor driver abstraction
 typedef MOTOR* XDATA MOTOR_LIST;
@@ -110,34 +98,16 @@ typedef struct s_motor_driver{
 // void motorPWMInit(MOTOR_DRIVER* driver, uint32_t freq);
 void setMotorSpeed(MOTOR* motor, int8 speed);
 
-// // Use code in Motors/L293D.c
-// void motorL293Init(MOTOR_DRIVER* driver, uint32_t freq);
 
-// // SN754410 is pseudonym for L293
-// static __inline__ void motorSN754410Init(MOTOR_DRIVER* driver, uint32_t freq){
-	// motorL293Init(driver, freq);
-// }
-// #ifdef __cplusplus
-// }
-// class Motor : public Actuator{
-// public:
-	// Motor(MOTOR* c) : Actuator(&c->actuator) {}
-// };
-// #endif
-
-/*! Sets the specified servo's target position in units of microseconds.
+/*! Sets the specified PWM pin's duty cycle in units of microseconds.
+ * The duty cycle is the ratio targetMicroseconds / (1/frequency). 
  *
- * \param motorNum  A motor number between 0 and 5.
- *   This number should be less than the associated <b>numPins</b> parameter
- *   used in the last call to servosStart().
+ * \param pinNum  A pin number; E.g. for pin P1_3, pinNum = 13
+ *   Valid values are 3, 4, 10, 11.
  *
  * \param targetMicroseconds  The target position of the servo in units of
  *   microseconds.
- *   A typical servo responds to pulse widths between 1000 and 2000 microseconds,
- *   so appropriate values for this parameter would be between 1000 and 2000.
- *   The full range of allowed values for this parameter is 0-2500.
- *   A value of 0 means to stop sending pulses, and takes effect
- *   immediately regardless of the speed limit for the servo.
+ *   A value of 0 means to stop sending pulses, and takes effect immediately
  *
 */
 void pwmSetTarget(uint8 pinNum, uint16 targetMicroseconds);
@@ -157,23 +127,23 @@ void pwmSetTargetHighRes(uint8 pinNum, uint16 target);
  *   The pin numbers used in this array are the same as the pin numbers used
  *   in the GPIO library (see gpio.h).  There should be no repetitions in this
  *   array, and each entry must be one of:
- *   - 2 (for P0_2)
  *   - 3 (for P0_3)
  *   - 4 (for P0_4)
+ *     
+ * 	 or
+ * 	 
  *   - 10 (for P1_0)
  *   - 11 (for P1_1)
- *   - 12 (for P1_2)
  *
  * \param numPins The size of the pin number array.
  *
  * The pins specified in the <b>pins</b> array will be configured as digital
- * outputs, their targets will be initialized to 0 (no pulses), and their speed
- * limits will be initialized to 0 (no speed limit).
+ * outputs, and their targets will be initialized to 0 (no pulses).
  *
  * If the <b>pins</b> parameter is 0 (a null pointer), then this function skips
  * the initialization of the pins and the internal data structures of the
  * library.
- * This means that the servo pin assignments, positions, targets, and speeds
+ * This means that the servo pin assignments and targets
  * from before will be preserved.
  *
  * The parameters to this function define the correspondence of servo
@@ -186,10 +156,10 @@ void pwmSetTargetHighRes(uint8 pinNum, uint16 target);
  * Example code:
  *
  * \code
-uint8 CODE pins[] = {10, 12};  // Use P1_0 and P1_2 for servos.
-PWMStart((uint8 XDATA *)pins, sizeof(pins));
-servoSetTarget(0, 1500);       // Affects pin P1_0
-servoSetTarget(1, 1500);       // Affects pin P1_2
+uint8 CODE pins[] = {10, 11};  // Use P1_0 and P1_1 for pwm.
+pwmStart((uint8 XDATA *)pins, sizeof(pins));
+pwmSetTarget(10, 7);       // Affects pin P1_0
+pwmSetTarget(11, 50);       // Affects pin P1_1
  * \endcode
  */
 void pwmStart(uint8 XDATA * pins, uint8 numPins, uint16 frequency);
