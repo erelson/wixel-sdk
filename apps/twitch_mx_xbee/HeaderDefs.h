@@ -54,19 +54,18 @@
 
 /// NOTE: void return type for CmdrReadMsgs does not save any memory
 uint8 CmdrReadMsgs();
-// void UseSouthPaw();
-boolean clockHasElapsed(uint16 usStart, uint16 usWait);
+boolean clockHasElapsed(uint32 usStart, uint32 usWait);
 
-boolean clockHasElapsedGetOverflow(uint16 usStart, uint16 usWait, uint16* overflow);
+boolean clockHasElapsedGetOverflow(uint32 usStart, uint32 usWait, uint32* overflow);
 
 // variables used for reading messages
 unsigned char vals[7];  // 7 temporary values, moved after we confirm checksum_cmdr
 int8 index_cmdr;              // -1 = waiting for new packet
 uint8 checksum_cmdr;
-// unsigned char southpaw; 
 
 // Variables for gun motor control
 short guns_firing = zFALSE;
-uint16 guns_firing_start_time;
-uint16 guns_firing_duration;
+uint32 guns_firing_start_time;
+uint32 guns_firing_duration;
 short gunbutton;
+short laserbutton;
