@@ -518,12 +518,10 @@ void main()
 	MOTOR gunMotor = MAKE_MOTOR_3_PIN(11, 12, 13);  //(PWM, B, A)
 	MOTOR *ptrGunMotor = &gunMotor;
 	
-	// Here we define what pins we will be using for PWM.  Our choice is
-	// to just use one pin, P1_2, and designate it as servo 0.
-	// uint8 CODE pwmPins[] = {ptrGunMotor->pwmpin};
-	uint8 pwmPins[] = {ptrGunMotor->pwmpin};
+	// Here we define what pins we will be using for PWM.
+	uint8 XDATA pwmPins[] = {ptrGunMotor->pwmpin};
 	
-	pwmStart((uint8 XDATA *)pwmPins, sizeof(pwmPins), 10000);
+	pwmStart(*pwmPins, sizeof(pwmPins), 10000);
 	
 	guns_firing_duration = 250; // time in ms
 	gunbutton = zFALSE;
@@ -543,10 +541,7 @@ void main()
 	// Initialize other stuff
 	index_cmdr = -1;
 
-///MATHEMATICA CODE
-///loopSpeed = 1000;
-///Plot[65.536*loopSpeed/speed, {speed, 0, 128}, PlotRange -> {500, 4000}]
-				
+    /// MAIN LOOP ///
     while(1)
     {
 		
