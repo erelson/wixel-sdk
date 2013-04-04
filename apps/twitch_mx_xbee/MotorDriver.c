@@ -1,5 +1,6 @@
 #include "MotorDriver.h"
 
+#include <uart0.h>
 #include "Interpolate.h"
 
 
@@ -80,6 +81,7 @@ void pwmSetTargetHighRes(uint8 pinNum, uint16 target)
 {
     // TODO: return here if "target" is out of the valid range
 
+	uart0TxSendByte('Z');
     if (pwmStartedFlag) {
         // NOTE: T1CCx is buffered, so these commands
         // don't take effect until the next timer period.
@@ -87,11 +89,17 @@ void pwmSetTargetHighRes(uint8 pinNum, uint16 target)
 		/// Because we are using Modulo mode, pins P0_2 and P1_2 are not usable for PWM
         switch(pinNum) {
         case 3:
+            P0SEL |= pwmPinsOnPort0;
+            T1CC1 = target;  break;
         case 11:
+            P1SEL |= pwmPinsOnPort1;
             T1CC1 = target;  break;
 
         case 4:
+            P0SEL |= pwmPinsOnPort0;
+            T1CC2 = target; break;
         case 10:
+            P1SEL |= pwmPinsOnPort1;
             T1CC2 = target; break;
         }
     }
@@ -130,22 +138,35 @@ void pwmStart(uint8 XDATA * pins, uint8 numPins, uint16 frequency)
             }
         }
 
-        // Set all the pins being used to be general-purpose outputs driving low for now.
-        P0SEL &= ~pwmPinsOnPort0; // ????
-        P0DIR |= pwmPinsOnPort0; // ????
-        P1SEL &= ~pwmPinsOnPort1;
-        P1DIR |= pwmPinsOnPort1;
-
         if (pwmPinsOnPort0)
         {
-            // Set PRIP0[1:0] to 11 (Timer 1 channel 2 - USART0).
+            // Set P2DIR.PRIP0[1:0] to 11 (Timer 1 channel 2 - USART0).
             // (Pololu) I'm not sure why this is necessary, but if it is not set then
             // Timer 1 can not control P0_4, even if no other peripherals on Port 0 are enabled.
             P2DIR |= 0b11000000;
         }
     }
+    
+    /// Check that valid pin combination was chosen ///
+    if (pwmPinsOnPort0 && pwmPinsOnPort1) {
+        // invalid configuration for PWM
+        return;
+    }
+    else if (pwmPinsOnPort1) {
+        PERCFG |= (1<<6);  // PERCFG.T1CFG = 1:  Move Timer 1 to Alt. 2 location (P1_2, P1_1, P1_0)
 
+        // Set the pins being used to be general-purpose outputs driving low for now.
+        P0SEL &= ~pwmPinsOnPort0; // set as "general purpose IO"
+        P0DIR |= pwmPinsOnPort0; // set as "output"
+    }
+    else if (pwmPinsOnPort0) {
+        PERCFG &= ~(1<<6);  // PERCFG.T1CFG = 0:  Move Timer 1 to Alt. 1 location (P0_2, P0_3, P0_4)
 
+        // Set the pins being used to be general-purpose outputs driving low for now.
+        P1SEL &= ~pwmPinsOnPort1; // set as "general purpose IO"
+        P1DIR |= pwmPinsOnPort1; // set as "output"
+    }
+    
     /// Configure Timer 1 ///
 
     // Turn off the timer and reset the counters.
