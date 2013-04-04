@@ -432,11 +432,11 @@ uint8 CmdrReadMsgs(){
 					// }
 					// else{panicbutton = zFALSE;}
 					
-					// if((buttonval&BUT_L4) > 0){
-						// infobutton = zTRUE;
-						// // if(PRINT_DEBUG_COMMANDER){rprintf("info\t");}
-					// }
-					// else{infobutton = zFALSE;}
+					if((buttonval&BUT_L4) > 0){
+						laserbutton = zTRUE;
+						// if(PRINT_DEBUG_COMMANDER){rprintf("info\t");}
+					}
+					else{laserbutton = zFALSE;}
 					
 					// if((buttonval&BUT_R2) > 0){
 						// // if(PRINT_DEBUG_COMMANDER){rprintf("look\t");}
@@ -449,14 +449,6 @@ uint8 CmdrReadMsgs(){
 					// }
 					// else{agitbutton = zFALSE;}
 					
-					// if((southpaw&0x01) > 0){     // SouthPaw
-						// walkV = (signed char)( (int)vals[0]-128 );
-						// walkH = (signed char)( (int)vals[1]-128 );
-						// // lookV = (signed char)( (int)vals[2]-128 );
-						// // lookH = (signed char)( (int)vals[3]-128 );
-					// }
-					// else if (dowalking){
-					// if (dowalking){
 						// vals - 128 gives look a vlaue in the range from -128 to 127?
 					// lookV = (signed char)( (int8)vals[0]-128 );
 					// lookH = (signed char)( (int8)vals[1]-128 );
@@ -489,26 +481,26 @@ uint8 CmdrReadMsgs(){
 }	// End of CmdrReadMsgs
 
 
-boolean clockHasElapsed(uint16 usStart, uint16 usWait){
+boolean clockHasElapsed(uint32 usStart, uint32 usWait){
 	return clockHasElapsedGetOverflow(usStart,usWait,NULL);
 }
 
-boolean clockHasElapsedGetOverflow(uint16 usStart, uint16 usWait, uint16* overflow){
-	boolean rtn=zFALSE;
-	uint16 now = (uint16)getMs();
-	uint16 elapsed = now;
+boolean clockHasElapsedGetOverflow(uint32 usStart, uint32 usWait, uint32* overflow){
+	boolean rtn = zFALSE;
+	uint32 now = getMs();
+	uint32 elapsed = now;
 	elapsed -= usStart;					// The actual delay that has happened
 
 	if( elapsed >= usWait){
 		// We have exceeded the delay
 		if(overflow){
-			uint16 ovr = elapsed - usWait;
+			uint32 ovr = elapsed - usWait;
 			*overflow = ovr;
 		}
 		rtn = zTRUE;
 	}else{
 		if(overflow){
-			uint16 ovr = usWait - elapsed;
+			uint32 ovr = usWait - elapsed;
 			*overflow = ovr;
 		}
 	}
@@ -520,7 +512,7 @@ void main()
 {
 
 	// uint32 ms;
-	uint16 now;
+	// uint32 now;
 	
 	MOTOR gunMotor = MAKE_MOTOR_3_PIN(11, 12, 13);  //(PWM, B, A)
 	MOTOR *ptrGunMotor = &gunMotor;
@@ -532,6 +524,9 @@ void main()
 	
 	pwmStart((uint8 XDATA *)pwmPins, sizeof(pwmPins), 10000);
 	
+	guns_firing_duration = 250; // time in ms
+	gunbutton = zFALSE;
+	laserbutton = zFALSE;
 	
     systemInit();
 
@@ -559,39 +554,42 @@ void main()
         updateLeds();
         errorService();
 		
-		{
 		
 		CmdrReadMsgs();
 		
-		}
-
 		// ms = getMs();		// Get current time in ms
-		now = (uint16)getMs();
+		// now = getMs();
 		// now = ms % (uint32)10000; 	// 10 sec for a full swing
 		// if(now >= (uint16)5000){				// Goes from 0ms...5000ms
 			// now = (uint16)10000 - now;			// then 5000ms...0ms
 		// }
 		// speed = interpolate(now, 0, 5000, 100, 900);
 		
+		if (laserbutton == zTRUE){
+			// uart0TxSendByte('L');
+			setDigitalOutput(param_laser_pin, HIGH);
+		}
+		else {setDigitalOutput(param_laser_pin, LOW);}
+		
 		//FIRE THE GUNS!!!!!
 		//Resets timer while button is held down.
 		if (gunbutton == zTRUE){
+			// uart0TxSendByte('Z');
 			guns_firing = zTRUE;
-			setDigitalOutput(param_laser_pin, HIGH);
 			// setMotorSpeed(&LeftGun,-65); 	//NOTE: (7.2 / 12.6) * 127 = 72.5714286
 			setMotorSpeed(ptrGunMotor, -65);
-			guns_firing_start_time = (uint16)getMs();
+			guns_firing_start_time = getMs();
 		}
 		
 		
 		//Check whether to stop firing guns
 		if (guns_firing && clockHasElapsed(guns_firing_start_time, guns_firing_duration)){
-			guns_firing_duration = 0;
+			// uart0TxSendByte('X');
+			// guns_firing_duration = 0;
 			guns_firing = zFALSE;
-			setDigitalOutput(param_laser_pin, LOW);
 			// setMotorSpeed(&LeftGun,0); 	//NOTE: (7.2 / 12.6) * 127 = 72.5714286
 			setMotorSpeed(ptrGunMotor, 0);
-			guns_firing_start_time = (uint16)getMs();
+			guns_firing_start_time = getMs();
 		}
 	
 		delayMs(5);
