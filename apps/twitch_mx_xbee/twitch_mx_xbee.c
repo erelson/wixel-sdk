@@ -516,12 +516,12 @@ void main()
 	// uint32 ms;
 	// uint32 now;
 	
-	MOTOR gunMotor = MAKE_MOTOR_3_PIN(11, 12, 13);  //(PWM, B, A)
-	MOTOR *ptrGunMotor = &gunMotor;
-	
 	// Here we define what pins we will be using for PWM.
 	// uint8 CODE pwmPins[] = {ptrGunMotor->pwmpin};
 	uint8 CODE pwmPins[] = {11};
+	
+	MOTOR gunMotor = MAKE_MOTOR_3_PIN(pwmPins[0], 12, 13);  //(PWM, B, A)
+	MOTOR *ptrGunMotor = &gunMotor;
 	
     // setDigitalOutput(param_arduino_DTR_pin, LOW);
     // ioTxSignals(0);
@@ -539,9 +539,6 @@ void main()
 	laserbutton = zFALSE;
 	
     systemInit();
-
-	print_number2bytes(ptrGunMotor->pwmpin);
-	print_number2bytes(pwmPins[0]);
 	
 	// Initialize other stuff
 	index_cmdr = -1;

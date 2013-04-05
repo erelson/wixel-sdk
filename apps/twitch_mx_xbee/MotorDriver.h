@@ -47,7 +47,6 @@
 #define MOTORPWM_H_
 
 #include <wixel.h>
-#include <uart0.h>
 #include "print_number.h" // Local library for debug printing...
 
 // #include "actuators.h"
