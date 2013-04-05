@@ -1,6 +1,5 @@
 #include "MotorDriver.h"
 
-#include <uart0.h>
 #include "Interpolate.h"
 
 
@@ -36,18 +35,20 @@ static volatile uint8 pwmPinsOnPort1;
 void setMotorSpeed(MOTOR *motor, int8 speed){
 	// T1CC0 is the timer 1 period in ticks
 	uint16 top = T1CC0;
-
+	
 	// New compare threshold
 	uint16 ticks_on = 0;
+	
+	// print_number2bytes(T1CC0);
 
 	if( speed > 0 ){
-		ticks_on = interpolateU(speed, 0, DRIVE_SPEED_MAX, 0 , top);
+		ticks_on = interpolateU(speed, 0, DRIVE_SPEED_MAX, 0, top);
 
 		// Set direction1 high, direction2 low
 		setDigitalOutput(motor->direction1, HIGH);
 		setDigitalOutput(motor->direction2, LOW);
 	}else if(speed < 0){
-		ticks_on = interpolateU(speed, 0, DRIVE_SPEED_MIN, 0 , top);
+		ticks_on = interpolateU(speed, 0, DRIVE_SPEED_MIN, 0, top);
 
 		// Set direction1 low, direction2 high low
 		setDigitalOutput(motor->direction1, LOW);
@@ -80,8 +81,7 @@ void pwmSetTarget(uint8 pinNum, uint16 targetMicroseconds)
 void pwmSetTargetHighRes(uint8 pinNum, uint16 target)
 {
     // TODO: return here if "target" is out of the valid range
-
-	uart0TxSendByte('Z');
+		
     if (pwmStartedFlag) {
         // NOTE: T1CCx is buffered, so these commands
         // don't take effect until the next timer period.
