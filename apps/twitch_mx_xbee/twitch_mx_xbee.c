@@ -38,6 +38,7 @@
 
 #include "HeaderDefs.h"
 #include "MotorDriver.h"
+#include "print_number.h" // Local library for debug printing...
 
 // #include "Commander.h"
 #include "Interpolate.h"
@@ -519,16 +520,9 @@ void main()
 	MOTOR *ptrGunMotor = &gunMotor;
 	
 	// Here we define what pins we will be using for PWM.
-	uint8 XDATA pwmPins[] = {ptrGunMotor->pwmpin};
+	// uint8 CODE pwmPins[] = {ptrGunMotor->pwmpin};
+	uint8 CODE pwmPins[] = {11};
 	
-	pwmStart(*pwmPins, sizeof(pwmPins), 10000);
-	
-	guns_firing_duration = 250; // time in ms
-	gunbutton = zFALSE;
-	laserbutton = zFALSE;
-	
-    systemInit();
-
     // setDigitalOutput(param_arduino_DTR_pin, LOW);
     // ioTxSignals(0);
 
@@ -537,6 +531,17 @@ void main()
     uart0SetBaudRate(param_baud_rate_UART);
     uart1Init();
     uart1SetBaudRate(param_baud_rate_XBEE);
+	
+	pwmStart((uint8 XDATA *)pwmPins, sizeof(pwmPins), 10000);
+	
+	guns_firing_duration = 250; // time in ms
+	gunbutton = zFALSE;
+	laserbutton = zFALSE;
+	
+    systemInit();
+
+	print_number2bytes(ptrGunMotor->pwmpin);
+	print_number2bytes(pwmPins[0]);
 	
 	// Initialize other stuff
 	index_cmdr = -1;
