@@ -114,6 +114,7 @@ void pwmStart(uint8 XDATA * pins, uint8 numPins, uint16 frequency)
         pwmStop();
     }
 
+		print_number2bytes(pins[0]);
     /// Configure the pins and initialize the internal data structures. ///
 
     // The user passes a null argument for pins, then don't reinitialize the pins.
@@ -124,11 +125,14 @@ void pwmStart(uint8 XDATA * pins, uint8 numPins, uint16 frequency)
         pwmPinsOnPort0 = pwmPinsOnPort1 = 0;
         for (i = 0; i < MAX_PWM_PINS; i++)
         {
-            pwmData[i].target = 0;
-            pwmData[i].targetReg = 0;
+            // pwmData[i].target = 0;
+            // pwmData[i].targetReg = 0;
             
             if (i < numPins)
             {
+		print_number2bytes(pins[i]);
+		print_number2bytes(i);
+		print_number2bytes(55);
                 switch(pins[i]) {
                 case 3: P0_3 = 0; pwmPinsOnPort0 |= (1<<3); break;
                 case 4: P0_4 = 0; pwmPinsOnPort0 |= (1<<4); break;
@@ -150,6 +154,8 @@ void pwmStart(uint8 XDATA * pins, uint8 numPins, uint16 frequency)
     /// Check that valid pin combination was chosen ///
     if (pwmPinsOnPort0 && pwmPinsOnPort1) {
         // invalid configuration for PWM
+		// uart0TxSendByte('Q');
+		print_number2bytes(66);
         return;
     }
     else if (pwmPinsOnPort1) {
@@ -158,6 +164,9 @@ void pwmStart(uint8 XDATA * pins, uint8 numPins, uint16 frequency)
         // Set the pins being used to be general-purpose outputs driving low for now.
         P0SEL &= ~pwmPinsOnPort0; // set as "general purpose IO"
         P0DIR |= pwmPinsOnPort0; // set as "output"
+		
+		// uart0TxSendByte('A');
+		print_number2bytes(77);
     }
     else if (pwmPinsOnPort0) {
         PERCFG &= ~(1<<6);  // PERCFG.T1CFG = 0:  Move Timer 1 to Alt. 1 location (P0_2, P0_3, P0_4)
@@ -165,7 +174,12 @@ void pwmStart(uint8 XDATA * pins, uint8 numPins, uint16 frequency)
         // Set the pins being used to be general-purpose outputs driving low for now.
         P1SEL &= ~pwmPinsOnPort1; // set as "general purpose IO"
         P1DIR |= pwmPinsOnPort1; // set as "output"
+		// uart0TxSendByte('B');
+		print_number2bytes(88);
     }
+	else {
+		print_number2bytes(99);
+	}
     
     /// Configure Timer 1 ///
 

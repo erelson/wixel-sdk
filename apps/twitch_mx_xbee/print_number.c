@@ -4,7 +4,7 @@ uint8 print_number2bytes(uint16 i){
 	uint8 cnt = 7;
 	
 	uint8 j[] = {32,32,32,32,32,32,32,32};
-	
+	if (i==0) { j[cnt] = 0 + 48;}
 	while (i>0){
 		j[cnt] = (i%10) + 48;
 		i = i/10;
