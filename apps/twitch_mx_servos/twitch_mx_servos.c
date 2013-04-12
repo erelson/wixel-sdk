@@ -404,7 +404,7 @@ void uartToRadioService()
 
 /* process messages coming from Commander 
  *  format = 0xFF RIGHT_H RIGHT_V LEFT_H LEFT_V BUTTONS EXT checksum_cmdr */
-uint8 CmdrReadMsgs(int8 *desiredGait, int8 *desiredDir, int8 *desiredSpeed){
+int8 CmdrReadMsgs(int8 *desiredGait, int8 *desiredDir, int8 *desiredSpeed){
 	int8 buttonval;
 	// while(radioComRxAvailable() > 0){
 	while(uart0RxAvailable() > 0){
@@ -634,11 +634,11 @@ uint8 CmdrReadMsgs(int8 *desiredGait, int8 *desiredDir, int8 *desiredSpeed){
 					pan_pos = PAN_CENTER;
 				}
 				
-				return 1;
+				return CMDR_ALIVE_CNT;
 			}
 		}
 	}
-	return 0;
+	return -1;
 }	// End of CmdrReadMsgs
 
 
@@ -1055,6 +1055,8 @@ void main()
 	int8 desiredDir;
 	int8 desiredSpeed;
 	
+	uint8 cmdrAlive = 0;
+	
 	// uint32 ms;
 	// uint16 now;
 	// uint16 speed;
@@ -1150,7 +1152,10 @@ void main()
 		// int8 led = 0;
 		
 		
-		CmdrReadMsgs(&desiredGait, &desiredDir, &desiredSpeed);
+		// CmdrReadMsgs(&desiredGait, &desiredDir, &desiredSpeed);
+		cmdrAlive = (uint8) CLAMP(cmdrAlive + 
+				CmdrReadMsgs(&desiredGait, &desiredDir, &desiredSpeed), 
+				0, CMDR_ALIVE_CNT);
 		
 		// if (desiredGait == G8_ANIM_WALK_STRAIGHT) {
 			// ax12LED(71,1);
