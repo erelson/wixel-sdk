@@ -53,7 +53,9 @@
 #define BUT_LT      0x80
 
 /// NOTE: void return type for CmdrReadMsgs does not save any memory
-uint8 CmdrReadMsgs();
+int8 CmdrReadMsgs();
+#define CMDR_ALIVE_CNT 100
+
 boolean clockHasElapsed(uint32 usStart, uint32 usWait);
 
 boolean clockHasElapsedGetOverflow(uint32 usStart, uint32 usWait, uint32* overflow);
