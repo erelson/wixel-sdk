@@ -15,7 +15,7 @@
  *       major changes to the radio_link library)
  * TODO: turn on red LED or flash it if the Wixel is in a mode that requires USB
  *       but has not reached the USB Configured State (this avoids the problem of
- *       having 0 LEDs on when the Wixel is in USB-UART mode and self powered)
+ *  sss     having 0 LEDs on when the Wixel is in USB-UART mode and self powered)
  */
 
 /** Dependencies **************************************************************/
@@ -353,8 +353,9 @@ void errorService()
 
 /* process messages coming from Commander 
  *  format = 0xFF RIGHT_H RIGHT_V LEFT_H LEFT_V BUTTONS EXT checksum_cmdr */
-uint8 CmdrReadMsgs(){
+int8 CmdrReadMsgs(){
 	int8 buttonval;
+	
 	while(uart1RxAvailable() > 0){
 		if(index_cmdr == -1){         // looking for new packet
 			if(uart1RxReceiveByte() == 0xff){ //read until packet start
@@ -471,14 +472,14 @@ uint8 CmdrReadMsgs(){
 				}
 				index_cmdr = -1;
 				
-				//Empty the packet buffer
+				///Empty the packet buffer
 				while (uart1RxAvailable() > 0) { uart1RxReceiveByte(); }
 				
-				return 1;
+				return CMDR_ALIVE_CNT;
 			}
 		}
 	}
-	return 0;
+	return -1;
 }	// End of CmdrReadMsgs
 
 
@@ -515,8 +516,8 @@ void main()
 	// uint32 ms;
 	// uint32 now;
 	
-	MOTOR gunMotor = MAKE_MOTOR_3_PIN(11, 12, 13);  //(PWM, B, A)
-	MOTOR *ptrGunMotor = &gunMotor;
+	// 
+	uint8 cmdrAlive = 0;
 	
 	// Here we define what pins we will be using for PWM.
 	// uint8 CODE pwmPins[] = {ptrGunMotor->pwmpin};
@@ -533,7 +534,7 @@ void main()
 	
 	pwmStart((uint8 XDATA *)pwmPins, sizeof(pwmPins), 10000);
 	
-	guns_firing_duration = 250; // time in ms
+	guns_firing_duration = 125; // time in ms
 	gunbutton = zFALSE;
 	laserbutton = zFALSE;
 	
@@ -555,7 +556,7 @@ void main()
         errorService();
 		
 		
-		CmdrReadMsgs();
+		cmdrAlive = (uint8) CLAMP(cmdrAlive + CmdrReadMsgs(), 0, CMDR_ALIVE_CNT);
 		
 		// ms = getMs();		// Get current time in ms
 		// now = getMs();
@@ -565,7 +566,7 @@ void main()
 		// }
 		// speed = interpolate(now, 0, 5000, 100, 900);
 		
-		if (laserbutton == zTRUE){
+		if (laserbutton == zTRUE && cmdrAlive > 0){
 			// uart0TxSendByte('L');
 			setDigitalOutput(param_laser_pin, HIGH);
 		}
@@ -576,8 +577,7 @@ void main()
 		if (gunbutton == zTRUE){
 			// uart0TxSendByte('Z');
 			guns_firing = zTRUE;
-			// setMotorSpeed(&LeftGun,-65); 	//NOTE: (7.2 / 12.6) * 127 = 72.5714286
-			setMotorSpeed(ptrGunMotor, -65);
+			setMotorSpeed(ptrGunMotor, -60); //NOTE: (7.2 / 12.6) * 127 = 72.5714286
 			guns_firing_start_time = getMs();
 		}
 		
@@ -585,10 +585,8 @@ void main()
 		//Check whether to stop firing guns
 		if (guns_firing && clockHasElapsed(guns_firing_start_time, guns_firing_duration)){
 			// uart0TxSendByte('X');
-			// guns_firing_duration = 0;
 			guns_firing = zFALSE;
-			// setMotorSpeed(&LeftGun,0); 	//NOTE: (7.2 / 12.6) * 127 = 72.5714286
-			setMotorSpeed(ptrGunMotor, 0);
+			setMotorSpeed(ptrGunMotor, 0); //NOTE: (7.2 / 12.6) * 127 = 72.5714286
 			guns_firing_start_time = getMs();
 		}
 	

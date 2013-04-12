@@ -87,8 +87,8 @@
 #define BUT_LT      0x80
 
 /// NOTE: void return type for CmdrReadMsgs does not save any memory
-uint8 CmdrReadMsgs(int8 *desiredGait, int8 *desiredDir, int8 *desiredSpeed);
-// void UseSouthPaw();
+int8 CmdrReadMsgs(int8 *desiredGait, int8 *desiredDir, int8 *desiredSpeed);
+#define CMDR_ALIVE_CNT 100
 
 // variables used for reading messages
 unsigned char vals[7];  // 7 temporary values, moved after we confirm checksum_cmdr
