@@ -27,8 +27,8 @@
 #include <usb_com.h>
 #endif
 
-// #include <radio_com.h>
-// #include <radio_link.h>
+#include <radio_com.h>
+#include <radio_link.h>
 
 #include <uart0.h>
 #include <uart1.h>
@@ -139,40 +139,40 @@ void updateLeds()
         // // The radio is not being used, so turn off the yellow LED.
         // LED_YELLOW(0);
     // }
-    // if (!radioLinkConnected())
-    // {
-        // // We have not connected to another device wirelessly yet, so do a
-        // // 50% blink with a period of 1024 ms.
-        // LED_YELLOW(now & 0x200 ? 1 : 0);
-    // }
-    // else
-    // {
-        // // We have connected.
+    if (!radioLinkConnected())
+    {
+        // We have not connected to another device wirelessly yet, so do a
+        // 50% blink with a period of 1024 ms.
+        LED_YELLOW(now & 0x200 ? 1 : 0);
+    }
+    else
+    {
+        // We have connected.
 
-        // if ((now & 0x3FF) <= 20)
-        // {
-            // // Do a heartbeat every 1024ms for 21ms.
-            // LED_YELLOW(1);
-        // }
-        // else if (dimYellowLed)
-        // {
-            // static uint8 DATA count;
-            // count++;
-            // LED_YELLOW((count & 0x7)==0);
-        // }
-        // else
-        // {
-            // LED_YELLOW(0);
-        // }
-    // }
+        if ((now & 0x3FF) <= 20)
+        {
+            // Do a heartbeat every 1024ms for 21ms.
+            LED_YELLOW(1);
+        }
+        else if (dimYellowLed)
+        {
+            static uint8 DATA count;
+            count++;
+            LED_YELLOW((count & 0x7)==0);
+        }
+        else
+        {
+            LED_YELLOW(0);
+        }
+    }
 
-    // if (radioLinkActivityOccurred)
-    // {
-        // radioLinkActivityOccurred = 0;
-        // dimYellowLed ^= 1;
-        // //dimYellowLed = 1;
-        // lastRadioActivityTime = now;
-    // }
+    if (radioLinkActivityOccurred)
+    {
+        radioLinkActivityOccurred = 0;
+        dimYellowLed ^= 1;
+        //dimYellowLed = 1;
+        lastRadioActivityTime = now;
+    }
 
     if ((uint16)(now - lastRadioActivityTime) > 32)
     {
@@ -536,6 +536,9 @@ void main()
     uart1Init();
     uart1SetBaudRate(param_baud_rate_XBEE);
 	
+	radioComRxEnforceOrdering = 1;
+	radioComInit();
+	
 	pwmStart((uint8 XDATA *)pwmPins, sizeof(pwmPins), 10000);
 	
 	guns_firing_duration = 125; // time in ms
@@ -556,6 +559,8 @@ void main()
         updateLeds();
         errorService();
 		
+		// radio...
+		radioComTxService();
 		
 		cmdrAlive = (uint8) CLAMP(cmdrAlive + CmdrReadMsgs(), 0, CMDR_ALIVE_CNT);
 		
@@ -590,7 +595,19 @@ void main()
 			setMotorSpeed(ptrGunMotor, 0); //NOTE: (7.2 / 12.6) * 127 = 72.5714286
 			guns_firing_start_time = getMs();
 		}
-	
+		
+		if (radioComTxAvailable() > 0) {
+			radioComTxSendByte('Z');
+		}
+		
+        if (param_serial_mode != SERIAL_MODE_USB_UART) {
+            radioComTxService();
+        }
+		
+		
+		//Empty the radio packet buffer
+		while (radioComRxAvailable() > 0) { radioComRxReceiveByte(); }
+		
 		delayMs(5);
     }
 }
