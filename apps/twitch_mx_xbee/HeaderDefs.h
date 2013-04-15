@@ -70,4 +70,10 @@ short guns_firing = zFALSE;
 uint32 guns_firing_start_time;
 uint32 guns_firing_duration;
 short gunbutton;
+// Variables for hopper solenoid
+short solenoid_on = zFALSE;
+uint32 solenoid_on_start_time;
+uint32 solenoid_on_duration;
+short solenoidbutton;
+// Variables for aiming laser
 short laserbutton;
