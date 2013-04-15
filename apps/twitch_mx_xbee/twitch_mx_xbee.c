@@ -107,12 +107,6 @@ BIT errorOccurredRecently = 0;
 uint8 lastErrorTime;
 
 
-#define START_SPEED 75
-
-#define START_POS   100
-#define SIT_POS     101
-#define MOVING_POS  102
-
 ///MATHEMATICA CODE
 ///loopSpeed = 1000;
 ///Plot[65.536*loopSpeed/speed, {speed, 0, 128}, PlotRange -> {500, 4000}]
@@ -446,11 +440,11 @@ int8 CmdrReadMsgs(){
 					// }
 					// else{infobutton = zFALSE;}
 					
-					// if((buttonval&BUT_R1) > 0){
-						// agitbutton = zTRUE;
-						// // if(PRINT_DEBUG_COMMANDER){rprintf("agit\t");}
-					// }
-					// else{agitbutton = zFALSE;}
+					if((buttonval&BUT_R1) > 0){
+						solenoidbutton = zTRUE;
+						// if(PRINT_DEBUG_COMMANDER){rprintf("agit\t");}
+					}
+					else{solenoidbutton = zFALSE;}
 					
 						// vals - 128 gives look a vlaue in the range from -128 to 127?
 					// lookV = (signed char)( (int8)vals[0]-128 );
@@ -538,8 +532,11 @@ void main()
 	
 	pwmStart((uint8 XDATA *)pwmPins, sizeof(pwmPins), 10000);
 	
+	
 	guns_firing_duration = 125; // time in ms
 	gunbutton = zFALSE;
+	solenoid_on_duration = 80; // time in ms
+	solenoidbutton = zFALSE;
 	laserbutton = zFALSE;
 	
     systemInit();
@@ -574,7 +571,7 @@ void main()
 		else {setDigitalOutput(param_laser_pin, LOW);}
 		
 		//FIRE THE GUNS!!!!!
-		//Resets timer while button is held down.
+		//Resets timer while gunbutton is held down.
 		if (gunbutton == zTRUE){
 			// uart0TxSendByte('Z');
 			guns_firing = zTRUE;
@@ -582,13 +579,29 @@ void main()
 			guns_firing_start_time = getMs();
 		}
 		
-		
 		//Check whether to stop firing guns
 		if (guns_firing && clockHasElapsed(guns_firing_start_time, guns_firing_duration)){
 			// uart0TxSendByte('X');
 			guns_firing = zFALSE;
 			setMotorSpeed(ptrGunMotor, 0); //NOTE: (7.2 / 12.6) * 127 = 72.5714286
 			guns_firing_start_time = getMs();
+		}
+		
+		
+		//Activate solenoid for hopup feed unjammer
+		if (solenoidbutton == zTRUE){
+			// uart0TxSendByte('Z');
+			solenoid_on = zTRUE;
+			setDigitalOutput(10, HIGH);
+			solenoid_on_start_time = getMs();
+		}
+		
+		//Check whether to disable solenoid
+		if (solenoid_on && clockHasElapsed(solenoid_on_start_time, solenoid_on_duration)){
+			// uart0TxSendByte('X');
+			solenoid_on = zFALSE;
+			setDigitalOutput(10, LOW);
+			solenoid_on_start_time = getMs();
 		}
 	
 		delayMs(5);
