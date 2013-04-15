@@ -122,25 +122,25 @@ BIT errorOccurredRecently = 0;
 #define servo75Min 511 - 4 * 21
 #define servo75Max 511 + 4 * 44
 
-#define gaitMin71  1590 - 50
+#define gaitMin71  1390 //(1590 - 50 - 350)
 #define gaitMin72  1691
-#define gaitMin73  1691 + 35
+#define gaitMin73  1691 + 25
 #define gaitMin74  457
 
-#define gaitMax71  2506 + 50
-#define gaitMax72  2405
-#define gaitMax73  2405 - 35
+#define gaitMax71  2706 //(2506 + 50 + 350)
+#define gaitMax72  2405 
+#define gaitMax73  2405 - 25
 #define gaitMax74  567
 
 uint16 CODE gaitMinPos[4] = {gaitMin71, gaitMin72, gaitMin73, gaitMin74};
 uint16 CODE gaitMaxPos[4] = {gaitMax71, gaitMax72, gaitMax73, gaitMax74};
 
-#define clampMin71  1848
+#define clampMin71  1848 - 100
 #define clampMin72  1691
 #define clampMin73  1691
 #define clampMin74  452
 
-#define clampMax71  2248
+#define clampMax71  2248 + 100
 #define clampMax72  2405
 #define clampMax73  2405
 #define clampMax74  572
@@ -152,7 +152,7 @@ uint16 CODE clampMaxPos[4] = {clampMax71, clampMax72, clampMax73, clampMax74};
 // turndir: 1 if using AX, -1 if using MX
 #define turndir -1
 
-#define DEADZONE 20	
+#define DEADZONE 15
 
 // Integers corresponding with "positions" used for logic.
 #define START_POS   100
@@ -167,6 +167,7 @@ uint16 g8speed = 25;
 int8 g8playbackDir = 1; // value should only ever be -1 or 1.
 // int8 g8repeatCount = 0;
 
+#define WALKING_SPEED 60
 #define FAST_TURN_SPEED  50
 #define SLOW_TURN_SPEED  70
 
@@ -554,7 +555,7 @@ int8 CmdrReadMsgs(int8 *desiredGait, int8 *desiredDir, int8 *desiredSpeed){
 						*desiredGait = G8_ANIM_WALK_STRAIGHT_SLOW;
 					}
 					*desiredDir = 1;
-					*desiredSpeed = 50;
+					*desiredSpeed = WALKING_SPEED;
 					
 				///Walk
 				} else if (lookV < -DEADZONE || walkV < -DEADZONE) {	///walk 
@@ -564,7 +565,7 @@ int8 CmdrReadMsgs(int8 *desiredGait, int8 *desiredDir, int8 *desiredSpeed){
 						*desiredGait = G8_ANIM_WALK_STRAIGHT_BACK_SLOW;
 					}
 					*desiredDir = 1;
-					*desiredSpeed = 50;
+					*desiredSpeed = WALKING_SPEED;
 					
 				// if (lookV > DEADZONE) {			///walk forward
 					// *desiredGait = G8_ANIM_WALK_STRAIGHT_SLOW;
