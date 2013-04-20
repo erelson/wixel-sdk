@@ -107,8 +107,6 @@ BIT errorOccurredRecently = 0;
 // uint8 lastErrorTime;
 
 
-#define START_SPEED 75
-
 ///////////////////////
 /////TURRET////////////
 ///////////////////////
@@ -124,13 +122,13 @@ BIT errorOccurredRecently = 0;
 
 #define gaitMin71  1390 //(1590 - 50 - 350)
 #define gaitMin72  1691
-#define gaitMin73  1691 + 25
-#define gaitMin74  457
+#define gaitMin73  1691 + 15
+#define gaitMin74  457 - 5
 
 #define gaitMax71  2706 //(2506 + 50 + 350)
 #define gaitMax72  2405 
-#define gaitMax73  2405 - 25
-#define gaitMax74  567
+#define gaitMax73  2405 - 15
+#define gaitMax74  567 + 5
 
 uint16 CODE gaitMinPos[4] = {gaitMin71, gaitMin72, gaitMin73, gaitMin74};
 uint16 CODE gaitMaxPos[4] = {gaitMax71, gaitMax72, gaitMax73, gaitMax74};
@@ -138,12 +136,12 @@ uint16 CODE gaitMaxPos[4] = {gaitMax71, gaitMax72, gaitMax73, gaitMax74};
 #define clampMin71  1848 - 100
 #define clampMin72  1691
 #define clampMin73  1691
-#define clampMin74  452
+#define clampMin74  452 - 5
 
 #define clampMax71  2248 + 100
 #define clampMax72  2405
 #define clampMax73  2405
-#define clampMax74  572
+#define clampMax74  572 + 5
 
 
 uint16 CODE clampMinPos[4] = {clampMin71, clampMin72, clampMin73, clampMin74};
@@ -152,7 +150,7 @@ uint16 CODE clampMaxPos[4] = {clampMax71, clampMax72, clampMax73, clampMax74};
 // turndir: 1 if using AX, -1 if using MX
 #define turndir -1
 
-#define DEADZONE 15
+#define DEADZONE 5
 
 // Integers corresponding with "positions" used for logic.
 #define START_POS   100
@@ -167,13 +165,14 @@ uint16 g8speed = 25;
 int8 g8playbackDir = 1; // value should only ever be -1 or 1.
 // int8 g8repeatCount = 0;
 
-#define WALKING_SPEED 60
+#define START_SPEED      75
+#define WALKING_SPEED    80//70
 #define FAST_TURN_SPEED  50
 #define SLOW_TURN_SPEED  70
 
 uint8 currentPos = SIT_POS;
 
-
+BIT turret_mode;
 uint16 pan_pos;
 uint16 tilt_pos;
 
@@ -532,13 +531,18 @@ int8 CmdrReadMsgs(int8 *desiredGait, int8 *desiredDir, int8 *desiredSpeed){
 				/// Turret mode on
 				} else if ((buttonval&BUT_L4) > 0){
 					int16 add_var;
+	
+					if (turret_mode == zFALSE) {
+						turret_mode = zTRUE;
+						dynamixel_writeword(74, AX_GOAL_SPEED_L, MY_TURRET_SERVO_SPEED);
+						delayMs(10);
+					}
 					
 					*desiredGait = NO_GAIT;
 					*desiredDir = -1;	// Pointless; Logic chain shouldn't use desiredDir with NO_GAIT...
 					*desiredSpeed = 0;
 					
-					// Move turret
-					
+					/// Move turret
 					add_var = ((float)lookH)/17;
 					pan_pos = CLAMP(pan_pos + add_var, servo74Min, servo74Max);
 					dynamixel_writeword(74, AX_GOAL_POSITION_L, pan_pos);
@@ -547,7 +551,7 @@ int8 CmdrReadMsgs(int8 *desiredGait, int8 *desiredDir, int8 *desiredSpeed){
 					tilt_pos = CLAMP(tilt_pos + add_var, servo75Min, servo75Max);
 					dynamixel_writeword(75, AX_GOAL_POSITION_L, tilt_pos);
 					
-				/// Walk mode
+				/// Walk forward mode
 				} else if (lookV > DEADZONE || walkV > DEADZONE ) {	///walk 
 					if(buttonval&BUT_LT || buttonval&BUT_RT){
 						*desiredGait = G8_ANIM_WALK_STRAIGHT;
@@ -557,7 +561,7 @@ int8 CmdrReadMsgs(int8 *desiredGait, int8 *desiredDir, int8 *desiredSpeed){
 					*desiredDir = 1;
 					*desiredSpeed = WALKING_SPEED;
 					
-				///Walk
+				///Walk backwaards
 				} else if (lookV < -DEADZONE || walkV < -DEADZONE) {	///walk 
 					if(buttonval&BUT_LT || buttonval&BUT_RT){
 						*desiredGait = G8_ANIM_WALK_STRAIGHT_BACK;
@@ -633,6 +637,13 @@ int8 CmdrReadMsgs(int8 *desiredGait, int8 *desiredDir, int8 *desiredSpeed){
 				// Reset pan_pos when movement is being done.
 				if (*desiredGait != NO_GAIT) {
 					pan_pos = PAN_CENTER;
+				}
+				
+				// Set pan servo to high speed if not in turret mode
+				if (((buttonval&BUT_L4) > 0) && turret_mode == zTRUE) {
+					turret_mode = zFALSE;
+					dynamixel_writeword(74, AX_GOAL_SPEED_L, 0);
+					delayMs(10);
 				}
 				
 				return CMDR_ALIVE_CNT;
@@ -995,9 +1006,9 @@ void gaitRunnerProcess(G8_RUNNER* runner){
 #endif
 
 	///Extra!
-	///Stops gait when we get to the end of a sweep == 2 animation
-	if( pgm_read_byte(&animation->sweep) == 2) {
-		if( currentTime == runner->totalTime || currentTime == 0) {
+	///Stops gait when we get to the end of a 'sweep == 2' animation
+	if (pgm_read_byte(&animation->sweep) == 2) {
+		if (currentTime == runner->totalTime || currentTime == 0) {
 			// if (currentTime == runner->totalTime) {
 				// led = 1;
 			// }
@@ -1182,7 +1193,8 @@ void main()
 		//Some gait requested
 		if (desiredGait != NO_GAIT) {
 			// led = 1;
-			if ( currentGait == desiredGait) {
+			if (currentGait == desiredGait) {
+			// Current gait is desired gait
 				if (currentSpeed == desiredSpeed) {
 					// continue;//Nothing to change.	//1
 				} else { //desire a different speed
