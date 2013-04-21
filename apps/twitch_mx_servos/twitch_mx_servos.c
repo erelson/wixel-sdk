@@ -640,7 +640,7 @@ int8 CmdrReadMsgs(int8 *desiredGait, int8 *desiredDir, int8 *desiredSpeed){
 				}
 				
 				// Set pan servo to high speed if not in turret mode
-				if (((buttonval&BUT_L4) > 0) && turret_mode == zTRUE) {
+				if (((buttonval&BUT_L4) == 0) && turret_mode == zTRUE) {
 					turret_mode = zFALSE;
 					dynamixel_writeword(74, AX_GOAL_SPEED_L, 0);
 					delayMs(10);
@@ -1131,6 +1131,7 @@ void main()
 	// gaitRunnerPlay(&gait,    G8_ANIM_TURN_LEFT,       g8loopSpeed, g8playbackDir * g8speed, g8playbackDir * g8repeatCount);
 
     // Set turret servo speed limits
+	turret_mode = zTRUE;
     dynamixel_writeword(74, AX_GOAL_SPEED_L, MY_TURRET_SERVO_SPEED);
 	delayMs(10);
     dynamixel_writeword(75, AX_GOAL_SPEED_L, MY_TURRET_SERVO_SPEED);
