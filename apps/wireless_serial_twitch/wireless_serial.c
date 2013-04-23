@@ -951,7 +951,7 @@ void gaitRunnerProcess(G8_RUNNER* runner){
 			(runner->animation == G8_ANIM_WALK_STRAIGHT_BACK) || \
 			(runner->animation == G8_ANIM_WALK_STRAIGHT_BACK_SLOW)) ){
 			
-			// speedFactor is ???? than 1
+			// speedFactor is <= 1
 			float speedFactor;
 			// float oldspeedFactor;
 			
