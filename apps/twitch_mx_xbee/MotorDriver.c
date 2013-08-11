@@ -25,7 +25,7 @@ static volatile struct PWM_DATA XDATA pwmData[MAX_PWM_PINS];
 
 // Bitmasks for keeping track of which pins are being used as servos.
 // A 1 bit indicates that the pin is a servo pulse output pin.
-// A 0 but indicates that the pin will be used for something else and
+// A 0 bit indicates that the pin will be used for something else and
 // this library should not touch it.
 static volatile uint8 pwmPinsOnPort0;
 static volatile uint8 pwmPinsOnPort1;
@@ -185,7 +185,7 @@ void pwmStart(uint8 XDATA * pins, uint8 numPins, uint16 frequency)
     // Timer 1: Start modulo mode, counting from 0x0000 to T1CC0.
     T1CTL = 0b00000010; // control register;
     
-    // Convert the frequency to T1CC0 by equation
+    // Convert the frequency to T1CC0 by the equation:
     //    T1CC0=2.4*10^4/(frequency/1000)
     T1CC0 = 24000 / (frequency / 1000);
     
