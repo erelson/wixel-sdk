@@ -53,8 +53,8 @@ extern "C" {
 #define __inline__
 #define  null ((void*)0)
 
-	#define pgm_read_byte(addr) *addr
-	#define pgm_read_word(addr) *addr
+    #define pgm_read_byte(addr) *addr
+    #define pgm_read_word(addr) *addr
 
 /** ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~From actuators.h~~~~~~~~~~~~~~~~~~~~~~~~~~~~~**/
 #define DRIVE_SPEED_MIN   ((int8)-127)
@@ -74,11 +74,11 @@ struct c_actuator_driver;
 -----------------------------------------------------------------------------------------*/
 
 typedef struct s_actuator_common{
-	const struct c_actuator_driver* sclass;// The driver class that controls this actuator
-	int8	  required_speed;	// The last required speed that has been set. Note that the motor might not yet be at that speed. See encoders.
-	boolean		  connected:1;		// When disconnected a device will freewheel, as opposed to speed=0 which will make it brake
-	const boolean inverted:1;		// If TRUE then will reverse the direction of the motor ie it will use 'required_speed * -1'. So if your motor is
-									// turning the wrong way then just flip this flag
+    const struct c_actuator_driver* sclass;// The driver class that controls this actuator
+    int8      required_speed;    // The last required speed that has been set. Note that the motor might not yet be at that speed. See encoders.
+    boolean          connected:1;        // When disconnected a device will freewheel, as opposed to speed=0 which will make it brake
+    const boolean inverted:1;        // If TRUE then will reverse the direction of the motor ie it will use 'required_speed * -1'. So if your motor is
+                                    // turning the wrong way then just flip this flag
 } __ACTUATOR;
 
 // Define the standard constructor for an actuator
@@ -92,62 +92,62 @@ typedef __ACTUATOR* /*PROGMEM*/  ACTUATOR_LIST;
 
 // Define the position of one limb
 typedef struct s_limbPos{
-	int16		cubeX,cubeY;
-	int16		squareX,squareY;
-	int16		timeX,timeY;
-	int8	startY;
+    int16        cubeX,cubeY;
+    int16        squareX,squareY;
+    int16        timeX,timeY;
+    int8    startY;
 } G8_LIMB_POSITION;
 #define MAKE_G8_LIMB_POSITION(cubeX,cubeY, squareX,squareY, timeX, timeY, startY) {cubeX,cubeY,squareX,squareY, timeX, timeY, startY}
 
 // Define the position of all limbs for a given frame
 typedef struct s_frame{
-	uint16	time;				// This moment in time 0...1000
-	const G8_LIMB_POSITION* limbs;	// The array of limb positions
+    uint16    time;                // This moment in time 0...1000
+    const G8_LIMB_POSITION* limbs;    // The array of limb positions
 } G8_FRAME;
 #define MAKE_G8_FRAME(time, limbs) { time, limbs }
 
 /*// Define one animation
 typedef struct s_animation{
-	const uint8				numFrames;		// Number of frames in this animation
-	const G8_FRAME* const	frames;			// The array of frames
-	const boolean			sweep;			// Does it sweep back and forth?
+    const uint8                numFrames;        // Number of frames in this animation
+    const G8_FRAME* const    frames;            // The array of frames
+    const boolean            sweep;            // Does it sweep back and forth?
 } G8_ANIMATION;
 #define MAKE_G8_ANIMATION(numFrames, frames, sweep) { numFrames, frames, sweep }*/
 // Define one animation
 typedef struct s_animation{
-	const uint8				numFrames;		// Number of frames in this animation
-	const G8_FRAME* const	frames;			// The array of frames
-	// const boolean			sweep;			// Does it sweep back and forth?
-	const uint8			sweep;			// Does it sweep back and forth?
+    const uint8                numFrames;        // Number of frames in this animation
+    const G8_FRAME* const    frames;            // The array of frames
+    // const boolean            sweep;            // Does it sweep back and forth?
+    const uint8            sweep;            // Does it sweep back and forth?
 } G8_ANIMATION;
 #define MAKE_G8_ANIMATION(numFrames, frames, sweep) { numFrames, frames, sweep }
 
 // Define the gait runner itself
 typedef struct s_runner{
-	// const ACTUATOR_LIST* const 	actuators;		// The list of actuators to control
-	// const uint8*        const   ids[3]; 	//THIS DOESN"T WORK; or maybe is an array of 3 arrays.
-	// const uint8*        const   ids;
-	// const uint8 	 		num_actuators;	// The number of actuators in the list
-	const G8_ANIMATION* const 	animations;	// The address of the animations array
-	volatile uint8 			animation;		// The current animation
-	volatile uint8			frame;			// The current frame in the animation
-	volatile int8			repeatCount;	// Number of loops to play (0=forever)
-	volatile boolean		playing;		// Is an animation current playing?
-	volatile uint32			startTime;		// Time when the animation started
-	volatile int16			currentTime;	// The current time offset
-	volatile int16			totalTime;		// The total time required to play the animation
-	volatile boolean		backwards;		// Are we playing the animation backwards
-	volatile int8			speed;			// The speed of animation
-	volatile int8*			speeds;			// The speed/position setting for each actuator
-	// volatile int8*			delta;			// The speed/position setting to add for each actuator
+    // const ACTUATOR_LIST* const     actuators;        // The list of actuators to control
+    // const uint8*        const   ids[3];     //THIS DOESN"T WORK; or maybe is an array of 3 arrays.
+    // const uint8*        const   ids;
+    // const uint8              num_actuators;    // The number of actuators in the list
+    const G8_ANIMATION* const     animations;    // The address of the animations array
+    volatile uint8             animation;        // The current animation
+    volatile uint8            frame;            // The current frame in the animation
+    volatile int8            repeatCount;    // Number of loops to play (0=forever)
+    volatile boolean        playing;        // Is an animation current playing?
+    volatile uint32            startTime;        // Time when the animation started
+    volatile int16            currentTime;    // The current time offset
+    volatile int16            totalTime;        // The total time required to play the animation
+    volatile boolean        backwards;        // Are we playing the animation backwards
+    volatile int8            speed;            // The speed of animation
+    volatile int8*            speeds;            // The speed/position setting for each actuator
+    // volatile int8*            delta;            // The speed/position setting to add for each actuator
 } G8_RUNNER;
 
 
 /*#define MAKE_G8_RUNNER(list, animations) { list, \
-		(uint8)(sizeof(list)/sizeof(__ACTUATOR*)), \
-		animations, 0,0,0,false,0,0,0,false, 0, null,null };*/
+        (uint8)(sizeof(list)/sizeof(__ACTUATOR*)), \
+        animations, 0,0,0,false,0,0,0,false, 0, null,null };*/
 /*#define MAKE_G8_RUNNER(list, animations) { list, \
-		animations, 0,0,0,FALSE,0,0,0,FALSE, 0, null };*/
+        animations, 0,0,0,FALSE,0,0,0,FALSE, 0, null };*/
 #define MAKE_G8_RUNNER(animations) { animations, 0,0,0,FALSE,0,0,0,FALSE, 0, null };
 
 // Initialise a gait runner from appInitHardware or appInitSoftware
@@ -161,7 +161,7 @@ void gaitRunnerPlay(G8_RUNNER* runner, uint8 animation, int16 loopSpeed, int8 sp
 
 // Stop the animation when it next reaches its last frame
 static __inline__ void gaitRunnerStop(G8_RUNNER* runner){
-	runner->repeatCount = (runner->speed < 0) ? -1 : 1;
+    runner->repeatCount = (runner->speed < 0) ? -1 : 1;
 }
 
 // Update the gait runner and move servos to new positions
@@ -172,23 +172,23 @@ void gaitRunnerProcess(G8_RUNNER* runner);
 
 
 static __inline__ boolean gaitRunnerIsPlaying(const G8_RUNNER* runner){
-	return runner->playing;
+    return runner->playing;
 }
 
 // static __inline__ int16 gaitRunnerRepeatCount(const G8_RUNNER* runner){
-	// return runner->repeatCount;
+    // return runner->repeatCount;
 // }
 
 // static __inline__ void gaitRunnerSetSpeed(G8_RUNNER* runner, int8 speed ){
-	// runner->speed = speed;
+    // runner->speed = speed;
 // }
 // static __inline__ int8 gaitRunnerGetSpeed(const G8_RUNNER* runner ){
-	// return runner->speed;
+    // return runner->speed;
 // }
 
 // void gaitRunnerSetDelta(G8_RUNNER* runner, uint8 limbNumber, int8 speed );
 // static __inline__ int8 gaitRunnerGetDelta(const G8_RUNNER* runner, uint8 limbNumber){
-	// return runner->delta[limbNumber];
+    // return runner->delta[limbNumber];
 // }
 
 #ifdef __cplusplus

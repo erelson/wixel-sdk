@@ -35,7 +35,7 @@
 // extern int do_gait;// = 1;
 
 // extern void initTrig();  //function prototype
-					// //function was in servoPosConsts.h
+                    // //function was in servoPosConsts.h
 
 // extern void initServoLims();  //function prototype
 
@@ -56,7 +56,7 @@
 // extern TICK_COUNT speedPhaseFix(TICK_COUNT, TICK_COUNT, TICK_COUNT);
 
 /*extern void doLegKinematics(uint16_t, uint16_t*, uint16_t*, uint16_t*, short, \
- 			float, float, float, float, int16_t, float, short);
+             float, float, float, float, int16_t, float, short);
 */
 // extern uint8_t calc_foot_h(int16_t, uint16_t, float, int16_t, float, float);
 
@@ -164,7 +164,7 @@
 
 // extern uint16_t L0;
 
-	// //Leg part lengths
+    // //Leg part lengths
 // #define preL12 58
 // #define preL23 63
 // #define preL34 67
@@ -263,16 +263,16 @@ uint8 tilt_add;
 // The below lines are adapted from AX12.h in Webbotlib. Check out Clive Webster's work at http://webbot.org.uk/
 // From Webbotlib: libdefs.h
 // MIN/MAX/ABS macros
-#define MIN(a,b)			(((a)<(b))?(a):(b))
-#define MAX(a,b)			(((a)>(b))?(a):(b))
-#define ABS(x)				(((x)>0)?(x):(-(x)))
+#define MIN(a,b)            (((a)<(b))?(a):(b))
+#define MAX(a,b)            (((a)>(b))?(a):(b))
+#define ABS(x)                (((x)>0)?(x):(-(x)))
 
 // Clamp a value to be in a given range
 #define CLAMP(val, min, max) MAX(MIN(val,max),min)
 
 /*
-*	Interpolate between two numbers
-*	value - the current value to be used
+*    Interpolate between two numbers
+*    value - the current value to be used
 *   minVal - the minimum that 'value' can be
 *   maxVal - the maximum that 'value' can be
 *   minRtn - the return value if 'value = minVal'
