@@ -33,41 +33,41 @@ static volatile uint8 pwmPinsOnPort1;
 
 /// speed ranges from -127 to 127.
 void setMotorSpeed(MOTOR *motor, int8 speed){
-	// T1CC0 is the timer 1 period in ticks
-	uint16 top = T1CC0;
-	
-	// New compare threshold
-	uint16 ticks_on = 0;
-	
-	if( speed > 0 ){
-		ticks_on = interpolateU(speed, 0, DRIVE_SPEED_MAX, 0, top);
+    // T1CC0 is the timer 1 period in ticks
+    uint16 top = T1CC0;
+    
+    // New compare threshold
+    uint16 ticks_on = 0;
+    
+    if( speed > 0 ){
+        ticks_on = interpolateU(speed, 0, DRIVE_SPEED_MAX, 0, top);
 
-		// Set direction1 high, direction2 low
-		setDigitalOutput(motor->direction1, HIGH);
-		setDigitalOutput(motor->direction2, LOW);
-	}else if(speed < 0){
-		ticks_on = interpolateU(speed, 0, DRIVE_SPEED_MIN, 0, top);
+        // Set direction1 high, direction2 low
+        setDigitalOutput(motor->direction1, HIGH);
+        setDigitalOutput(motor->direction2, LOW);
+    }else if(speed < 0){
+        ticks_on = interpolateU(speed, 0, DRIVE_SPEED_MIN, 0, top);
 
-		// Set direction1 low, direction2 high low
-		setDigitalOutput(motor->direction1, LOW);
-		setDigitalOutput(motor->direction2, HIGH);
-	}else{
-		// brake
+        // Set direction1 low, direction2 high low
+        setDigitalOutput(motor->direction1, LOW);
+        setDigitalOutput(motor->direction2, HIGH);
+    }else{
+        // brake
         ticks_on = 0;
         
-		if(motor->direction2){
-			// There are two direction pins - so set both to same value
-			setDigitalOutput(motor->direction1, LOW);
-			setDigitalOutput(motor->direction2, LOW);
-		}else{
-			// Only has one direction pin
-			// Set direction1 to an input with no pullup ie disconnect
-			setDigitalOutput(motor->direction1, LOW);
-		}
-	}
+        if(motor->direction2){
+            // There are two direction pins - so set both to same value
+            setDigitalOutput(motor->direction1, LOW);
+            setDigitalOutput(motor->direction2, LOW);
+        }else{
+            // Only has one direction pin
+            // Set direction1 to an input with no pullup ie disconnect
+            setDigitalOutput(motor->direction1, LOW);
+        }
+    }
 
-	// Change the duty cycle
-	pwmSetTargetHighRes(motor->pwmpin, ticks_on);
+    // Change the duty cycle
+    pwmSetTargetHighRes(motor->pwmpin, ticks_on);
 }
 
 void pwmSetTarget(uint8 pinNum, uint16 targetMicroseconds)
@@ -79,12 +79,12 @@ void pwmSetTarget(uint8 pinNum, uint16 targetMicroseconds)
 void pwmSetTargetHighRes(uint8 pinNum, uint16 target)
 {
     // TODO: return here if "target" is out of the valid range
-		
+        
     if (pwmStartedFlag) {
         // NOTE: T1CCx is buffered, so these commands
         // don't take effect until the next timer period.
-		
-		/// Because we are using Modulo mode, pins P0_2 and P1_2 are not usable for PWM
+        
+        /// Because we are using Modulo mode, pins P0_2 and P1_2 are not usable for PWM
         switch(pinNum) {
         case 3:
             P0SEL |= pwmPinsOnPort0;
@@ -164,9 +164,9 @@ void pwmStart(uint8 XDATA * pins, uint8 numPins, uint16 frequency)
         P1SEL &= ~pwmPinsOnPort1; // set as "general purpose IO"
         P1DIR |= pwmPinsOnPort1; // set as "output"
     }
-	// else {
-		
-	// }
+    // else {
+        
+    // }
     
     /// Configure Timer 1 ///
 
@@ -179,7 +179,7 @@ void pwmStart(uint8 XDATA * pins, uint8 numPins, uint16 frequency)
     T1CCTL1 = T1CCTL2 = 0b00100100;
 
     // Turn off all the pulses at first.
-	// i.e.: T1CCn = 0 -> immediate compare-up -> clear outputs
+    // i.e.: T1CCn = 0 -> immediate compare-up -> clear outputs
     T1CC1 = T1CC2 = 0x0000;
 
     // Timer 1: Start modulo mode, counting from 0x0000 to T1CC0.
