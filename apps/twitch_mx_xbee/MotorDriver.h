@@ -68,11 +68,11 @@
 
 
 typedef struct s_motor{
-	// The PWM IO pin the motor is connected to - must be a timer compare pin
-	uint8 pwmpin;			// valid values are 3, 4, 10, 11
-	   
-	uint8 direction1;	// The compulsory IO pin used to set the direction of the motor
-	uint8 direction2;	// The optional IO pin that is normally NOT(direction1) unless breaking or coasting
+    // The PWM IO pin the motor is connected to - must be a timer compare pin
+    uint8 pwmpin;            // valid values are 3, 4, 10, 11
+       
+    uint8 direction1;    // The compulsory IO pin used to set the direction of the motor
+    uint8 direction2;    // The optional IO pin that is normally NOT(direction1) unless breaking or coasting
 } MOTOR;
 
 
@@ -84,14 +84,14 @@ typedef struct s_motor{
 typedef MOTOR* XDATA MOTOR_LIST;
 
 typedef struct s_motor_driver{
-	const MOTOR_LIST* const motors;		// The motors
-	uint8 num_motors; 			// The total number of motors
+    const MOTOR_LIST* const motors;        // The motors
+    uint8 num_motors;             // The total number of motors
 } MOTOR_DRIVER;
 
 
 #define MAKE_MOTOR_DRIVER(motorlst) { \
-	motorlst, \
-	(uint8)(sizeof(motorlst)/sizeof(MOTOR*)) \
+    motorlst, \
+    (uint8)(sizeof(motorlst)/sizeof(MOTOR*)) \
 }
 
 
@@ -131,8 +131,8 @@ void pwmSetTargetHighRes(uint8 pinNum, uint16 target);
  *   - 3 (for P0_3)
  *   - 4 (for P0_4)
  *     
- * 	 or
- * 	 
+ *      or
+ *      
  *   - 10 (for P1_0)
  *   - 11 (for P1_1)
  *

@@ -219,13 +219,13 @@ void errorService()
 void updateSerialMode()
 //Switches between USB/UART/radio pairings
 {
-	currentSerialMode = SERIAL_MODE_UART_RADIO;
+    currentSerialMode = SERIAL_MODE_UART_RADIO;
 }
 
 
 /*
-*	Interpolate between two signed numbers
-*	value - the current value to be used
+*    Interpolate between two signed numbers
+*    value - the current value to be used
 *   minVal - the minimum that 'value' can be
 *   maxVal - the maximum that 'value' can be
 *   minRtn - the return value if 'value = minVal'
@@ -233,21 +233,21 @@ void updateSerialMode()
 *   return a value in the range minRtn to maxRtn
 */
 int16 interpolate(int16 value, int16 minVal, int16 maxVal, int16 minRtn, int16 maxRtn){
-	register int32  lRtnRange;
-	register int32 lValRange;
-	register int32 lRelVal;
+    register int32  lRtnRange;
+    register int32 lValRange;
+    register int32 lRelVal;
 
-	lRtnRange = maxRtn - minRtn;
-	lValRange = maxVal - minVal;
-	lRelVal = value - minVal;
-	lRtnRange =  minRtn + ( lRtnRange * lRelVal / lValRange );
-	return (int16)lRtnRange;
+    lRtnRange = maxRtn - minRtn;
+    lValRange = maxVal - minVal;
+    lRelVal = value - minVal;
+    lRtnRange =  minRtn + ( lRtnRange * lRelVal / lValRange );
+    return (int16)lRtnRange;
 }
 
 void main()
 {
     systemInit();
-	
+    
     //Among other things, allocates byte arrays for sending commands.
     dynamixel_init();
 
@@ -260,7 +260,7 @@ void main()
     uart1SetBaudRate(param_baud_rate);
 
     
-	
+    
     // Initial setting of serial mode
     updateSerialMode();
 
@@ -268,29 +268,29 @@ void main()
     // P1DIR |= (1<<5);
     // IOCFG0 = 0b011011; // P1_5 = PA_PD (TX mode)
 
-	// P1DIR |= 0x20; //Enable pin P1_5
-	
+    // P1DIR |= 0x20; //Enable pin P1_5
+    
     while(1)
     {
-	uint32 ms;
-	uint16 now;
-	uint16 speed;
-		
-	updateSerialMode();
-	boardService();
-	updateLeds();
-	errorService();
+    uint32 ms;
+    uint16 now;
+    uint16 speed;
+        
+    updateSerialMode();
+    boardService();
+    updateLeds();
+    errorService();
 
-	// Code for oscillating a servo back and forth
-	ms = getMs();		// Get current time in ms
-	now = ms % (uint32)10000; 	// 10 sec for a full swing
-	if(now >= (uint16)5000){				// Goes from 0ms...5000ms
-		now = (uint16)10000 - now;			// then 5000ms...0ms
-	}
-	speed = interpolate(now, 0, 5000, 100, 900); // speed is really the position.
-	
-	ax12SetGOAL_POSITION(32, speed);
+    // Code for oscillating a servo back and forth
+    ms = getMs();        // Get current time in ms
+    now = ms % (uint32)10000;     // 10 sec for a full swing
+    if(now >= (uint16)5000){                // Goes from 0ms...5000ms
+        now = (uint16)10000 - now;            // then 5000ms...0ms
+    }
+    speed = interpolate(now, 0, 5000, 100, 900); // speed is really the position.
+    
+    ax12SetGOAL_POSITION(32, speed);
 
-	delayMs(30);
+    delayMs(30);
     }
 }

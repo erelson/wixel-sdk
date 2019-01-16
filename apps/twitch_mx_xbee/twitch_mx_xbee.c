@@ -43,7 +43,7 @@
 // #include "Commander.h"
 #include "Interpolate.h"
 
-// #define ax12SetGOAL_POSITION(servo,val) 	dynamixel_writeword(servo,AX_GOAL_POSITION_L,CLAMP(val,0,1023))	
+// #define ax12SetGOAL_POSITION(servo,val)     dynamixel_writeword(servo,AX_GOAL_POSITION_L,CLAMP(val,0,1023))    
 
 
 /** Enables *******************************************************************/
@@ -305,12 +305,12 @@ void errorService()
     // {
         // radioComTxSendByte(uart1RxReceiveByte());
     // }
-	
-	// //Read radio's buffer
+    
+    // //Read radio's buffer
     // // CmdrReadMsgs(); //In this case, CmdrReadMsgs() does the reading.
-	// ///We handle CmdrReadMsgs() elsewhere since it has parameters now.
-	
-	// //    while(radioComRxAvailable() && uart1TxAvailable())
+    // ///We handle CmdrReadMsgs() elsewhere since it has parameters now.
+    
+    // //    while(radioComRxAvailable() && uart1TxAvailable())
 // //    {
 // //        uart1TxSendByte(radioComRxReceiveByte());
 // //    }
@@ -348,179 +348,180 @@ void errorService()
 
 /* process messages coming from Commander 
  *  format = 0xFF RIGHT_H RIGHT_V LEFT_H LEFT_V BUTTONS EXT checksum_cmdr */
+// Returns either CMDR_ALIVE_CNT or -1 depending on if a packet received or not
 int8 CmdrReadMsgs(){
-	int8 buttonval;
-	
-	while(uart1RxAvailable() > 0){
-		if(index_cmdr == -1){         // looking for new packet
-			if(uart1RxReceiveByte() == 0xff){ //read until packet start
-				index_cmdr = 0;
-				checksum_cmdr = 0;
-				// forward byte to other wixel
-				uart0TxSendByte(0xff);
-			}
-		}else if(index_cmdr == 0){
-			// add next byte to vals
-			vals[index_cmdr] = (unsigned char) uart1RxReceiveByte();
-			// forward byte to other wixel
-			uart0TxSendByte(vals[index_cmdr]);
-			// look for first real byte (non 0xFF)
-			if(vals[index_cmdr] != 0xff){
-				checksum_cmdr += (uint8) vals[index_cmdr];
-				index_cmdr++;  // will now save subsequent bytes
-			}
-		}else{ //for bytes after the 0th byte
-			vals[index_cmdr] = (unsigned char) uart1RxReceiveByte(); 
-			// forward byte to other wixel
-			uart0TxSendByte(vals[index_cmdr]);
-			//loops will sequentially read bytes and store them here
+    int8 buttonval;
+    
+    while(uart1RxAvailable() > 0){
+        if(index_cmdr == -1){         // looking for new packet
+            if(uart1RxReceiveByte() == 0xff){ //read until packet start
+                index_cmdr = 0;
+                checksum_cmdr = 0;
+                // forward byte to other wixel
+                uart0TxSendByte(0xff);
+            }
+        }else if(index_cmdr == 0){
+            // add next byte to vals
+            vals[index_cmdr] = (unsigned char) uart1RxReceiveByte();
+            // forward byte to other wixel
+            uart0TxSendByte(vals[index_cmdr]);
+            // look for first real byte (non 0xFF)
+            if(vals[index_cmdr] != 0xff){
+                checksum_cmdr += (uint8) vals[index_cmdr];
+                index_cmdr++;  // will now save subsequent bytes
+            }
+        }else{ //for bytes after the 0th byte
+            vals[index_cmdr] = (unsigned char) uart1RxReceiveByte(); 
+            // forward byte to other wixel
+            uart0TxSendByte(vals[index_cmdr]);
+            //loops will sequentially read bytes and store them here
 
-			checksum_cmdr += (uint8) vals[index_cmdr];
-			index_cmdr++;
-			
-			// DEBUG: if all packets go through, shoudl see x2 through 
-			// 	x7 when Commander input is being received.
-			// rprintf("x%u ",index_cmdr);
-			
-			if(index_cmdr == 7){ // packet complete
-				// if(vals[0] == 0xff) {
-					// ax12LED(61,1);
-				// }
-				if(checksum_cmdr%256 != 255){
-					// packet error!
-					// rprintf("\npacket error!\n");
-					index_cmdr = -1;
-					return 0;
-				}
-				else{
-					buttonval = vals[4];
-					// short dowalking = TRUE;
-					
-					//rprintf("\t%d\t",(int)buttonval);
-					//Turn gait...
-					// if((buttonval&0x40) > 0){ //if(buttonval & BUT_LT){
-						// // if(PRINT_DEBUG_COMMANDER){rprintf("lft\t");}
-						// turnleft = zTRUE;
-						// turnright = zFALSE;
-						
-						// // dowalking = zFALSE;
-					// }
-					// else if((buttonval&0x80) > 0){ //if(buttonval & BUT_RT){
-						// // if(PRINT_DEBUG_COMMANDER){rprintf("rgt\t");}
-						// turnright = zTRUE;
-						// turnleft = zFALSE;
-						
-						// // dowalking = zFALSE;
-					// }
-					// else { // Do nothing
-						// turnright = zFALSE;
-						// turnleft = zFALSE;
-						// // turn = zFALSE;
-					// }
-					if((buttonval&BUT_L6) > 0){
-						gunbutton = zTRUE;
-						// if(PRINT_DEBUG_COMMANDER){rprintf("guns\t");}
-					}
-					else{gunbutton = zFALSE;}
+            checksum_cmdr += (uint8) vals[index_cmdr];
+            index_cmdr++;
+            
+            // DEBUG: if all packets go through, shoudl see x2 through 
+            //     x7 when Commander input is being received.
+            // rprintf("x%u ",index_cmdr);
+            
+            if(index_cmdr == 7){ // packet complete
+                // if(vals[0] == 0xff) {
+                    // ax12LED(61,1);
+                // }
+                if(checksum_cmdr%256 != 255){
+                    // packet error!
+                    // rprintf("\npacket error!\n");
+                    index_cmdr = -1;
+                    return 0;
+                }
+                else{
+                    buttonval = vals[4];
+                    // short dowalking = TRUE;
+                    
+                    //rprintf("\t%d\t",(int)buttonval);
+                    //Turn gait...
+                    // if((buttonval&0x40) > 0){ //if(buttonval & BUT_LT){
+                        // // if(PRINT_DEBUG_COMMANDER){rprintf("lft\t");}
+                        // turnleft = zTRUE;
+                        // turnright = zFALSE;
+                        
+                        // // dowalking = zFALSE;
+                    // }
+                    // else if((buttonval&0x80) > 0){ //if(buttonval & BUT_RT){
+                        // // if(PRINT_DEBUG_COMMANDER){rprintf("rgt\t");}
+                        // turnright = zTRUE;
+                        // turnleft = zFALSE;
+                        
+                        // // dowalking = zFALSE;
+                    // }
+                    // else { // Do nothing
+                        // turnright = zFALSE;
+                        // turnleft = zFALSE;
+                        // // turn = zFALSE;
+                    // }
+                    if((buttonval&BUT_L6) > 0){
+                        gunbutton = zTRUE;
+                        // if(PRINT_DEBUG_COMMANDER){rprintf("guns\t");}
+                    }
+                    else{gunbutton = zFALSE;}
 
-					// if((buttonval&BUT_R3) > 0){
-						// panicbutton = zTRUE;
-						// // if(PRINT_DEBUG_COMMANDER){rprintf("panic\t");}
-					// }
-					// else{panicbutton = zFALSE;}
-					
-					if((buttonval&BUT_L4) > 0){
-						laserbutton = zTRUE;
-						// if(PRINT_DEBUG_COMMANDER){rprintf("info\t");}
-					}
-					else{laserbutton = zFALSE;}
-					
-					// if((buttonval&BUT_R2) > 0){
-						// // if(PRINT_DEBUG_COMMANDER){rprintf("look\t");}
-					// }
-					// else{infobutton = zFALSE;}
-					
-					if((buttonval&BUT_R1) > 0){
-						solenoidbutton = zTRUE;
-						// if(PRINT_DEBUG_COMMANDER){rprintf("agit\t");}
-					}
-					else{solenoidbutton = zFALSE;}
-					
-						// vals - 128 gives look a vlaue in the range from -128 to 127?
-					// lookV = (signed char)( (int8)vals[0]-128 );
-					// lookH = (signed char)( (int8)vals[1]-128 );
-					// if( (int)vals[0] >= 128){
-						// tilt_pos = interpolateU( (int)vals[0],128,128+102,TILT_CENTER,servo52Max);
-					// }
-					// else {
-						// tilt_pos = interpolateU( (int)vals[0],128-102,128,servo52Min,TILT_CENTER);
-					// }
-					
-					//Default handling in original Commander.c - sets to range of -127 to 127 or so...
-					// walkV = (signed char)( (int8)vals[2]-128 );
-					// walkH = (signed char)( (int8)vals[3]-128 );
-					// }
-					// pan = (vals[0]<<8) + vals[1];
-					// tilt = (vals[2]<<8) + vals[3];
-					// buttons = vals[4];
-					// ext = vals[5];
-				}
-				index_cmdr = -1;
-				
-				///Empty the packet buffer
-				while (uart1RxAvailable() > 0) { uart1RxReceiveByte(); }
-				
-				return CMDR_ALIVE_CNT;
-			}
-		}
-	}
-	return -1;
-}	// End of CmdrReadMsgs
+                    // if((buttonval&BUT_R3) > 0){
+                        // panicbutton = zTRUE;
+                        // // if(PRINT_DEBUG_COMMANDER){rprintf("panic\t");}
+                    // }
+                    // else{panicbutton = zFALSE;}
+                    
+                    if((buttonval&BUT_L4) > 0){
+                        laserbutton = zTRUE;
+                        // if(PRINT_DEBUG_COMMANDER){rprintf("info\t");}
+                    }
+                    else{laserbutton = zFALSE;}
+                    
+                    // if((buttonval&BUT_R2) > 0){
+                        // // if(PRINT_DEBUG_COMMANDER){rprintf("look\t");}
+                    // }
+                    // else{infobutton = zFALSE;}
+                    
+                    if((buttonval&BUT_R1) > 0){
+                        solenoidbutton = zTRUE;
+                        // if(PRINT_DEBUG_COMMANDER){rprintf("agit\t");}
+                    }
+                    else{solenoidbutton = zFALSE;}
+                    
+                        // vals - 128 gives look a vlaue in the range from -128 to 127?
+                    // lookV = (signed char)( (int8)vals[0]-128 );
+                    // lookH = (signed char)( (int8)vals[1]-128 );
+                    // if( (int)vals[0] >= 128){
+                        // tilt_pos = interpolateU( (int)vals[0],128,128+102,TILT_CENTER,servo52Max);
+                    // }
+                    // else {
+                        // tilt_pos = interpolateU( (int)vals[0],128-102,128,servo52Min,TILT_CENTER);
+                    // }
+                    
+                    //Default handling in original Commander.c - sets to range of -127 to 127 or so...
+                    // walkV = (signed char)( (int8)vals[2]-128 );
+                    // walkH = (signed char)( (int8)vals[3]-128 );
+                    // }
+                    // pan = (vals[0]<<8) + vals[1];
+                    // tilt = (vals[2]<<8) + vals[3];
+                    // buttons = vals[4];
+                    // ext = vals[5];
+                }
+                index_cmdr = -1;
+                
+                ///Empty the packet buffer
+                while (uart1RxAvailable() > 0) { uart1RxReceiveByte(); }
+                
+                return CMDR_ALIVE_CNT;
+            }
+        }
+    }
+    return -1;
+}    // End of CmdrReadMsgs
 
 
 boolean clockHasElapsed(uint32 usStart, uint32 usWait){
-	return clockHasElapsedGetOverflow(usStart,usWait,NULL);
+    return clockHasElapsedGetOverflow(usStart,usWait,NULL);
 }
 
 boolean clockHasElapsedGetOverflow(uint32 usStart, uint32 usWait, uint32* overflow){
-	boolean rtn = zFALSE;
-	uint32 now = getMs();
-	uint32 elapsed = now;
-	elapsed -= usStart;					// The actual delay that has happened
+    boolean rtn = zFALSE;
+    uint32 now = getMs();
+    uint32 elapsed = now;
+    elapsed -= usStart;                    // The actual delay that has happened
 
-	if( elapsed >= usWait){
-		// We have exceeded the delay
-		if(overflow){
-			uint32 ovr = elapsed - usWait;
-			*overflow = ovr;
-		}
-		rtn = zTRUE;
-	}else{
-		if(overflow){
-			uint32 ovr = usWait - elapsed;
-			*overflow = ovr;
-		}
-	}
-	return rtn;
+    if( elapsed >= usWait){
+        // We have exceeded the delay
+        if(overflow){
+            uint32 ovr = elapsed - usWait;
+            *overflow = ovr;
+        }
+        rtn = zTRUE;
+    }else{
+        if(overflow){
+            uint32 ovr = usWait - elapsed;
+            *overflow = ovr;
+        }
+    }
+    return rtn;
 }
 
 
 void main()
 {
 
-	// uint32 ms;
-	// uint32 now;
-	
-	// 
-	uint8 cmdrAlive = 0;
-	
-	// Here we define what pins we will be using for PWM.
-	// uint8 CODE pwmPins[] = {ptrGunMotor->pwmpin};
-	uint8 CODE pwmPins[] = {11};
-	
-	MOTOR gunMotor = MAKE_MOTOR_3_PIN(pwmPins[0], 12, 13);  //(PWM, B, A)
-	MOTOR *ptrGunMotor = &gunMotor;
-	
+    // uint32 ms;
+    // uint32 now;
+    
+    // 
+    uint8 cmdrAlive = 0;
+    
+    // Here we define what pins we will be using for PWM.
+    // uint8 CODE pwmPins[] = {ptrGunMotor->pwmpin};
+    uint8 CODE pwmPins[] = {11};
+    
+    MOTOR gunMotor = MAKE_MOTOR_3_PIN(pwmPins[0], 12, 13);  //(PWM, B, A)
+    MOTOR *ptrGunMotor = &gunMotor;
+    
     // setDigitalOutput(param_arduino_DTR_pin, LOW);
     // ioTxSignals(0);
 
@@ -529,81 +530,82 @@ void main()
     uart0SetBaudRate(param_baud_rate_UART);
     uart1Init();
     uart1SetBaudRate(param_baud_rate_XBEE);
-	
-	pwmStart((uint8 XDATA *)pwmPins, sizeof(pwmPins), 10000);
-	
-	
-	guns_firing_duration = 125; // time in ms
-	gunbutton = zFALSE;
-	solenoid_on_duration = 80; // time in ms
-	solenoidbutton = zFALSE;
-	laserbutton = zFALSE;
-	
+    
+    pwmStart((uint8 XDATA *)pwmPins, sizeof(pwmPins), 10000);
+    
+    
+    guns_firing_duration = 125; // time in ms
+    gunbutton = zFALSE;
+    solenoid_on_duration = 80; // time in ms
+    solenoidbutton = zFALSE;
+    laserbutton = zFALSE;
+    
     systemInit();
-	
-	// Initialize other stuff
-	index_cmdr = -1;
+    
+    // Initialize other stuff
+    index_cmdr = -1;
 
     /// MAIN LOOP ///
     while(1)
     {
-		
+        
         // updateSerialMode();
         boardService();
         updateLeds();
         errorService();
-		
-		
-		cmdrAlive = (uint8) CLAMP(cmdrAlive + CmdrReadMsgs(), 0, CMDR_ALIVE_CNT);
-		
-		// ms = getMs();		// Get current time in ms
-		// now = getMs();
-		// now = ms % (uint32)10000; 	// 10 sec for a full swing
-		// if(now >= (uint16)5000){				// Goes from 0ms...5000ms
-			// now = (uint16)10000 - now;			// then 5000ms...0ms
-		// }
-		// speed = interpolate(now, 0, 5000, 100, 900);
-		
-		if (laserbutton == zTRUE && cmdrAlive > 0){
-			// uart0TxSendByte('L');
-			setDigitalOutput(param_laser_pin, HIGH);
-		}
-		else {setDigitalOutput(param_laser_pin, LOW);}
-		
-		//FIRE THE GUNS!!!!!
-		//Resets timer while gunbutton is held down.
-		if (gunbutton == zTRUE){
-			// uart0TxSendByte('Z');
-			guns_firing = zTRUE;
-			setMotorSpeed(ptrGunMotor, -60); //NOTE: (7.2 / 12.6) * 127 = 72.5714286
-			guns_firing_start_time = getMs();
-		}
-		
-		//Check whether to stop firing guns
-		if (guns_firing && clockHasElapsed(guns_firing_start_time, guns_firing_duration)){
-			// uart0TxSendByte('X');
-			guns_firing = zFALSE;
-			setMotorSpeed(ptrGunMotor, 0); //NOTE: (7.2 / 12.6) * 127 = 72.5714286
-			guns_firing_start_time = getMs();
-		}
-		
-		
-		//Activate solenoid for hopup feed unjammer
-		if (solenoidbutton == zTRUE){
-			// uart0TxSendByte('Z');
-			solenoid_on = zTRUE;
-			setDigitalOutput(10, HIGH);
-			solenoid_on_start_time = getMs();
-		}
-		
-		//Check whether to disable solenoid
-		if (solenoid_on && clockHasElapsed(solenoid_on_start_time, solenoid_on_duration)){
-			// uart0TxSendByte('X');
-			solenoid_on = zFALSE;
-			setDigitalOutput(10, LOW);
-			solenoid_on_start_time = getMs();
-		}
-	
-		delayMs(5);
+        
+        
+        // cmdr counts down from CMDR_ALIVE_CNT by -1 whenever no packets are received?
+        cmdrAlive = (uint8) CLAMP(cmdrAlive + CmdrReadMsgs(), 0, CMDR_ALIVE_CNT);
+        
+        // ms = getMs();        // Get current time in ms
+        // now = getMs();
+        // now = ms % (uint32)10000;     // 10 sec for a full swing
+        // if(now >= (uint16)5000){                // Goes from 0ms...5000ms
+            // now = (uint16)10000 - now;            // then 5000ms...0ms
+        // }
+        // speed = interpolate(now, 0, 5000, 100, 900);
+        
+        if (laserbutton == zTRUE && cmdrAlive > 0){
+            // uart0TxSendByte('L');
+            setDigitalOutput(param_laser_pin, HIGH);
+        }
+        else {setDigitalOutput(param_laser_pin, LOW);}
+        
+        //FIRE THE GUNS!!!!!
+        //Resets timer while gunbutton is held down.
+        if (gunbutton == zTRUE){
+            // uart0TxSendByte('Z');
+            guns_firing = zTRUE;
+            setMotorSpeed(ptrGunMotor, -60); //NOTE: (7.2 / 12.6) * 127 = 72.5714286
+            guns_firing_start_time = getMs();
+        }
+        
+        //Check whether to stop firing guns
+        if (guns_firing && clockHasElapsed(guns_firing_start_time, guns_firing_duration)){
+            // uart0TxSendByte('X');
+            guns_firing = zFALSE;
+            setMotorSpeed(ptrGunMotor, 0); //NOTE: (7.2 / 12.6) * 127 = 72.5714286
+            guns_firing_start_time = getMs();
+        }
+        
+        
+        //Activate solenoid for hopup feed unjammer
+        if (solenoidbutton == zTRUE){
+            // uart0TxSendByte('Z');
+            solenoid_on = zTRUE;
+            setDigitalOutput(10, HIGH);
+            solenoid_on_start_time = getMs();
+        }
+        
+        //Check whether to disable solenoid
+        if (solenoid_on && clockHasElapsed(solenoid_on_start_time, solenoid_on_duration)){
+            // uart0TxSendByte('X');
+            solenoid_on = zFALSE;
+            setDigitalOutput(10, LOW);
+            solenoid_on_start_time = getMs();
+        }
+    
+        delayMs(5);
     }
 }
