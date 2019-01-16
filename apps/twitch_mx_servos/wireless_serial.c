@@ -1189,7 +1189,7 @@ void main()
 		}
 #ifdef INCL_USB
 		//Unneeded?
-        usbComService();
+		usbComService();
 #endif
 
 		// ms = getMs();		// Get current time in ms

@@ -347,6 +347,7 @@ void errorService()
 
 /* process messages coming from Commander 
  *  format = 0xFF RIGHT_H RIGHT_V LEFT_H LEFT_V BUTTONS EXT checksum_cmdr */
+// Returns either CMDR_ALIVE_CNT or -1 depending on if a packet received or not
 int8 CmdrReadMsgs(){
 	int8 buttonval;
 	
@@ -535,24 +536,22 @@ void main()
 	solenoidbutton = zFALSE;
 	laserbutton = zFALSE;
 	
-    systemInit();
-
-	print_number2bytes(ptrGunMotor->pwmpin);
-	print_number2bytes(pwmPins[0]);
+	systemInit();
 	
 	// Initialize other stuff
 	index_cmdr = -1;
 
-    /// MAIN LOOP ///
-    while(1)
-    {
+	/// MAIN LOOP ///
+	while(1)
+	{
 		
-        // updateSerialMode();
-        boardService();
-        updateLeds();
-        errorService();
+		// updateSerialMode();
+		boardService();
+		updateLeds();
+		errorService();
 		
 		
+		// cmdr counts down from CMDR_ALIVE_CNT by -1 whenever no packets are received?
 		cmdrAlive = (uint8) CLAMP(cmdrAlive + CmdrReadMsgs(), 0, CMDR_ALIVE_CNT);
 		
 		// ms = getMs();		// Get current time in ms
