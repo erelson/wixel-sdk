@@ -1,6 +1,15 @@
 README
 ===========
 
+Most recently, a simple project for controlling a Dynamixel remotely from
+a computer with a pair of Wixels was added.
+
+:``python_remote_ax_control``:
+    Set up this app on the Wixel connected to an AX12 servo via a TriState buffer.
+    Set up the example wireless_serial app on the other wixel, and connect
+    it to your computer.  Run `python send_bytes.py -h` to learn how to send
+    instructions as part of a packet.
+
 Code for various robots using the Wixel MCU from Pololu.
 
 See the following within the ``apps`` folder:
