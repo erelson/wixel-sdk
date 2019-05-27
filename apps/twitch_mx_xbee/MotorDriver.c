@@ -86,19 +86,19 @@ void pwmSetTargetHighRes(uint8 pinNum, uint16 target)
         
         /// Because we are using Modulo mode, pins P0_2 and P1_2 are not usable for PWM
         switch(pinNum) {
-        case 3:
-            P0SEL |= pwmPinsOnPort0;
-            T1CC1 = target;  break;
-        case 11:
-            P1SEL |= pwmPinsOnPort1;
-            T1CC1 = target;  break;
+          case 3:
+              P0SEL |= pwmPinsOnPort0;
+              T1CC1 = target; break;
+          case 11:
+              P1SEL |= pwmPinsOnPort1;
+              T1CC1 = target; break;
 
-        case 4:
-            P0SEL |= pwmPinsOnPort0;
-            T1CC2 = target; break;
-        case 10:
-            P1SEL |= pwmPinsOnPort1;
-            T1CC2 = target; break;
+          case 4:
+              P0SEL |= pwmPinsOnPort0;
+              T1CC2 = target; break;
+          case 10:
+              P1SEL |= pwmPinsOnPort1;
+              T1CC2 = target; break;
         }
     }
 }
@@ -112,10 +112,6 @@ void pwmStart(uint8 XDATA * pins, uint8 numPins, uint16 frequency)
         pwmStop();
     }
 
-<<<<<<< HEAD
-=======
-    print_number2bytes(pins[0]);
->>>>>>> c528b30... Cleanup tabs in my old additions
     /// Configure the pins and initialize the internal data structures. ///
 
     // The user passes a null argument for pins, then don't reinitialize the pins.
@@ -131,12 +127,6 @@ void pwmStart(uint8 XDATA * pins, uint8 numPins, uint16 frequency)
             
             if (i < numPins)
             {
-<<<<<<< HEAD
-=======
-                print_number2bytes(pins[i]);
-                print_number2bytes(i);
-                print_number2bytes(55);
->>>>>>> c528b30... Cleanup tabs in my old additions
                 switch(pins[i]) {
                 case 3: P0_3 = 0; pwmPinsOnPort0 |= (1<<3); break;
                 case 4: P0_4 = 0; pwmPinsOnPort0 |= (1<<4); break;
