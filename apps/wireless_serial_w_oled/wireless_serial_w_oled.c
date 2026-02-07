@@ -1,21 +1,14 @@
-/* wireless_serial app:
- * This app allows you to connect two Wixels together to make a wireless,
- * bidirectional, lossless serial link.  
- * See description.txt or the Wixel User's Guide for more information.
+/* wireless serial + oled program
+
+ * For use with Arbotix commander, hooked up to UART
+ * receiving data from the Xbee.
+
+ * Adapted from code via:
+ * https://github.com/Oestoidea/oled-spectrum-analizer/
+ * To work with sparkfun's 64x48 single color OLED display.
  */
 
 /*
- * TODO: To avoid damage, don't enable nDTR and nRTS outputs by default.
- * TODO: use LEDs to give feedback about sending/receiving bytes.
- * TODO: UART flow control.
- * TODO: Obey CDC-ACM Set Line Coding commands:
- *       In USB-RADIO mode, bauds 0-255 would correspond to radio channels.
- * TODO: shut down radio when we are in a different serial mode
- * TODO: make the heartbeat blinks on the Wixels be synchronized (will require
- *       major changes to the radio_link library)
- * TODO: turn on red LED or flash it if the Wixel is in a mode that requires USB
- *       but has not reached the USB Configured State (this avoids the problem of
- *       having 0 LEDs on when the Wixel is in USB-UART mode and self powered)
  */
 
 /** Dependencies **************************************************************/
@@ -32,7 +25,6 @@
 #include <radio_registers.h>
 
 int32 CODE param_spi_on = 1;
-//int32 CODE param_height = 48;
 
 
 /** Parameters ****************************************************************/
@@ -374,6 +366,10 @@ uint8 power(uint8 base, uint16 n)
     return p;
 }
 
+/* Draws a blank character (5 columns wide) into the txData frame buffer.
+ * middle: index into txData for the center column of the character.
+ *         Writes to positions middle-2 through middle+2, with a single
+ *         dot at the center column. */
 void drawBlank(uint16 middle)
 {
     middle += 2;    txData[middle] = 0x0;
@@ -382,6 +378,12 @@ void drawBlank(uint16 middle)
     middle--;       txData[middle] = 0x0;
     middle--;       txData[middle] = 0x0;
 }
+
+/* Draws a digit character into the txData frame buffer.
+ * middle: index into txData for the center column of the character.
+ * number: digit to draw (0-9). 10 draws a "-" (small size only).
+ * size:   0 = small (3 columns wide, 5 pixels tall, digits 0-10),
+ *         1 = large (5 columns wide, 7 pixels tall, digits 1-3,5-7). */
 void drawNumber(uint16 middle, uint8 number, BIT size)
 {
     if (size)
